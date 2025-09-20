@@ -32,7 +32,7 @@ const LoginForm = () => {
     return (
         <div className="flex flex-col md:min-h-screen">
             {/* Heading stays at the top */}
-            <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-[70px] md:absolute">Sign In</h1>
+            <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-6 md:pt-[70px] md:absolute">Sign In</h1>
 
             {/* Centered Form */}
             <div className="flex items-center justify-center flex-1 px-4 ">
@@ -42,7 +42,7 @@ const LoginForm = () => {
                         <div className="flex flex-col">
                             <label className="mb-4 text-[#C9A94D]">Email</label>
                             <div className="relative">
-                                <input type="email" placeholder="Enter your email" {...register("email")} className="w-full px-7 py-5 border border-white rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none focus:ring-2 focus:ring-none" />
+                                <input type="email" placeholder="Enter E-mail" {...register("email")} className="w-full px-7 py-5 border border-white rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none focus:ring-2 focus:ring-none" />
 
                                 <button type="button" onClick={() => resetField("email")} className="absolute right-7 top-1/2 -translate-y-1/2 text-[#D4BA71] hover:text-[#C9A94D]">
                                     {/* &#10005; */}
@@ -56,7 +56,7 @@ const LoginForm = () => {
                         <div className="flex flex-col">
                             <label className="mb-4 text-[#C9A94D]">Password</label>
                             <div className="relative">
-                                <input type={showPassword ? "text" : "password"} placeholder="Enter your password" {...register("password")} className="w-full px-7 py-5 border border-white rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none focus:ring-2 focus:ring-none" />
+                                <input type={showPassword ? "text" : "password"} placeholder="Enter password" {...register("password")} className="w-full px-7 py-5 border border-white rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none focus:ring-2 focus:ring-none" />
 
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-7 top-1/2 -translate-y-1/2 text-[#D4BA71] hover:text-[#C9A94D]">
                                     {showPassword ? <EyeOff /> : <Eye />}
@@ -71,7 +71,7 @@ const LoginForm = () => {
 
                         {/* Login Button */}
                         <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors">
-                            Login
+                            Sign In
                         </button>
                     </form>
                 </div>
