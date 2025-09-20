@@ -1,0 +1,33 @@
+import LoginForm from "@/components/forms/auth/login_form";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+const page = () => {
+    return (
+        <div className="relative w-full h-screen">
+            <div className="absolute inset-0 bg-[url('/auth_bg.jpg')] bg-cover bg-center opacity-50"></div>
+
+            <div className="relative z-10 flex h-full flex-col md:flex-row justify-between">
+                <div className="w-full md:w-1/2 py-4 px-4 md:pt-[100px] md:pl-[100px] md:pb-[100px]">
+                    <Image src="/logo.png" width={307} height={61} alt="Letanest Logo" className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"></Image>
+                    <h1 className="text-white text-3xl md:text-[57px] mb-5">
+                        Hosting made simple - <br className="hidden md:block" /> list your nest in minutes.
+                    </h1>
+                    <p className="text-xl md:text-[28px] text-white">
+                        if you don’t an account you can{" "}
+                        <Link href="/auth/register" className="text-[#135E9A]">
+                            Register here!
+                        </Link>
+                    </p>
+                </div>
+
+                <div className="w-full md:w-1/2 bg-[#14213D] rounded-tl-[40px] rounded-tr-[40px] md:rounded-tl-[40px] md:rounded-bl-[40px] md:rounded-tr-none md:rounded-br-none md:px-[90px]">
+                    <LoginForm></LoginForm>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default page;
