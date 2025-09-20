@@ -12,7 +12,7 @@ const page = () => {
                     <Image src="/logo.png" width={307} height={61} alt="Letanest Logo" className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"></Image>
                 </div>
 
-                <div className="w-full md:w-full lg:w-1/2 bg-[#14213D] rounded-tl-[40px] rounded-tr-[40px] md:rounded-tl-[40px] md:rounded-bl-[40px] md:rounded-tr-none md:rounded-br-none md:px-[90px]">
+                <div className="w-full md:w-full lg:w-1/2 bg-[#14213D] rounded-tl-[40px] rounded-tr-[40px] lg:rounded-tl-[40px] lg:rounded-bl-[40px] lg:rounded-tr-none lg:rounded-br-none lg:px-[90px]">
                     <ResetPasswordForm></ResetPasswordForm>
                 </div>
             </div>
