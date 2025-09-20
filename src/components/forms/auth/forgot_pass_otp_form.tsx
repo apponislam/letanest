@@ -44,12 +44,17 @@ const OtpForm = () => {
         // axios request can go here
     };
 
+    const handleResend = () => {
+        console.log("Resend OTP clicked");
+        // Add resend OTP logic here (axios request)
+    };
+
     return (
         <div className="flex flex-col md:min-h-screen">
             <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-6 md:pt-[70px] md:absolute">Enter OTP</h1>
 
             <div className="flex items-center justify-center flex-1 px-4">
-                <div className="rounded-xl shadow-lg w-full p-6">
+                <div className="rounded-xl  w-full p-6">
                     <form className="flex flex-col gap-6 w-full" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <h1 className="text-xl text-center text-[#C9A94D] mb-4">Please check your email</h1>
@@ -85,6 +90,12 @@ const OtpForm = () => {
                         <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors">
                             Verify email
                         </button>
+                        <p className="text-center text-[#C9A94D] mt-4">
+                            Don’t receive any code?{" "}
+                            <button type="button" onClick={handleResend} className=" font-semibold">
+                                RESEND
+                            </button>
+                        </p>
                     </form>
                 </div>
             </div>
