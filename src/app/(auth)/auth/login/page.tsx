@@ -11,7 +11,7 @@ const page = () => {
 
             <div className="relative z-10 flex h-full flex-col lg:flex-row justify-between">
                 <div className="w-full md:w-full lg:w-1/2 py-4 px-4 md:pt-[100px] md:pl-[100px] md:pb-[100px]">
-                    <Image src="/logo.png" width={307} height={61} alt="Letanest Logo" className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"></Image>
+                    <Image src="/logo.svg" width={307} height={61} alt="Letanest Logo" className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"></Image>
                     <h1 className="text-white text-3xl md:text-[57px] mb-5">
                         Hosting made simple - <br className="hidden md:block" /> list your nest in minutes.
                     </h1>

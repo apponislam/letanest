@@ -96,15 +96,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/navigation";
-
-type Review = {
-    id: string;
-    reviewer: string;
-    profile_image: string;
-    rating: number;
-    comment: string;
-    country: string;
-};
+import { Review } from "@/types/review";
 
 export default function HomeReviewClient() {
     const [reviews, setReviews] = useState<Review[]>([]);

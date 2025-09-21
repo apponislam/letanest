@@ -1,4 +1,5 @@
 export interface Property {
+    _id: string;
     title: string;
     token: string;
     rating: number;
@@ -6,6 +7,7 @@ export interface Property {
     price_per_night: number;
     rooms: number;
     bathrooms: number;
+    guests: number;
     area: string;
     description: string;
     images: string[];

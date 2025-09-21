@@ -41,7 +41,7 @@ const Header = () => {
                     {/* <div className={`flex items-center justify-between ${scrolled ? "border-b-2" : "md:border-2 py-7 px-6"} border-[#C9A94D]`}> */}
                     {/* Left: Logo */}
                     <div className="flex items-center gap-3">
-                        <Image src="/logo.png" alt="Logo" width={120} height={40} className="h-10 w-auto" />
+                        <Image src="/logo.svg" alt="Logo" width={120} height={40} className="h-10 w-auto" />
                     </div>
 
                     {/* Desktop Menu */}
@@ -66,14 +66,14 @@ const Header = () => {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <button className="md:hidden text-gray-700" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                    <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
             </div>
 
             {/* Mobile Menu with animation */}
-            <div className={`md:hidden overflow-hidden transition-[max-height,opacity] backdrop-blur-md bg-[#C9A94D]/20 duration-300 ease-in-out ${mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
+            <div className={`md:hidden overflow-hidden transition-[max-height,opacity] backdrop-blur-md bg-white/20 duration-300 ease-in-out ${mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
                 <nav className="flex flex-col gap-4 p-4 bg-transparent border-t border-gray-200">
                     {menuItems.map((item) => (
                         <Link key={item.name} href={item.href} className="text-[#C9A94D] hover:text-[#C9A94D] font-medium" onClick={() => setMobileMenuOpen(false)}>
