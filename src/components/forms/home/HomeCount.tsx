@@ -36,8 +36,8 @@ const HomeCount = () => {
     }, [stats]); // now safe, stats is memoized
 
     return (
-        <div className="container mx-auto mb-20">
-            <div className="flex items-center justify-between">
+        <div className="container mx-auto mb-8 md:mb-20">
+            <div className="flex mx-5 md:mx-0 md:items-center justify-between flex-col md:flex-row gap-5">
                 {stats.map((stat, idx) => (
                     <div key={idx} className="flex items-center gap-3">
                         <div className="bg-[#C9A94D] rounded-[8px] h-[100px] w-[100px] flex justify-center items-center">
