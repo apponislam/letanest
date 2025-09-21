@@ -1,4 +1,8 @@
+import FeaturedNests from "@/components/forms/home/FeaturedNests";
 import HomeCount from "@/components/forms/home/HomeCount";
+import HomeFooter from "@/components/forms/home/HomeFooter";
+import TrendingListing from "@/components/forms/home/TrendingListing";
+import BookingCards from "@/components/home/BookingCards";
 import Heroarea from "@/components/home/Heroarea";
 import React from "react";
 
@@ -9,16 +13,10 @@ const page = () => {
 
             <main className="relative z-10 mt-[900px] md:mt-[100vh]">
                 <HomeCount></HomeCount>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
-                <h1 className="text-9xl">this is home page</h1>
+                <FeaturedNests></FeaturedNests>
+                <BookingCards></BookingCards>
+                <TrendingListing></TrendingListing>
+                <HomeFooter></HomeFooter>
             </main>
         </>
     );

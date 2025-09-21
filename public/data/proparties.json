@@ -1,0 +1,403 @@
+{
+    "success": true,
+    "message": "property fetch succesfully",
+    "data": [
+        {
+            "title": "Modern City Penthouse with Panoramic views",
+            "token": "000001",
+            "rating": 4.5,
+            "reviews": 32,
+            "price_per_night": 750,
+            "rooms": 3,
+            "bathrooms": 2,
+            "area": "2700 sq.ft",
+            "description": "A luxurious modern penthouse offering breathtaking panoramic city views, stylish design, and top amenities for a comfortable stay.",
+            "images": ["/proparties/house1.png", "/proparties/house1.png", "/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "TV", "Gym", "Private Balcony", "Swimming Pool", "Parking"],
+            "sleeping_arrangements": [
+                { "bedroom": "Bedroom 1", "beds": "1 King bed", "images": ["bedroom1.jpg"] },
+                { "bedroom": "Bedroom 2", "beds": "1 Queen bed", "images": ["bedroom2.jpg"] }
+            ],
+            "host": {
+                "name": "Jhon",
+                "role": "Host",
+                "profile_image": "jhon.jpg",
+                "reviews": [
+                    { "reviewer": "Alex", "rating": 5, "comment": "Fantastic place, very clean!" },
+                    { "reviewer": "David", "rating": 4, "comment": "Views are amazing, location a bit far." }
+                ]
+            },
+            "location": {
+                "map": "map1.jpg",
+                "nearby": [
+                    { "place": "Casino Hill", "distance": "0.3 mi" },
+                    { "place": "City Mall", "distance": "0.5 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Cozy Beachfront Villa",
+            "token": "000002",
+            "rating": 4.8,
+            "reviews": 54,
+            "price_per_night": 1200,
+            "rooms": 4,
+            "bathrooms": 3,
+            "area": "3200 sq.ft",
+            "description": "Wake up to the sound of waves in this beachfront villa with private pool and direct beach access.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Air Conditioning", "Private Pool", "BBQ Grill", "Beach Access"],
+            "sleeping_arrangements": [
+                { "bedroom": "Master Suite", "beds": "1 King bed", "images": ["villa1.jpg"] },
+                { "bedroom": "Guest Room", "beds": "2 Single beds", "images": ["villa2.jpg"] }
+            ],
+            "host": {
+                "name": "Sophia",
+                "role": "Superhost",
+                "profile_image": "sophia.jpg",
+                "reviews": [
+                    { "reviewer": "Mark", "rating": 5, "comment": "Incredible beachfront experience." },
+                    { "reviewer": "Emma", "rating": 5, "comment": "Loved the pool and private beach!" }
+                ]
+            },
+            "location": {
+                "map": "map2.jpg",
+                "nearby": [
+                    { "place": "Beach Bar", "distance": "0.2 mi" },
+                    { "place": "Surf Club", "distance": "0.6 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Luxury Mountain Cabin",
+            "token": "000003",
+            "rating": 4.9,
+            "reviews": 87,
+            "price_per_night": 600,
+            "rooms": 3,
+            "bathrooms": 2,
+            "area": "1800 sq.ft",
+            "description": "Nestled in the mountains, this luxury cabin offers stunning views, a fireplace, and a hot tub.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Fireplace", "Hot Tub", "Parking", "Mountain View"],
+            "sleeping_arrangements": [
+                { "bedroom": "Bedroom 1", "beds": "1 King bed", "images": ["cabin1.jpg"] },
+                { "bedroom": "Bedroom 2", "beds": "1 Queen bed", "images": ["cabin2.jpg"] }
+            ],
+            "host": {
+                "name": "Michael",
+                "role": "Host",
+                "profile_image": "michael.jpg",
+                "reviews": [
+                    { "reviewer": "Sophia", "rating": 5, "comment": "Perfect for a winter getaway!" },
+                    { "reviewer": "Liam", "rating": 4, "comment": "Great cabin, but road is steep." }
+                ]
+            },
+            "location": {
+                "map": "map3.jpg",
+                "nearby": [
+                    { "place": "Hiking Trail", "distance": "0.1 mi" },
+                    { "place": "Ski Resort", "distance": "2 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Urban Studio Apartment",
+            "token": "000004",
+            "rating": 4.3,
+            "reviews": 22,
+            "price_per_night": 300,
+            "rooms": 1,
+            "bathrooms": 1,
+            "area": "600 sq.ft",
+            "description": "Compact and modern studio located in the heart of downtown, perfect for solo travelers.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Kitchen", "Washer", "Elevator", "Smart TV"],
+            "sleeping_arrangements": [{ "bedroom": "Studio", "beds": "1 Double bed", "images": ["studio1.jpg"] }],
+            "host": {
+                "name": "Emma",
+                "role": "Host",
+                "profile_image": "emma.jpg",
+                "reviews": [
+                    { "reviewer": "Noah", "rating": 4, "comment": "Great location, very central." },
+                    { "reviewer": "Ava", "rating": 5, "comment": "Perfect little apartment for my stay." }
+                ]
+            },
+            "location": {
+                "map": "map4.jpg",
+                "nearby": [
+                    { "place": "City Square", "distance": "0.1 mi" },
+                    { "place": "Metro Station", "distance": "0.3 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Countryside Farmhouse",
+            "token": "000005",
+            "rating": 4.7,
+            "reviews": 45,
+            "price_per_night": 500,
+            "rooms": 5,
+            "bathrooms": 3,
+            "area": "3500 sq.ft",
+            "description": "Experience peace and quiet in this spacious farmhouse surrounded by greenery.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Parking", "Garden", "BBQ", "Pet Friendly"],
+            "sleeping_arrangements": [
+                { "bedroom": "Bedroom 1", "beds": "1 King bed", "images": ["farm1.jpg"] },
+                { "bedroom": "Bedroom 2", "beds": "2 Single beds", "images": ["farm2.jpg"] }
+            ],
+            "host": {
+                "name": "Oliver",
+                "role": "Superhost",
+                "profile_image": "oliver.jpg",
+                "reviews": [
+                    { "reviewer": "Grace", "rating": 5, "comment": "Felt like home, amazing host." },
+                    { "reviewer": "Ethan", "rating": 4, "comment": "Very peaceful, kids loved the garden." }
+                ]
+            },
+            "location": {
+                "map": "map5.jpg",
+                "nearby": [
+                    { "place": "Village Market", "distance": "0.5 mi" },
+                    { "place": "Countryside Park", "distance": "1.2 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Desert Luxury Retreat",
+            "token": "000006",
+            "rating": 4.6,
+            "reviews": 38,
+            "price_per_night": 950,
+            "rooms": 3,
+            "bathrooms": 2,
+            "area": "2500 sq.ft",
+            "description": "A unique desert retreat with infinity pool and stunning sunset views.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Infinity Pool", "Air Conditioning", "Parking", "Outdoor Lounge"],
+            "sleeping_arrangements": [{ "bedroom": "Bedroom 1", "beds": "1 King bed", "images": ["desert1.jpg"] }],
+            "host": {
+                "name": "Isabella",
+                "role": "Host",
+                "profile_image": "isabella.jpg",
+                "reviews": [
+                    { "reviewer": "Lucas", "rating": 5, "comment": "The pool was amazing, very relaxing." },
+                    { "reviewer": "Mia", "rating": 4, "comment": "Beautiful property, but remote area." }
+                ]
+            },
+            "location": {
+                "map": "map6.jpg",
+                "nearby": [
+                    { "place": "Desert Safari", "distance": "2 mi" },
+                    { "place": "Sunset Point", "distance": "1.5 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Lakeview Cottage",
+            "token": "000007",
+            "rating": 4.9,
+            "reviews": 67,
+            "price_per_night": 450,
+            "rooms": 2,
+            "bathrooms": 1,
+            "area": "1400 sq.ft",
+            "description": "Charming lakeside cottage with direct access to the water and outdoor deck.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Lake Access", "Firepit", "BBQ Grill", "Pet Friendly"],
+            "sleeping_arrangements": [{ "bedroom": "Bedroom 1", "beds": "1 Queen bed", "images": ["cottage1.jpg"] }],
+            "host": {
+                "name": "William",
+                "role": "Superhost",
+                "profile_image": "william.jpg",
+                "reviews": [
+                    { "reviewer": "Ella", "rating": 5, "comment": "Loved kayaking on the lake!" },
+                    { "reviewer": "James", "rating": 5, "comment": "Very cozy, perfect escape." }
+                ]
+            },
+            "location": {
+                "map": "map7.jpg",
+                "nearby": [
+                    { "place": "Fishing Dock", "distance": "0.2 mi" },
+                    { "place": "Nature Trail", "distance": "0.4 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Tropical Island Bungalow",
+            "token": "000008",
+            "rating": 4.7,
+            "reviews": 52,
+            "price_per_night": 1100,
+            "rooms": 2,
+            "bathrooms": 2,
+            "area": "1600 sq.ft",
+            "description": "Stay in a tropical paradise with this private bungalow surrounded by palm trees.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Private Pool", "Beach Access", "Outdoor Shower", "Hammocks"],
+            "sleeping_arrangements": [{ "bedroom": "Bedroom 1", "beds": "1 King bed", "images": ["bungalow1.jpg"] }],
+            "host": {
+                "name": "Amelia",
+                "role": "Superhost",
+                "profile_image": "amelia.jpg",
+                "reviews": [
+                    { "reviewer": "Jack", "rating": 5, "comment": "Felt like a dream vacation!" },
+                    { "reviewer": "Lily", "rating": 4, "comment": "Great place, food options limited nearby." }
+                ]
+            },
+            "location": {
+                "map": "map8.jpg",
+                "nearby": [
+                    { "place": "Beach Bar", "distance": "0.3 mi" },
+                    { "place": "Snorkeling Spot", "distance": "0.7 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Rustic Forest Lodge",
+            "token": "000009",
+            "rating": 4.4,
+            "reviews": 29,
+            "price_per_night": 550,
+            "rooms": 3,
+            "bathrooms": 2,
+            "area": "2000 sq.ft",
+            "description": "A rustic lodge surrounded by forest trails, perfect for nature lovers.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Fireplace", "Parking", "Hiking Trails", "BBQ"],
+            "sleeping_arrangements": [
+                { "bedroom": "Bedroom 1", "beds": "1 Queen bed", "images": ["forest1.jpg"] },
+                { "bedroom": "Bedroom 2", "beds": "2 Single beds", "images": ["forest2.jpg"] }
+            ],
+            "host": {
+                "name": "Benjamin",
+                "role": "Host",
+                "profile_image": "benjamin.jpg",
+                "reviews": [
+                    { "reviewer": "Olivia", "rating": 5, "comment": "We loved hiking right outside the door." },
+                    { "reviewer": "Henry", "rating": 4, "comment": "Cabin was nice but no cell service." }
+                ]
+            },
+            "location": {
+                "map": "map9.jpg",
+                "nearby": [
+                    { "place": "Forest Trail", "distance": "0.1 mi" },
+                    { "place": "River Bank", "distance": "0.8 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Ski Resort Chalet",
+            "token": "000010",
+            "rating": 4.9,
+            "reviews": 92,
+            "price_per_night": 1300,
+            "rooms": 5,
+            "bathrooms": 4,
+            "area": "4000 sq.ft",
+            "description": "Luxury ski chalet with private sauna, fireplace, and ski-in/ski-out access.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Sauna", "Fireplace", "Ski Access", "Parking"],
+            "sleeping_arrangements": [
+                { "bedroom": "Master Bedroom", "beds": "1 King bed", "images": ["chalet1.jpg"] },
+                { "bedroom": "Guest Bedroom", "beds": "2 Double beds", "images": ["chalet2.jpg"] }
+            ],
+            "host": {
+                "name": "Charlotte",
+                "role": "Superhost",
+                "profile_image": "charlotte.jpg",
+                "reviews": [
+                    { "reviewer": "Mason", "rating": 5, "comment": "Amazing chalet, perfect for skiing trip." },
+                    { "reviewer": "Harper", "rating": 5, "comment": "Best ski lodge experience ever!" }
+                ]
+            },
+            "location": {
+                "map": "map10.jpg",
+                "nearby": [
+                    { "place": "Ski Lift", "distance": "0.1 mi" },
+                    { "place": "Mountain Cafe", "distance": "0.3 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Ski Resort Chalet",
+            "token": "000011",
+            "rating": 4.9,
+            "reviews": 92,
+            "price_per_night": 1300,
+            "rooms": 5,
+            "bathrooms": 4,
+            "area": "4000 sq.ft",
+            "description": "Luxury ski chalet with private sauna, fireplace, and ski-in/ski-out access.",
+            "images": ["/proparties/house1.png"],
+            "address": "506 Division Road Pembroke Pines, FL 33028 ",
+            "amenities": ["Wifi", "Sauna", "Fireplace", "Ski Access", "Parking"],
+            "sleeping_arrangements": [
+                { "bedroom": "Master Bedroom", "beds": "1 King bed", "images": ["chalet1.jpg"] },
+                { "bedroom": "Guest Bedroom", "beds": "2 Double beds", "images": ["chalet2.jpg"] }
+            ],
+            "host": {
+                "name": "Charlotte",
+                "role": "Superhost",
+                "profile_image": "charlotte.jpg",
+                "reviews": [
+                    { "reviewer": "Mason", "rating": 5, "comment": "Amazing chalet, perfect for skiing trip." },
+                    { "reviewer": "Harper", "rating": 5, "comment": "Best ski lodge experience ever!" }
+                ]
+            },
+            "location": {
+                "map": "map10.jpg",
+                "nearby": [
+                    { "place": "Ski Lift", "distance": "0.1 mi" },
+                    { "place": "Mountain Cafe", "distance": "0.3 mi" }
+                ]
+            }
+        },
+        {
+            "title": "Mountain View Cabin",
+            "token": "000013",
+            "rating": 4.7,
+            "reviews": 58,
+            "price_per_night": 900,
+            "rooms": 3,
+            "bathrooms": 2,
+            "area": "2200 sq.ft",
+            "description": "Charming cabin with breathtaking mountain views, perfect for a nature retreat.",
+            "images": ["/proparties/house1.png"],
+            "address": "456 Summit Lane, Aspen, CO 81611",
+            "amenities": ["Wifi", "Fireplace", "Hot Tub", "Parking", "Hiking Access"],
+            "sleeping_arrangements": [
+                { "bedroom": "Master Bedroom", "beds": "1 King bed", "images": ["cabin1.jpg"] },
+                { "bedroom": "Guest Bedroom 1", "beds": "2 Twin beds", "images": ["cabin2.jpg"] },
+                { "bedroom": "Guest Bedroom 2", "beds": "1 Queen bed", "images": ["cabin3.jpg"] }
+            ],
+            "host": {
+                "name": "Ethan",
+                "role": "Host",
+                "profile_image": "ethan.jpg",
+                "reviews": [
+                    { "reviewer": "Isabella", "rating": 5, "comment": "Amazing cabin, perfect mountain getaway!" },
+                    { "reviewer": "Lucas", "rating": 4, "comment": "Great views and cozy interior." }
+                ]
+            },
+            "location": {
+                "map": "map13.jpg",
+                "nearby": [
+                    { "place": "Ski Resort", "distance": "0.3 mi" },
+                    { "place": "Mountain Cafe", "distance": "0.5 mi" }
+                ]
+            }
+        }
+    ]
+}
