@@ -18,7 +18,7 @@ const HomeFilterForm = () => {
 
     return (
         <div>
-            <div className="flex gap-4 w-full mb-10">
+            <div className="flex flex-col md:flex-row gap-4 md:w-full mb-10">
                 {/* First Dropdown */}
                 <div className="flex-1">
                     <DropdownMenu>
@@ -73,7 +73,7 @@ const HomeFilterForm = () => {
                     </DropdownMenu>
                 </div>
             </div>
-            <div className="mx-20">
+            <div className="md:mx-20 mx-4">
                 <div className="w-auto relative mb-4">
                     <h1 className="text-[#C9A94D] mb-4">Price Range</h1>
                     <div className="relative w-full h-6 mb-2">
