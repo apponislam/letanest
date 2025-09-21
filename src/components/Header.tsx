@@ -19,7 +19,7 @@ const Header = () => {
     useEffect(() => {
         const handleScroll = () => {
             const y = window.scrollY;
-            console.log(y);
+            // console.log(y);
 
             // Hysteresis: different thresholds for on/off
             if (y > 180 && !scrolled) {

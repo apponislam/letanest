@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import PropertyCard from "@/components/PropertyCard";
 import { Property } from "@/types/proparty";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Grid } from "swiper/modules";
@@ -26,7 +25,10 @@ export default function TrendingListing() {
         <div className="py-16">
             <div className="container mx-auto">
                 <div className="mx-4 md:mx-0">
-                    <h1 className="text-2xl md:text-[32px] font-bold text-[#C9A94D] mb-10">Trending Listings</h1>
+                    <div className=" mb-10">
+                        <h1 className="text-2xl md:text-[32px] font-bold text-[#C9A94D]">Trending Listings</h1>
+                        <p className="text-[#D4BA71]">A selection of listings verified for quality</p>
+                    </div>
 
                     <Swiper
                         modules={[Navigation, Grid]}
@@ -52,12 +54,12 @@ export default function TrendingListing() {
 
                     {/* Navigation Buttons */}
                     <div className="flex justify-end items-center mt-4 gap-4">
-                        <Button className="swiper-prev flex items-center justify-center bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
+                        <button className="swiper-prev flex items-center justify-center bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
                             <ArrowLeft />
-                        </Button>
-                        <Button className="swiper-next flex items-center justify-center bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
+                        </button>
+                        <button className="swiper-next flex items-center justify-center bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
                             <ArrowRight />
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </div>

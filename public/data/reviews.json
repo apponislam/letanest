@@ -1,0 +1,86 @@
+{
+    "success": true,
+    "message": "reviews fetched successfully",
+    "data": [
+        {
+            "id": "r1",
+            "reviewer": "Mason",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 5,
+            "comment": "Amazing chalet! Perfect skiing trip, cozy, clean, and well-equipped with all amenities. Highly recommend for a winter getaway.",
+            "country": "USA"
+        },
+        {
+            "id": "r2",
+            "reviewer": "Harper",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 5,
+            "comment": "Best ski lodge experience ever! Comfortable stay, friendly host, great location, and everything matched the description perfectly.",
+            "country": "Canada"
+        },
+        {
+            "id": "r3",
+            "reviewer": "Charlotte",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 4,
+            "comment": "Comfortable stay with a great host. The chalet was clean, cozy, and conveniently located for skiing and local attractions.",
+            "country": "Switzerland"
+        },
+        {
+            "id": "r4",
+            "reviewer": "Liam",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 5,
+            "comment": "Perfect location with top-notch amenities. Cozy interiors, easy access to ski lifts, and an unforgettable experience overall.",
+            "country": "France"
+        },
+        {
+            "id": "r5",
+            "reviewer": "Emma",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 4,
+            "comment": "Loved the cozy vibe and clean space. Host was friendly, and the chalet had everything needed for a relaxing trip.",
+            "country": "Austria"
+        },
+        {
+            "id": "r6",
+            "reviewer": "Noah",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 5,
+            "comment": "Exceptional service, breathtaking view, and fully equipped chalet. The perfect combination of comfort and convenience for a ski vacation.",
+            "country": "Italy"
+        },
+        {
+            "id": "r7",
+            "reviewer": "Olivia",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 4,
+            "comment": "Very pleasant stay, friendly hosts, clean rooms, and great access to ski slopes. Highly recommended for a family or friends trip.",
+            "country": "Germany"
+        },
+        {
+            "id": "r8",
+            "reviewer": "Ethan",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 5,
+            "comment": "Perfect getaway spot! Comfortable beds, well-equipped kitchen, cozy interiors, and amazing views. Everything was as described.",
+            "country": "Norway"
+        },
+        {
+            "id": "r9",
+            "reviewer": "Ava",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 5,
+            "comment": "Clean, comfortable, and easy to book. Everything was well-maintained, and the location was perfect for skiing and dining nearby.",
+            "country": "Sweden"
+        },
+        {
+            "id": "r10",
+            "reviewer": "William",
+            "profile_image": "/home/avatar.jpg",
+            "rating": 4,
+            "comment": "Great place for families, spacious and well-equipped. The chalet provided comfort, convenience, and a wonderful base for skiing adventures.",
+            "country": "Finland"
+        }
+    ]
+}

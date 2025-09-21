@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import PropertyCard from "@/components/PropertyCard";
 import { Property } from "@/types/proparty";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 // Swiper
@@ -64,12 +63,12 @@ export default function FeaturedNests() {
 
                     {/* Navigation Buttons */}
                     <div className="flex justify-end items-center mt-4 gap-4 ">
-                        <Button className="swiper-prev flex items-center gap-2 bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
+                        <button className="swiper-prev flex items-center justify-center bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
                             <ArrowLeft />
-                        </Button>
-                        <Button className="swiper-next flex items-center gap-2 bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
+                        </button>
+                        <button className="swiper-next flex items-center justify-center bg-[#C9A94D] border border-[#C9A94D] rounded-full h-12 w-12 hover:bg-transparent hover:text-[#C9A94D]">
                             <ArrowRight />
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </div>
