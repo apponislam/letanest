@@ -65,7 +65,7 @@ const LoginForm = () => {
                             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                         </div>
 
-                        <Link href="/auth/forgot-pass" className="text-right text-[#C9A94D]">
+                        <Link href="/auth/forget-pass" className="text-right text-[#C9A94D]">
                             Recovery Password
                         </Link>
 

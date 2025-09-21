@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import Image from "next/image";
 import { Property } from "@/types/proparty";
+import Link from "next/link";
 
 interface PropertyCardProps {
     property: Property;
@@ -10,7 +11,7 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property, status = "For rent" }: PropertyCardProps) {
-    const { title, rating, reviews, address, rooms, bathrooms, price_per_night, images } = property;
+    const { _id, title, rating, reviews, address, rooms, bathrooms, price_per_night, images } = property;
     const image = images[0] || "/proparties/default.png";
     return (
         <Card className="overflow-hidden shadow-md border-0 gap-0 rounded-[10px] py-0 bg-[#FAF6ED]">
@@ -54,7 +55,9 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                     <p className="text-base font-semibold text-[#14213D]">
                         Starting From <span className="text-black">${price_per_night.toLocaleString()}</span>
                     </p>
-                    <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px]">Details</Button>
+                    <Link href={`/listings/${_id}`}>
+                        <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px]">Details</Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>

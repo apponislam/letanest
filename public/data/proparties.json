@@ -3,13 +3,15 @@
     "message": "property fetch succesfully",
     "data": [
         {
+            "_id": "1",
             "title": "Modern City Penthouse with Panoramic views",
             "token": "000001",
-            "rating": 4.5,
+            "rating": 3,
             "reviews": 32,
             "price_per_night": 750,
             "rooms": 3,
             "bathrooms": 2,
+            "guests": 6,
             "area": "2700 sq.ft",
             "description": "A luxurious modern penthouse offering breathtaking panoramic city views, stylish design, and top amenities for a comfortable stay.",
             "images": ["/proparties/house1.png", "/proparties/house1.png", "/proparties/house1.png"],
@@ -22,7 +24,7 @@
             "host": {
                 "name": "Jhon",
                 "role": "Host",
-                "profile_image": "jhon.jpg",
+                "profile_image": "/home/avatar.jpg",
                 "reviews": [
                     { "reviewer": "Alex", "rating": 5, "comment": "Fantastic place, very clean!" },
                     { "reviewer": "David", "rating": 4, "comment": "Views are amazing, location a bit far." }
@@ -37,6 +39,7 @@
             }
         },
         {
+            "_id": "2",
             "title": "Cozy Beachfront Villa",
             "token": "000002",
             "rating": 4.8,
@@ -44,6 +47,7 @@
             "price_per_night": 1200,
             "rooms": 4,
             "bathrooms": 3,
+            "guests": 6,
             "area": "3200 sq.ft",
             "description": "Wake up to the sound of waves in this beachfront villa with private pool and direct beach access.",
             "images": ["/proparties/house1.png"],
@@ -56,7 +60,7 @@
             "host": {
                 "name": "Sophia",
                 "role": "Superhost",
-                "profile_image": "sophia.jpg",
+                "profile_image": "/home/avatar.jpg",
                 "reviews": [
                     { "reviewer": "Mark", "rating": 5, "comment": "Incredible beachfront experience." },
                     { "reviewer": "Emma", "rating": 5, "comment": "Loved the pool and private beach!" }
@@ -71,6 +75,7 @@
             }
         },
         {
+            "_id": "3",
             "title": "Luxury Mountain Cabin",
             "token": "000003",
             "rating": 4.9,
@@ -78,6 +83,7 @@
             "price_per_night": 600,
             "rooms": 3,
             "bathrooms": 2,
+            "guests": 6,
             "area": "1800 sq.ft",
             "description": "Nestled in the mountains, this luxury cabin offers stunning views, a fireplace, and a hot tub.",
             "images": ["/proparties/house1.png"],
@@ -90,7 +96,7 @@
             "host": {
                 "name": "Michael",
                 "role": "Host",
-                "profile_image": "michael.jpg",
+                "profile_image": "/home/avatar.jpg",
                 "reviews": [
                     { "reviewer": "Sophia", "rating": 5, "comment": "Perfect for a winter getaway!" },
                     { "reviewer": "Liam", "rating": 4, "comment": "Great cabin, but road is steep." }
@@ -105,6 +111,7 @@
             }
         },
         {
+            "_id": "4",
             "title": "Urban Studio Apartment",
             "token": "000004",
             "rating": 4.3,
@@ -112,6 +119,7 @@
             "price_per_night": 300,
             "rooms": 1,
             "bathrooms": 1,
+            "guests": 6,
             "area": "600 sq.ft",
             "description": "Compact and modern studio located in the heart of downtown, perfect for solo travelers.",
             "images": ["/proparties/house1.png"],
@@ -136,6 +144,7 @@
             }
         },
         {
+            "_id": "5",
             "title": "Countryside Farmhouse",
             "token": "000005",
             "rating": 4.7,
@@ -143,6 +152,7 @@
             "price_per_night": 500,
             "rooms": 5,
             "bathrooms": 3,
+            "guests": 6,
             "area": "3500 sq.ft",
             "description": "Experience peace and quiet in this spacious farmhouse surrounded by greenery.",
             "images": ["/proparties/house1.png"],
@@ -170,6 +180,7 @@
             }
         },
         {
+            "_id": "6",
             "title": "Desert Luxury Retreat",
             "token": "000006",
             "rating": 4.6,
@@ -177,6 +188,7 @@
             "price_per_night": 950,
             "rooms": 3,
             "bathrooms": 2,
+            "guests": 6,
             "area": "2500 sq.ft",
             "description": "A unique desert retreat with infinity pool and stunning sunset views.",
             "images": ["/proparties/house1.png"],
@@ -201,6 +213,7 @@
             }
         },
         {
+            "_id": "7",
             "title": "Lakeview Cottage",
             "token": "000007",
             "rating": 4.9,
@@ -208,6 +221,7 @@
             "price_per_night": 450,
             "rooms": 2,
             "bathrooms": 1,
+            "guests": 6,
             "area": "1400 sq.ft",
             "description": "Charming lakeside cottage with direct access to the water and outdoor deck.",
             "images": ["/proparties/house1.png"],
@@ -232,6 +246,7 @@
             }
         },
         {
+            "_id": "8",
             "title": "Tropical Island Bungalow",
             "token": "000008",
             "rating": 4.7,
@@ -239,6 +254,7 @@
             "price_per_night": 1100,
             "rooms": 2,
             "bathrooms": 2,
+            "guests": 6,
             "area": "1600 sq.ft",
             "description": "Stay in a tropical paradise with this private bungalow surrounded by palm trees.",
             "images": ["/proparties/house1.png"],
@@ -263,6 +279,7 @@
             }
         },
         {
+            "_id": "9",
             "title": "Rustic Forest Lodge",
             "token": "000009",
             "rating": 4.4,
@@ -270,6 +287,7 @@
             "price_per_night": 550,
             "rooms": 3,
             "bathrooms": 2,
+            "guests": 6,
             "area": "2000 sq.ft",
             "description": "A rustic lodge surrounded by forest trails, perfect for nature lovers.",
             "images": ["/proparties/house1.png"],
@@ -297,6 +315,7 @@
             }
         },
         {
+            "_id": "10",
             "title": "Ski Resort Chalet",
             "token": "000010",
             "rating": 4.9,
@@ -304,6 +323,7 @@
             "price_per_night": 1300,
             "rooms": 5,
             "bathrooms": 4,
+            "guests": 6,
             "area": "4000 sq.ft",
             "description": "Luxury ski chalet with private sauna, fireplace, and ski-in/ski-out access.",
             "images": ["/proparties/house1.png"],
@@ -331,6 +351,7 @@
             }
         },
         {
+            "_id": "11",
             "title": "Ski Resort Chalet",
             "token": "000011",
             "rating": 4.9,
@@ -338,6 +359,7 @@
             "price_per_night": 1300,
             "rooms": 5,
             "bathrooms": 4,
+            "guests": 6,
             "area": "4000 sq.ft",
             "description": "Luxury ski chalet with private sauna, fireplace, and ski-in/ski-out access.",
             "images": ["/proparties/house1.png"],
@@ -365,6 +387,7 @@
             }
         },
         {
+            "_id": "12",
             "title": "Mountain View Cabin",
             "token": "000013",
             "rating": 4.7,
@@ -372,6 +395,7 @@
             "price_per_night": 900,
             "rooms": 3,
             "bathrooms": 2,
+            "guests": 6,
             "area": "2200 sq.ft",
             "description": "Charming cabin with breathtaking mountain views, perfect for a nature retreat.",
             "images": ["/proparties/house1.png"],
