@@ -21,6 +21,8 @@ export interface Property {
     host: {
         name: string;
         role: string;
+        totalrating: number;
+        createdAt?: Date;
         profile_image: string;
         reviews: {
             reviewer: string;
