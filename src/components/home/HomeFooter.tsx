@@ -61,8 +61,8 @@ const HomeFooter = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/terms-of-service" className="hover:underline">
-                                    Terms of Service
+                                <Link href="/terms-of-conditions" className="hover:underline">
+                                    Terms of Conditions
                                 </Link>
                             </li>
                             <li>

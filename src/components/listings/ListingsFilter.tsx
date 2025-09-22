@@ -294,7 +294,7 @@ export default function ListingsFilter() {
                                 {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((page) => {
                                     if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
                                         return (
-                                            <button key={page} onClick={() => handlePageChange(page)} className={`px-4 py-2 border rounded-full font-medium ${currentPage === page ? "bg-[#C9A94D] text-white border-[#C9A94D]" : "bg-transparent text-white border-[#C9A94D] hover:bg-[#C9A94D]/20"}`}>
+                                            <button key={page} onClick={() => handlePageChange(page)} className={`px-4 py-2  rounded-full font-medium ${currentPage === page ? "bg-[#C9A94D] text-white border border-[#C9A94D]" : "bg-transparent text-white border-[#C9A94D] hover:bg-[#C9A94D]/20"}`}>
                                                 {page}
                                             </button>
                                         );

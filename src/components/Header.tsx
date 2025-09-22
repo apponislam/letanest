@@ -41,7 +41,9 @@ const Header = () => {
                     {/* <div className={`flex items-center justify-between ${scrolled ? "border-b-2" : "md:border-2 py-7 px-6"} border-[#C9A94D]`}> */}
                     {/* Left: Logo */}
                     <div className="flex items-center gap-3">
-                        <Image src="/logo.svg" alt="Logo" width={120} height={40} className="h-6 md:h-10 w-auto" />
+                        <Link href="/">
+                            <Image src="/logo.svg" alt="Logo" width={120} height={40} className="h-6 md:h-10 w-auto" />
+                        </Link>
                     </div>
 
                     {/* Desktop Menu */}
