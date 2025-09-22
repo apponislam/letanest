@@ -31,9 +31,16 @@ export interface Property {
         }[];
     };
     location: {
-        map: string;
+        coordinates: {
+            lat: number;
+            lng: number;
+        };
         nearby: {
             place: string;
+            coordinates: {
+                lat: number;
+                lng: number;
+            };
             distance: string;
         }[];
     };

@@ -33,10 +33,21 @@
                 ]
             },
             "location": {
-                "map": "map1.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Casino Hill", "distance": "0.3 mi" },
-                    { "place": "City Mall", "distance": "0.5 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -70,10 +81,21 @@
                 ]
             },
             "location": {
-                "map": "map2.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Beach Bar", "distance": "0.2 mi" },
-                    { "place": "Surf Club", "distance": "0.6 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -107,10 +129,21 @@
                 ]
             },
             "location": {
-                "map": "map3.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Hiking Trail", "distance": "0.1 mi" },
-                    { "place": "Ski Resort", "distance": "2 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -141,10 +174,21 @@
                 ]
             },
             "location": {
-                "map": "map4.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "City Square", "distance": "0.1 mi" },
-                    { "place": "Metro Station", "distance": "0.3 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -178,10 +222,21 @@
                 ]
             },
             "location": {
-                "map": "map5.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Village Market", "distance": "0.5 mi" },
-                    { "place": "Countryside Park", "distance": "1.2 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -212,10 +267,21 @@
                 ]
             },
             "location": {
-                "map": "map6.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Desert Safari", "distance": "2 mi" },
-                    { "place": "Sunset Point", "distance": "1.5 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -246,10 +312,21 @@
                 ]
             },
             "location": {
-                "map": "map7.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Fishing Dock", "distance": "0.2 mi" },
-                    { "place": "Nature Trail", "distance": "0.4 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -280,10 +357,21 @@
                 ]
             },
             "location": {
-                "map": "map8.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Beach Bar", "distance": "0.3 mi" },
-                    { "place": "Snorkeling Spot", "distance": "0.7 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -317,10 +405,21 @@
                 ]
             },
             "location": {
-                "map": "map9.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Forest Trail", "distance": "0.1 mi" },
-                    { "place": "River Bank", "distance": "0.8 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -354,10 +453,21 @@
                 ]
             },
             "location": {
-                "map": "map10.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Ski Lift", "distance": "0.1 mi" },
-                    { "place": "Mountain Cafe", "distance": "0.3 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -391,10 +501,21 @@
                 ]
             },
             "location": {
-                "map": "map10.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Ski Lift", "distance": "0.1 mi" },
-                    { "place": "Mountain Cafe", "distance": "0.3 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         },
@@ -430,10 +551,21 @@
                 ]
             },
             "location": {
-                "map": "map13.jpg",
+                "coordinates": {
+                    "lat": 40.712776,
+                    "lng": -74.005974
+                },
                 "nearby": [
-                    { "place": "Ski Resort", "distance": "0.3 mi" },
-                    { "place": "Mountain Cafe", "distance": "0.5 mi" }
+                    {
+                        "place": "Casino Hill",
+                        "coordinates": { "lat": 40.7132, "lng": -74.0065 },
+                        "distance": "0.3 mi"
+                    },
+                    {
+                        "place": "City Mall",
+                        "coordinates": { "lat": 40.714, "lng": -74.0072 },
+                        "distance": "0.5 mi"
+                    }
                 ]
             }
         }
