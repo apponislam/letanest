@@ -29,10 +29,10 @@ const HomeFilterForm = () => {
                                 <ChevronDown className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50">
-                            <DropdownMenuItem>Option 1</DropdownMenuItem>
-                            <DropdownMenuItem>Option 2</DropdownMenuItem>
-                            <DropdownMenuItem>Option 3</DropdownMenuItem>
+                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option 1</DropdownMenuItem>
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option 2</DropdownMenuItem>
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option 3</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -47,10 +47,10 @@ const HomeFilterForm = () => {
                                 <ChevronDown className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50">
-                            <DropdownMenuItem>Option A</DropdownMenuItem>
-                            <DropdownMenuItem>Option B</DropdownMenuItem>
-                            <DropdownMenuItem>Option C</DropdownMenuItem>
+                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option A</DropdownMenuItem>
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option B</DropdownMenuItem>
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option C</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -65,10 +65,10 @@ const HomeFilterForm = () => {
                                 <ChevronDown className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50">
-                            <DropdownMenuItem>Option X</DropdownMenuItem>
-                            <DropdownMenuItem>Option Y</DropdownMenuItem>
-                            <DropdownMenuItem>Option Z</DropdownMenuItem>
+                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option X</DropdownMenuItem>
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option Y</DropdownMenuItem>
+                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option Z</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
