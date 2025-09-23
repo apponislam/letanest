@@ -2,153 +2,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { initialConversations, people } from "./messages";
 
-export default function MessagesLayout() {
-    const people = [
-        { id: 1, name: "John", avatar: "/home/avatar.jpg" },
-        { id: 2, name: "Jane", avatar: "/home/avatar.jpg" },
-        { id: 3, name: "Mike", avatar: "/home/avatar.jpg" },
-        { id: 4, name: "Alice", avatar: "/home/avatar.jpg" },
-        { id: 5, name: "Bob", avatar: "/home/avatar.jpg" },
-        { id: 6, name: "Charlie", avatar: "/home/avatar.jpg" },
-        { id: 7, name: "David", avatar: "/home/avatar.jpg" },
-        { id: 8, name: "Eve", avatar: "/home/avatar.jpg" },
-        { id: 9, name: "Frank", avatar: "/home/avatar.jpg" },
-        { id: 10, name: "Grace", avatar: "/home/avatar.jpg" },
-        { id: 11, name: "Hannah", avatar: "/home/avatar.jpg" },
-        { id: 12, name: "Ian", avatar: "/home/avatar.jpg" },
-        { id: 13, name: "Jack", avatar: "/home/avatar.jpg" },
-        { id: 14, name: "Kate", avatar: "/home/avatar.jpg" },
-        { id: 15, name: "Leo", avatar: "/home/avatar.jpg" },
-        { id: 16, name: "Mia", avatar: "/home/avatar.jpg" },
-        { id: 17, name: "Nick", avatar: "/home/avatar.jpg" },
-    ];
-
-    const initialConversations: Record<number, { from: string; text: string; avatar: string }[]> = {
-        1: [
-            { from: "Me", text: "Hi John!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Hello!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "How are you?", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "I'm good, thanks!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "What's up?", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Just working.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Want to catch up later?", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Sure!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Great!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "See you then.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Okay.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Bye for now.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Bye!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Take care.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "You too.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Thanks.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "No problem.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Catch you later.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Bye!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Bye!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "See you.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "See you.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Alright.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Ok.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Talk soon.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Yes.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Goodbye.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Goodbye.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Take care.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Will do.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Great.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Indeed.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Catch you later.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Sure.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Talk soon.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Absolutely.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Bye!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Bye!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Alright then.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Alright.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Good day.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Good day to you too.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "See you later.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "See you.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Take it easy.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Will do.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Bye for now.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Bye.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Catch you soon.", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Yes, soon.", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Good luck!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Thanks!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "Alright, bye!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "Bye!", avatar: "/home/avatar.jpg" },
-            { from: "Me", text: "See ya!", avatar: "/home/avatar.jpg" },
-            { from: "John", text: "See ya!", avatar: "/home/avatar.jpg" },
-        ],
-        2: [
-            { from: "Me", text: "Hey Jane!", avatar: "/home/avatar.jpg" },
-            { from: "Jane", text: "Hi there!", avatar: "/home/avatar.jpg" },
-        ],
-        3: [
-            { from: "Me", text: "Yo Mike!", avatar: "/home/avatar.jpg" },
-            { from: "Mike", text: "Yo!", avatar: "/home/avatar.jpg" },
-        ],
-        4: [
-            { from: "Me", text: "Hi Alice!", avatar: "/home/avatar.jpg" },
-            { from: "Alice", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        5: [
-            { from: "Me", text: "Hey Bob!", avatar: "/home/avatar.jpg" },
-            { from: "Bob", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-        6: [
-            { from: "Me", text: "Hi Charlie!", avatar: "/home/avatar.jpg" },
-            { from: "Charlie", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        7: [
-            { from: "Me", text: "Hey David!", avatar: "/home/avatar.jpg" },
-            { from: "David", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-        8: [
-            { from: "Me", text: "Hi Eve!", avatar: "/home/avatar.jpg" },
-            { from: "Eve", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        9: [
-            { from: "Me", text: "Hey Frank!", avatar: "/home/avatar.jpg" },
-            { from: "Frank", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-        10: [
-            { from: "Me", text: "Hi Grace!", avatar: "/home/avatar.jpg" },
-            { from: "Grace", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        11: [
-            { from: "Me", text: "Hey Hannah!", avatar: "/home/avatar.jpg" },
-            { from: "Hannah", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-        12: [
-            { from: "Me", text: "Hi Ian!", avatar: "/home/avatar.jpg" },
-            { from: "Ian", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        13: [
-            { from: "Me", text: "Hey Jack!", avatar: "/home/avatar.jpg" },
-            { from: "Jack", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-        14: [
-            { from: "Me", text: "Hi Kate!", avatar: "/home/avatar.jpg" },
-            { from: "Kate", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        15: [
-            { from: "Me", text: "Hey Leo!", avatar: "/home/avatar.jpg" },
-            { from: "Leo", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-        16: [
-            { from: "Me", text: "Hi Mia!", avatar: "/home/avatar.jpg" },
-            { from: "Mia", text: "Hello!", avatar: "/home/avatar.jpg" },
-        ],
-        17: [
-            { from: "Me", text: "Hey Nick!", avatar: "/home/avatar.jpg" },
-            { from: "Nick", text: "Hi!", avatar: "/home/avatar.jpg" },
-        ],
-    };
-
+export default function MessagesLayout2() {
     const [selected, setSelected] = useState<number>(people[0].id);
     const [conversations, setConversations] = useState(initialConversations);
     const [inputText, setInputText] = useState("");
@@ -206,11 +62,29 @@ export default function MessagesLayout() {
                         }
                     `}</style>
                     {filteredPeople.map((person) => {
-                        const lastMsg = conversations[person.id]?.[conversations[person.id].length - 1]?.text || "";
+                        const lastMsgObj = conversations[person.id]?.[conversations[person.id].length - 1];
+
+                        let lastMsg = "";
+                        if (lastMsgObj) {
+                            switch (lastMsgObj.type) {
+                                case "offer":
+                                    lastMsg = `Nest Offer: ${lastMsgObj.propertyId}`;
+                                    break;
+                                case "accepted":
+                                    lastMsg = `Accepted: ${lastMsgObj.propertyId}`;
+                                    break;
+                                case "rejected":
+                                    lastMsg = `Rejected: ${lastMsgObj.propertyId}`;
+                                    break;
+                                default:
+                                    lastMsg = lastMsgObj.text || "";
+                            }
+                        }
+
                         return (
-                            <div key={person.id} className={`flex flex-col p-2  cursor-pointer hover:bg-[#9399A6] rounded-[6px] ${selected === person.id ? "bg-[#9399A6]" : ""}`} onClick={() => setSelected(person.id)}>
+                            <div key={person.id} className={`flex flex-col p-2 cursor-pointer hover:bg-[#9399A6] rounded-[6px] ${selected === person.id ? "bg-[#9399A6]" : ""}`} onClick={() => setSelected(person.id)}>
                                 <div className="flex items-center gap-3">
-                                    <Image src={person.avatar} alt={person.name} width={40} height={40} className="rounded-full border border-white" />
+                                    <Image src={person.avatar} alt={person.name} width={40} height={40} className="rounded-full border h-10 w-10 border-white" />
                                     <div className="flex flex-col">
                                         <p className="text-[#14213D] font-medium">{person.name}</p>
                                         <p className="text-white text-sm truncate max-w-[150px]">{lastMsg}</p>
@@ -243,13 +117,138 @@ export default function MessagesLayout() {
                             border-radius: 4px;
                         }
                     `}</style>
-                    {messages?.map((msg, i) => (
-                        <div key={i} className={`flex items-end ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                            {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2" />}
-                            <p className={`px-3 py-2 rounded-lg max-w-xs break-words ${msg.from === "Me" ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>{msg.text}</p>
-                            {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2" />}
-                        </div>
-                    ))}
+
+                    {/* {messages?.map((msg, i) => {
+                        if (msg.type === "offer") {
+                            return (
+                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                    <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
+                                        <p className="font-semibold text-sm mb-1 text-center">Nest Offer</p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Property ID:</span>
+                                            <span>{msg.propertyId}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Agreed dates:</span>
+                                            <span>{msg.dates}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Agreed Fee:</span>
+                                            <span>{msg.agreedFee}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Booking Fee:</span>
+                                            <span>{msg.bookingFee}</span>
+                                        </p>
+                                        <p className="text-xs font-semibold flex justify-between">
+                                            <span>Total:</span>
+                                            <span>{msg.total}</span>
+                                        </p>
+                                        <div className="mt-2">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Pay</button>
+                                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full h-[30px] w-[30px] ml-2" />}
+                                </div>
+                            );
+                        }
+
+                     
+                        return (
+                            <div key={i} className={`flex items-end ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2" />}
+                                <p className={`px-3 py-2 rounded-lg max-w-xs break-words ${msg.from === "Me" ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>{msg.text}</p>
+                                {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2" />}
+                            </div>
+                        );
+                    })} */}
+                    {messages?.map((msg, i) => {
+                        if (msg.type === "offer") {
+                            // Offer message (your current design)
+                            return (
+                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                    <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
+                                        <p className="font-semibold text-sm mb-1 text-center">Nest Offer</p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Property ID:</span>
+                                            <span>{msg.propertyId}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Agreed dates:</span>
+                                            <span>{msg.dates}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Agreed Fee:</span>
+                                            <span>{msg.agreedFee}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Booking Fee:</span>
+                                            <span>{msg.bookingFee}</span>
+                                        </p>
+                                        <p className="text-xs font-semibold flex justify-between">
+                                            <span>Total:</span>
+                                            <span>{msg.total}</span>
+                                        </p>
+                                        <div className="mt-2 grid grid-cols-2 gap-2">
+                                            <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Pay</button>
+                                            <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
+                                        </div>
+                                    </div>
+                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full h-[30px] w-[30px] ml-2" />}
+                                </div>
+                            );
+                        } else if (msg.type === "accepted") {
+                            // Accepted message with property details
+                            return (
+                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                    <div className="bg-green-200 p-3 rounded-lg w-64">
+                                        <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Property name:</span>
+                                            <span>{msg.propertyName || "Radison"}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Address:</span>
+                                            <span>{msg.address || "New City"}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Property Manager:</span>
+                                            <span>{msg.manager || "Jhon"}</span>
+                                        </p>
+                                        <p className="text-xs flex justify-between">
+                                            <span>Phone:</span>
+                                            <span>{msg.phone || "0000000000"}</span>
+                                        </p>
+                                    </div>
+                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
+                                </div>
+                            );
+                        } else if (msg.type === "rejected") {
+                            // Rejected message (simple)
+                            return (
+                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                    <div className="bg-red-200 p-3 rounded-lg w-64 text-center font-semibold text-red-900">Offer Rejected</div>
+                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
+                                </div>
+                            );
+                        } else {
+                            // Normal text message
+                            return (
+                                <div key={i} className={`flex items-end ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                    <p className={`px-3 py-2 rounded-lg max-w-xs break-words ${msg.from === "Me" ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>{msg.text}</p>
+                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
+                                </div>
+                            );
+                        }
+                    })}
 
                     <div ref={messagesEndRef} />
                 </div>

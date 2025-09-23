@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { initialConversations, people } from "./messages";
+import { useRouter } from "next/navigation";
 
 export default function MessagesLayout2() {
     const [selected, setSelected] = useState<number>(people[0].id);
@@ -10,6 +11,16 @@ export default function MessagesLayout2() {
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
     const messages = useMemo(() => conversations[selected] || [], [conversations, selected]);
+
+    const router = useRouter();
+
+    const handlePersonClick = (personId: number) => {
+        if (window.innerWidth < 768) {
+            router.push(`/messages/${personId}`);
+        } else {
+            setSelected(personId);
+        }
+    };
 
     // const scrollRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -32,7 +43,7 @@ export default function MessagesLayout2() {
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">
             {/* Left Sidebar */}
-            <div className="w-1/3 bg-[#B6BAC3] border-r border-[#C9A94D] flex flex-col">
+            <div className="w-full md:w-1/3 bg-[#B6BAC3] border-r border-[#C9A94D] flex flex-col">
                 <div className="py-8 px-5 border-b border-[#C9A94D]">
                     <h1 className="font-bold test-[28px] text-[#14213D] text-xl mb-5">Messages </h1>
 
@@ -82,7 +93,7 @@ export default function MessagesLayout2() {
                         }
 
                         return (
-                            <div key={person.id} className={`flex flex-col p-2 cursor-pointer hover:bg-[#9399A6] rounded-[6px] ${selected === person.id ? "bg-[#9399A6]" : ""}`} onClick={() => setSelected(person.id)}>
+                            <div key={person.id} className={`flex flex-col p-2 cursor-pointer hover:bg-[#9399A6] rounded-[6px] ${selected === person.id ? "bg-[#9399A6]" : ""}`} onClick={() => handlePersonClick(person.id)}>
                                 <div className="flex items-center gap-3">
                                     <Image src={person.avatar} alt={person.name} width={40} height={40} className="rounded-full border h-10 w-10 border-white" />
                                     <div className="flex flex-col">
@@ -97,7 +108,7 @@ export default function MessagesLayout2() {
             </div>
 
             {/* Conversation */}
-            <div className="flex-1 flex flex-col bg-[#B6BAC3] border-l border-[#C9A94D]">
+            <div className="flex-1 md:flex flex-col bg-[#B6BAC3] border-l border-[#C9A94D] hidden">
                 <div
                     className="flex-1 overflow-y-auto p-2 space-y-3"
                     style={{
