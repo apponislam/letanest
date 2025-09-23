@@ -60,7 +60,9 @@ const Header = () => {
                             </ul>
                         </nav>
 
-                        <MessageSquare className="text-[#C9A94D]" />
+                        <Link href="/messages">
+                            <MessageSquare className="text-[#C9A94D]" />
+                        </Link>
 
                         <Link href="/listing/add" className="border border-[#C9A94D] text-[#C9A94D] font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors">
                             + Add Listing
@@ -83,6 +85,12 @@ const Header = () => {
                         </Link>
                     ))}
 
+                    <Link href="/messages">
+                        <div className="flex items-center gap-2">
+                            <MessageSquare className="w-6 h-6 text-[#C9A94D]" />
+                            <span className="text-[#C9A94D] font-medium">Message</span>
+                        </div>
+                    </Link>
                     <div className="flex items-center gap-2">
                         <MessageSquare className="w-6 h-6 text-[#C9A94D]" />
                         <span className="text-[#C9A94D] font-medium">Message</span>

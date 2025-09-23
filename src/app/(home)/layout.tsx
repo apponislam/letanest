@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
+import FooterWrapper from "@/providers/FooterWrapper";
 
 export const metadata: Metadata = {
     title: "LetANest - Short-Term Lets & Festival Stays",
@@ -17,7 +18,7 @@ export default function RootLayout({
             <Header></Header>
             {children}
             <div className="relative z-10">
-                <Footer></Footer>
+                <FooterWrapper />
             </div>
         </>
     );
