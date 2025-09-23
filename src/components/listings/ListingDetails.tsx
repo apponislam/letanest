@@ -34,8 +34,6 @@ export default function PropertyPage() {
             .catch((err) => console.error(err));
     }, [id]);
 
-    console.log(property);
-
     if (!property) return <p>Loading...</p>;
 
     const amenitiesIcons: Record<string, string> = {

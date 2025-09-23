@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { initialConversations, people } from "./messages";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function MessagesLayout2() {
     const [selected, setSelected] = useState<number>(people[0].id);
@@ -205,9 +206,18 @@ export default function MessagesLayout2() {
                                             <span>Total:</span>
                                             <span>{msg.total}</span>
                                         </p>
-                                        <div className="mt-2 grid grid-cols-2 gap-2">
-                                            <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Pay</button>
-                                            <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
+                                        <div className="flex flex-col gap-2">
+                                            <div className="mt-2 grid grid-cols-2 gap-2">
+                                                <Link href="/listings/1/pay" className="w-full">
+                                                    <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full">Pay</button>
+                                                </Link>
+                                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
+                                            </div>
+                                            <div>
+                                                <Link href="/listings/1">
+                                                    <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full">View Property Details</button>
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                     {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full h-[30px] w-[30px] ml-2" />}
@@ -218,24 +228,39 @@ export default function MessagesLayout2() {
                             return (
                                 <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
                                     {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
-                                    <div className="bg-green-200 p-3 rounded-lg w-64">
+                                    <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
                                         <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Property name:</span>
-                                            <span>{msg.propertyName || "Radison"}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Address:</span>
-                                            <span>{msg.address || "New City"}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Property Manager:</span>
-                                            <span>{msg.manager || "Jhon"}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Phone:</span>
-                                            <span>{msg.phone || "0000000000"}</span>
-                                        </p>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-xs flex justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16}></Image>
+                                                    <span>Property name:</span>
+                                                </div>
+                                                <span>{msg.propertyName || "Radison"}</span>
+                                            </p>
+                                            <p className="text-xs flex justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Image alt="Property Name" src="/messages/accepted/location-pin.png" height={16} width={16}></Image>
+
+                                                    <span>Address:</span>
+                                                </div>
+                                                <span>{msg.address || "New City"}</span>
+                                            </p>
+                                            <p className="text-xs flex justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Image alt="Property Name" src="/messages/accepted/user-alt.png" height={16} width={16}></Image>
+                                                    <span>Property Manager:</span>
+                                                </div>
+                                                <span>{msg.manager || "Jhon"}</span>
+                                            </p>
+                                            <p className="text-xs flex justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Image alt="Property Name" src="/messages/accepted/phone.png" height={16} width={16}></Image>
+                                                    <span>Phone:</span>
+                                                </div>
+                                                <span>{msg.phone || "0000000000"}</span>
+                                            </p>
+                                        </div>
                                     </div>
                                     {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
                                 </div>
