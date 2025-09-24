@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const HostDash = () => {
     const router = useRouter();
@@ -33,16 +34,33 @@ const HostDash = () => {
 
     return (
         <div>
-            <div className="p-5 border border-[#FFFFFF59] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
+            <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
                 <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={handleClick}>
                     <ArrowLeft />
                     <p>Back To Previous</p>
                 </div>
                 <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
-                <div className="flex items-center gap-2">
-                    <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                    <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <div className="flex items-center gap-2 cursor-pointer">
+                            <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
+                            <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
+                        </div>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent className="bg-[#14213D] text-white border border-[#C9A94D] w-48 p-0 rounded-none">
+                        <Link href="/dashboard/profile">
+                            <DropdownMenuItem className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none border-b border-[#C9A94D]">
+                                <Image alt="Logout" src="/dashboard/user-eye.png" height={24} width={24}></Image>
+                                View Profile
+                            </DropdownMenuItem>
+                        </Link>
+                        <DropdownMenuItem className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none">
+                            <Image alt="Logout" src="/dashboard/logout.png" height={24} width={24}></Image>
+                            Logout
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="text-[#C9A94D]">
                 <div className="mb-8 flex justify-between flex-col md:flex-row gap-4">

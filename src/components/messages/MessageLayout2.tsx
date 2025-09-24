@@ -228,40 +228,45 @@ export default function MessagesLayout2() {
                             return (
                                 <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
                                     {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+
                                     <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
                                         <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
+
                                         <div className="flex flex-col gap-2">
-                                            <p className="text-xs flex justify-between">
+                                            <div className="text-xs flex justify-between">
                                                 <div className="flex items-center gap-2">
-                                                    <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16}></Image>
+                                                    <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
                                                     <span>Property name:</span>
                                                 </div>
                                                 <span>{msg.propertyName || "Radison"}</span>
-                                            </p>
-                                            <p className="text-xs flex justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <Image alt="Property Name" src="/messages/accepted/location-pin.png" height={16} width={16}></Image>
+                                            </div>
 
+                                            <div className="text-xs flex justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
                                                     <span>Address:</span>
                                                 </div>
                                                 <span>{msg.address || "New City"}</span>
-                                            </p>
-                                            <p className="text-xs flex justify-between">
+                                            </div>
+
+                                            <div className="text-xs flex justify-between">
                                                 <div className="flex items-center gap-2">
-                                                    <Image alt="Property Name" src="/messages/accepted/user-alt.png" height={16} width={16}></Image>
+                                                    <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
                                                     <span>Property Manager:</span>
                                                 </div>
                                                 <span>{msg.manager || "Jhon"}</span>
-                                            </p>
-                                            <p className="text-xs flex justify-between">
+                                            </div>
+
+                                            <div className="text-xs flex justify-between">
                                                 <div className="flex items-center gap-2">
-                                                    <Image alt="Property Name" src="/messages/accepted/phone.png" height={16} width={16}></Image>
+                                                    <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
                                                     <span>Phone:</span>
                                                 </div>
                                                 <span>{msg.phone || "0000000000"}</span>
-                                            </p>
+                                            </div>
                                         </div>
                                     </div>
+
                                     {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
                                 </div>
                             );

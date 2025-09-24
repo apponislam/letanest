@@ -104,7 +104,7 @@ export default function HomeReviewClient() {
     const nextRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        fetch("/data/reviews.json")
+        fetch("/data/homereview.json")
             .then((res) => res.json())
             .then((data) => setReviews(data.data))
             .catch((err) => console.error(err));
