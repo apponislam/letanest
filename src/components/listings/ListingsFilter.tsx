@@ -300,7 +300,7 @@ export default function ListingsFilter() {
                                         );
                                     } else if (page === currentPage - 2 || page === currentPage + 2) {
                                         return (
-                                            <span key={page} className="px-2 text-[#14213D]">
+                                            <span key={page} className="px-2 text-white">
                                                 ...
                                             </span>
                                         );

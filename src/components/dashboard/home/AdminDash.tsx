@@ -39,7 +39,7 @@ const AdminDash = () => {
                     <ArrowLeft />
                     <p>Back To Previous</p>
                 </div>
-                <h1 className="text-2xl text-[#C9A94D]">Terms & Conditions</h1>
+                <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
                 <div className="flex items-center gap-2">
                     <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
                     <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
