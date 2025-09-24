@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CirclePlus, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, CirclePlus, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const signupSchema = z.object({
     fullName: z.string().min(2, "Full Name is required"),
@@ -12,20 +13,31 @@ const signupSchema = z.object({
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     acceptedTerms: z.boolean().refine((val) => val === true, { message: "You must accept terms and conditions" }),
+    role: z.enum(["Client", "Host"]).refine((val) => !!val, {
+        message: "Role is required",
+    }),
 });
 
 type SignUpFormInputs = z.infer<typeof signupSchema>;
 
 const SignUpForm = () => {
+    const router = useRouter();
+    const handleBack = () => {
+        router.back(); // Go back to previous page
+    };
+
     const [showPassword, setShowPassword] = useState(false);
 
     const {
         register,
         handleSubmit,
         resetField,
+        setValue,
+        watch,
         formState: { errors },
     } = useForm<SignUpFormInputs>({
         resolver: zodResolver(signupSchema),
+        defaultValues: { role: "Client" },
     });
 
     const onSubmit = (data: SignUpFormInputs) => {
@@ -36,12 +48,25 @@ const SignUpForm = () => {
     return (
         <div className="flex flex-col md:min-h-screen">
             {/* Heading */}
-            <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-6 md:pt-[70px] md:absolute">Sign Up</h1>
+            <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-6 md:pt-[70px] md:absolute" onClick={handleBack}>
+                <ArrowLeft />
+            </h1>
 
             {/* Centered Form */}
             <div className="flex items-center justify-center flex-1 px-4">
                 <div className="rounded-xl w-full">
                     <form className="flex flex-col gap-3 w-full" onSubmit={handleSubmit(onSubmit)}>
+                        <div className="flex justify-center mb-6">
+                            <div className="flex border border-[#C9A94D] rounded-lg overflow-hidden bg-white">
+                                <button type="button" onClick={() => setValue("role", "Client")} className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "Client" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}>
+                                    Client
+                                </button>
+                                <button type="button" onClick={() => setValue("role", "Host")} className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "Host" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}>
+                                    Host
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Full Name */}
                         <div className="flex flex-col">
                             <label className="mb-4 text-[#C9A94D]">Full Name</label>

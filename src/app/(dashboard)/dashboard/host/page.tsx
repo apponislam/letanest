@@ -1,10 +1,10 @@
-import Guest from "@/components/dashboard/home/guest";
+import HostDash from "@/components/dashboard/home/HostDash";
 import React from "react";
 
 const page = () => {
     return (
         <>
-            <Guest></Guest>
+            <HostDash></HostDash>
         </>
     );
 };

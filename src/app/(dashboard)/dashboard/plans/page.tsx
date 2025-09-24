@@ -1,10 +1,10 @@
-import Guest from "@/components/dashboard/home/guest";
+import PlansPage from "@/components/dashboard/plans/PlansPage";
 import React from "react";
 
 const page = () => {
     return (
         <>
-            <Guest></Guest>
+            <PlansPage></PlansPage>
         </>
     );
 };
