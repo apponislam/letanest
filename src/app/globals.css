@@ -122,3 +122,7 @@
 .recharts-x-axis .recharts-cartesian-axis-tick text {
     fill: #ffffff !important;
 }
+
+.userdetails [data-slot="dialog-close"] {
+    display: none !important;
+}

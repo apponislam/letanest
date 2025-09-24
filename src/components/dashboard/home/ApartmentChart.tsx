@@ -3,7 +3,6 @@
 import { Pie, PieChart, Cell } from "recharts";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { TrendingUp } from "lucide-react";
 
 export const description = "A donut chart";
 
@@ -49,16 +48,31 @@ export function ChartPieDonut() {
                 </ChartContainer>
 
                 {/* Labels in 4 corners */}
-                <div className="absolute top-2 left-2 text-[#FF914D] font-medium text-[18px]">{`${chartData[0].name} ${chartData[0].value}%`}</div>
-                <div className="absolute top-2 right-2 text-[#6CE5E8] font-medium text-[18px]">{`${chartData[1].name} ${chartData[1].value}%`}</div>
-                <div className="absolute bottom-2 left-2 text-[#FF3131] font-medium text-[18px]">{`${chartData[2].name} ${chartData[2].value}%`}</div>
-                <div className="absolute bottom-2 right-2 text-[#7ED957] font-medium text-[18px]">{`${chartData[3].name} ${chartData[3].value}%`}</div>
-            </CardContent>
-            <CardFooter className="flex-col gap-2 text-sm">
-                <div className="flex items-center gap-2 leading-none font-medium">
-                    Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+                <div className="absolute top-2 left-2 text-[#FF914D] font-medium text-[18px]">
+                    <p>{`${chartData[0].name} `}</p>
+                    <span>{`${chartData[0].value}%`}</span>
                 </div>
-                <div className="text-muted-foreground leading-none">Showing total visitors for the last 6 months</div>
+                <div className="absolute top-2 right-2 text-[#6CE5E8] font-medium text-[18px]">
+                    <p>{`${chartData[1].name} `}</p>
+                    <span>{`${chartData[1].value}%`}</span>
+                </div>
+                <div className="absolute bottom-2 left-2 text-[#FF3131] font-medium text-[18px]">
+                    <p>{`${chartData[2].name} `}</p>
+                    <span>{`${chartData[2].value}%`}</span>
+                </div>
+                <div className="absolute bottom-2 right-2 text-[#7ED957] font-medium text-[18px]">
+                    <p>{`${chartData[3].name} `}</p>
+                    <span>{`${chartData[3].value}%`}</span>
+                </div>
+            </CardContent>
+            <CardFooter className="flex-col gap-3 text-sm p-0 items-start">
+                <div>
+                    <p className="text-white text-sm">Filter By</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="bg-[#C9A94D] text-white p-2 rounded-[8px]">Properties Type</button>
+                    <button className="bg-[#C9A94D] text-white p-2 rounded-[8px]">Period</button>
+                </div>
             </CardFooter>
         </Card>
     );
