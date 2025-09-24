@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock } from "lucide-react";
+import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers } from "lucide-react";
 import Image from "next/image";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
@@ -9,14 +9,15 @@ import { usePathname } from "next/navigation";
 const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Messages", url: "/messages", icon: MessageSquare },
-    { title: "User", url: "/user", icon: User },
-    { title: "Transaction", url: "/transaction", icon: CreditCard },
-    { title: "Review", url: "/review", icon: Star },
-    { title: "Terms & Conditions", url: "/terms-conditions", icon: FileText },
-    { title: "Property Management", url: "/property-management", icon: Home },
-    { title: "Contact Letanest", url: "/contact-letanest", icon: Mail },
-    { title: "Memberships", url: "/memberships", icon: Users },
-    { title: "Authentication", url: "/authentication", icon: Lock },
+    { title: "User", url: "/dashboard/user", icon: User },
+    { title: "Plans", url: "/dashboard/plans", icon: Layers },
+    { title: "Transaction", url: "/dashboard/transaction", icon: CreditCard },
+    { title: "Review", url: "/dashboard/review", icon: Star },
+    { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
+    { title: "Property Management", url: "/dashboard/property-management", icon: Home },
+    { title: "Contact Letanest", url: "/dashboard/contact-letanest", icon: Mail },
+    { title: "Memberships", url: "/dashboard/memberships", icon: Users },
+    { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
 ];
 
 export function AppSidebar() {
@@ -38,8 +39,8 @@ export function AppSidebar() {
                                 {items.map((item) => (
                                     <SidebarMenuItem
                                         key={item.title}
-                                        className={`relative ${pathname.startsWith(item.url) ? "bg-[#C9A94D] text-white hover:text-white" : "text-[#C9A94D]"} px-5 py-3 hover:bg-[#C9A94D] hover:text-white transition-colors rounded-none before:absolute before:left-1    before:top-0    before:h-full    before:w-2    before:bg-[#14213D]    ${
-                                            pathname.startsWith(item.url) ? "before:block" : "before:hidden hover:before:block"
+                                        className={`relative px-5 py-3 transition-colors rounded-none before:absolute before:left-1 before:top-0 before:h-full before:w-2 before:bg-[#14213D] ${
+                                            (item.url === "/dashboard" ? pathname === "/dashboard" || (pathname.startsWith("/dashboard/") && !items.some((i) => i.url !== "/dashboard" && pathname.startsWith(i.url))) : pathname === item.url) ? "bg-[#C9A94D] text-white hover:text-white before:block" : "text-[#C9A94D] hover:bg-[#C9A94D] hover:text-white before:hidden hover:before:block"
                                         }`}
                                     >
                                         <SidebarMenuButton asChild>
