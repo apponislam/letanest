@@ -4,6 +4,7 @@ import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home,
 import Image from "next/image";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 // Menu items
 const items = [
@@ -28,7 +29,9 @@ export function AppSidebar() {
             <div className="bg-[#14213D] flex flex-col h-full">
                 {/* Fixed Logo Section */}
                 <div className="pt-14 mb-8 flex justify-center shrink-0">
-                    <Image src="/logo.svg" alt="Dashboard Logo" height={44} width={226} className="block" />
+                    <Link href="/">
+                        <Image src="/logo.svg" alt="Dashboard Logo" height={44} width={226} className="block" />
+                    </Link>
                 </div>
 
                 {/* Scrollable Menu */}
@@ -44,10 +47,10 @@ export function AppSidebar() {
                                         }`}
                                     >
                                         <SidebarMenuButton asChild>
-                                            <a href={item.url} className="flex items-center gap-2 hover:text-white !p-0 !bg-transparent !hover:bg-transparent">
+                                            <Link href={item.url} className="flex items-center gap-2 hover:text-white !p-0 !bg-transparent !hover:bg-transparent">
                                                 <item.icon className="h-5 w-5" />
                                                 <span>{item.title}</span>
-                                            </a>
+                                            </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}

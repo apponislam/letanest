@@ -18,7 +18,7 @@ function UserAction({ user }: { user: User }) {
                 <DialogContent className="bg-[#2D3546] text-white border border-[#C9A94D] rounded-lg max-w-sm p-0 userdetails">
                     <DialogHeader className="border-b border-[#C9A94D] p-4">
                         <DialogTitle className="text-[#C9A94D] text-lg font-semibold flex items-center justify-between">
-                            <h1>Result</h1>
+                            <h3>Result</h3>
                             <p>Host</p>
                             <MessageCircle />
                         </DialogTitle>
