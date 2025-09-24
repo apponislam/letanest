@@ -64,7 +64,7 @@ const Header = () => {
                             <MessageSquare className="text-[#C9A94D]" />
                         </Link>
 
-                        <Link href="/listing/add" className="border border-[#C9A94D] text-[#C9A94D] font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors">
+                        <Link href="/dashboard/listing/add" className="border border-[#C9A94D] text-[#C9A94D] font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors">
                             + Add Listing
                         </Link>
                     </div>
@@ -96,7 +96,7 @@ const Header = () => {
                         <span className="text-[#C9A94D] font-medium">Message</span>
                     </div> */}
 
-                    <Link href="/listing/add" className="border border-[#C9A94D] text-[#C9A94D] text-center font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                    <Link href="/dashboard/listing/add" className="border border-[#C9A94D] text-[#C9A94D] text-center font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
                         + Add Listing
                     </Link>
                 </nav>
