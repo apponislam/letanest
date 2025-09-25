@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers } from "lucide-react";
+import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
@@ -19,6 +19,7 @@ const items = [
     { title: "Contact Letanest", url: "/dashboard/contact-letanest", icon: Mail },
     { title: "Memberships", url: "/dashboard/memberships", icon: Users },
     { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
+    { title: "Host Verify", url: "/dashboard/host-verify", icon: BadgeCheck },
 ];
 
 export function AppSidebar() {
@@ -35,7 +36,7 @@ export function AppSidebar() {
                 </div>
 
                 {/* Scrollable Menu */}
-                <SidebarContent className="flex-1 overflow-y-auto">
+                <SidebarContent className="flex-1 max-h-[800px] overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-[#C9A94D] scrollbar-track-transparent">
                     <SidebarGroup className="p-0">
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-5">
