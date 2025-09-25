@@ -117,7 +117,9 @@ import { Host } from "@/types/host";
 import { ArrowLeft, Check } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
-import JoditEditor from "jodit-react";
+import dynamic from "next/dynamic";
+// import JoditEditor from "jodit-react";
+const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 const EditTermsCondition = () => {
     const [host, setHost] = useState<Host | null>(null);
