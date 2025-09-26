@@ -1,42 +1,43 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Host } from "@/types/host";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const reviews = [
     {
-        property: "Mild town",
         date: "12/01/2005",
         name: "John",
         mail: "john@gmail.com",
     },
     {
-        property: "Lake House",
         date: "15/03/2010",
         name: "Alice",
         mail: "alice@gmail.com",
     },
     {
-        property: "Mountain View",
         date: "20/06/2015",
         name: "Bob",
         mail: "bob@gmail.com",
     },
 ];
 
-const categories = ["Communication", "Accuracy of Listing", "Cleanliness", "Check-In Experience", "Overall Experience"];
-
-const PropertyManagement = () => {
+const HostVerifyPage = () => {
     const router = useRouter();
     const [host, setHost] = useState<Host | null>(null);
+    const [open, setOpen] = useState(false);
+    const hostDetails = {
+        name: "John Smith",
+        email: "john@gmail.com",
+        phone: "00000000000000",
+        status: true,
+    };
 
     useEffect(() => {
         const fetchHost = async () => {
@@ -50,16 +51,6 @@ const PropertyManagement = () => {
         };
         fetchHost();
     }, []);
-
-    const [openRow, setOpenRow] = useState<number | null>(null);
-    const [ratings, setRatings] = useState<Record<number, Record<string, number>>>({});
-
-    const handleRating = (rowIndex: number, category: string, star: number) => {
-        setRatings((prev) => ({
-            ...prev,
-            [rowIndex]: { ...prev[rowIndex], [category]: star },
-        }));
-    };
 
     if (!host) return <p>Loading...</p>;
 
@@ -103,10 +94,6 @@ const PropertyManagement = () => {
                         {reviews.map((row, i) => (
                             <div key={i} className="p-3 rounded-[12px] flex justify-between items-center border border-[#C9A94D]">
                                 <div>
-                                    <p className="font-bold text-2xl">Properties</p>
-                                    <span>{row.property}</span>
-                                </div>
-                                <div>
                                     <p className="font-bold text-2xl">Date</p>
                                     <span>{row.date}</span>
                                 </div>
@@ -119,46 +106,57 @@ const PropertyManagement = () => {
                                     <span>{row.mail}</span>
                                 </div>
                                 <div>
-                                    <Dialog open={openRow === i} onOpenChange={(isOpen) => setOpenRow(isOpen ? i : null)}>
-                                        <DialogTrigger asChild>
-                                            <button className="bg-[#C9A94D] text-white rounded-[10px] font-bold text-[14px] py-1 px-3">Review Details</button>
-                                        </DialogTrigger>
+                                    <button
+                                        className="bg-[#C9A94D] text-white rounded-[10px] font-bold text-[14px] py-1 px-3"
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            setOpen(true);
+                                        }}
+                                    >
+                                        Host Details
+                                    </button>
 
-                                        <DialogContent className="bg-[#14213D] border border-[#C9A94D] rounded-[10px] p-6 w-[420px]">
+                                    <Dialog open={open} onOpenChange={setOpen}>
+                                        <DialogHeader>
+                                            <DialogTitle></DialogTitle>
+                                        </DialogHeader>
+                                        <DialogContent className="bg-[#14213D] border border-[#C9A94D] rounded-[10px] p-6 w-[320px]">
                                             <style jsx global>{`
                                                 [data-slot="dialog-close"] {
-                                                    color: white !important; /* make the X icon white */
-                                                    opacity: 1 !important; /* fully visible */
+                                                    color: white !important;
+                                                    opacity: 1 !important;
                                                 }
                                                 [data-slot="dialog-close"]:hover {
-                                                    color: #c9a94d !important; /* gold on hover */
+                                                    color: #c9a94d !important;
                                                 }
                                                 [data-slot="dialog-close"] svg {
-                                                    stroke: currentColor; /* make the X follow the color */
+                                                    stroke: currentColor;
                                                 }
                                             `}</style>
-                                            <DialogHeader>
-                                                <DialogTitle className="text-[#C9A94D] text-lg font-bold">Review Your Host</DialogTitle>
-                                            </DialogHeader>
+                                            <div className="mt-4 space-y-2 text-[#C9A94D]">
+                                                <div className="flex items-center justify-center mb-4 flex-col">
+                                                    <Image src="/listing/hostImage.png" alt="Host image" height={100} width={100} className="rounded-full mb-2 border border-[#C9A94D]"></Image>
+                                                    <Image src="/listing/messages-dots.png" alt="Message" height={24} width={24}></Image>
+                                                </div>
+                                                <p className="font-bold text-xl md:text-[28px] text-white"> {hostDetails.name}</p>
 
-                                            <div className="space-y-5">
-                                                {categories.map((category) => (
-                                                    <div key={category} className="flex flex-col gap-2">
-                                                        <span className="text-[#C9A94D]">{category}</span>
-                                                        <div className="flex gap-2">
-                                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                                <Star key={star} className={`w-6 h-6 cursor-pointer transition-colors ${ratings[i]?.[category] >= star ? "fill-[#C9A94D] text-[#C9A94D]" : "text-gray-500"}`} onClick={() => handleRating(i, category, star)} />
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                <div className="flex items-center gap-2 text-[18px] font-bold">
+                                                    <Image src="/listing/mail.png" alt="Mail" height={24} width={24}></Image>
+                                                    <p>{hostDetails.email}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[18px] font-bold">
+                                                    <Image src="/listing/phone.png" alt="Mail" height={24} width={24}></Image>
+                                                    <p>{hostDetails.phone}</p>
+                                                </div>
+                                                <div className="flex items-center justify-center">
+                                                    <button className={`flex items-center gap-1 px-7 py-1 rounded-[20px] text-base justify-center ${hostDetails.status ? "bg-[#135E9A] text-white" : "bg-red-600 text-white"}`}>
+                                                        {hostDetails.status && <Star className="w-4 h-4" />}
+                                                        {hostDetails.status ? "Verified" : "Unverified"}
+                                                    </button>
+                                                </div>
                                             </div>
 
-                                            <DialogFooter className="mt-6">
-                                                <Button className="bg-[#C9A94D] text-white hover:bg-[#b8973e] rounded-[80px] w-full py-3 h-auto" onClick={() => setOpenRow(null)}>
-                                                    Submit Review
-                                                </Button>
-                                            </DialogFooter>
+                                            <DialogFooter></DialogFooter>
                                         </DialogContent>
                                     </Dialog>
                                 </div>
@@ -191,4 +189,4 @@ const PropertyManagement = () => {
     );
 };
 
-export default PropertyManagement;
+export default HostVerifyPage;

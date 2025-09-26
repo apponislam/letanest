@@ -18,8 +18,8 @@ const items = [
     { title: "Property Management", url: "/dashboard/property-management", icon: Home },
     { title: "Contact Letanest", url: "/dashboard/contact-letanest", icon: Mail },
     { title: "Memberships", url: "/dashboard/memberships", icon: Users },
-    { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
     { title: "Host Verify", url: "/dashboard/host-verify", icon: BadgeCheck },
+    { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
 ];
 
 export function AppSidebar() {
@@ -39,11 +39,11 @@ export function AppSidebar() {
                 <SidebarContent className="flex-1 max-h-[800px] overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-[#C9A94D] scrollbar-track-transparent">
                     <SidebarGroup className="p-0">
                         <SidebarGroupContent>
-                            <SidebarMenu className="gap-5">
+                            <SidebarMenu className="gap-4">
                                 {items.map((item) => (
                                     <SidebarMenuItem
                                         key={item.title}
-                                        className={`relative px-5 py-3 transition-colors rounded-none before:absolute before:left-1 before:top-0 before:h-full before:w-2 before:bg-[#14213D] ${
+                                        className={`relative px-5 py-2 transition-colors rounded-none before:absolute before:left-1 before:top-0 before:h-full before:w-2 before:bg-[#14213D] ${
                                             (item.url === "/dashboard" ? pathname === "/dashboard" || (pathname.startsWith("/dashboard/") && !items.some((i) => i.url !== "/dashboard" && pathname.startsWith(i.url))) : pathname === item.url) ? "bg-[#C9A94D] text-white hover:text-white before:block" : "text-[#C9A94D] hover:bg-[#C9A94D] hover:text-white before:hidden hover:before:block"
                                         }`}
                                     >
