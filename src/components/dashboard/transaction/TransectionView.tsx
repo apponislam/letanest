@@ -1,26 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, ArrowLeft, FileDown } from "lucide-react";
-import Image from "next/image";
-import { Host } from "@/types/host";
+import { ChevronLeft, ChevronRight, FileDown } from "lucide-react";
 import { Transaction } from "@/types/transection";
+import PageHeader from "@/components/PageHeader";
 
 const TransectionView = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    const [host, setHost] = useState<Host | null>(null);
 
     useEffect(() => {
         fetch("/data/transaction.json")
             .then((res) => res.json())
             .then((data) => setTransactions(data.data))
-            .catch((err) => console.error(err));
-
-        fetch("/data/host.json")
-            .then((res) => res.json())
-            .then((data: Host[]) => setHost(data[0]))
             .catch((err) => console.error(err));
     }, []);
 
@@ -28,24 +21,11 @@ const TransectionView = () => {
     const displayedTransactions = transactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const handlePageChange = (page: number) => setCurrentPage(page);
-    const handleClickBack = () => history.back();
-
-    if (!host) return <p>Loading...</p>;
 
     return (
         <div>
             {/* Header */}
-            <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
-                <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={handleClickBack}>
-                    <ArrowLeft />
-                    <p>Back To Previous</p>
-                </div>
-                <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
-                <div className="flex items-center gap-2">
-                    <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                    <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                </div>
-            </div>
+            <PageHeader title={"Transactions"}></PageHeader>
 
             {/* Welcome Text */}
             <div className="text-[#C9A94D] mb-8">

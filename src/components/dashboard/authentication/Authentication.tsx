@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Host } from "@/types/host";
+
+import PageHeader from "@/components/PageHeader";
 
 // Zod schemas
 const signUpSchema = z.object({
@@ -30,37 +29,9 @@ type SignUpForm = z.infer<typeof signUpSchema>;
 type SignInForm = z.infer<typeof signInSchema>;
 
 export default function Authentication() {
-    const router = useRouter();
-    const [host, setHost] = useState<Host | null>(null);
-
-    useEffect(() => {
-        const fetchHost = async () => {
-            try {
-                const res = await fetch("/data/host.json");
-                const data: Host[] = await res.json();
-                setHost(data[0]);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchHost();
-    }, []);
-
-    if (!host) return <div>Loading...</div>;
-
     return (
         <div className="container mx-auto">
-            <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
-                <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={() => router.back()}>
-                    <ArrowLeft />
-                    <p>Back To Previous</p>
-                </div>
-                <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
-                <div className="flex items-center gap-2">
-                    <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                    <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                </div>
-            </div>
+            <PageHeader title={"Authentication"}></PageHeader>
             <div className=" grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <SignUpForm />
                 <SignInForm />

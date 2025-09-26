@@ -1,16 +1,13 @@
 "use client";
-import { Host } from "@/types/host";
 import { Property } from "@/types/proparty";
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import PayInfoForm from "../forms/pay/PayInfo-form";
+import PageHeader from "../PageHeader";
 
 const ListingPayment = () => {
-    const router = useRouter();
-
     const [property, setProperty] = useState<Property | null>(null);
     const [selected, setSelected] = useState<string | null>(null);
     const [showRules, setShowRules] = useState(false);
@@ -18,26 +15,6 @@ const ListingPayment = () => {
     const { id } = params;
 
     const [enabled, setEnabled] = useState(false);
-
-    const handleClick = () => {
-        router.back();
-    };
-
-    const [host, setHost] = useState<Host | null>(null);
-
-    useEffect(() => {
-        const fetchHost = async () => {
-            try {
-                const res = await fetch("/data/host.json");
-                const data: Host[] = await res.json();
-                setHost(data[0]);
-            } catch (error) {
-                console.error("Failed to fetch host:", error);
-            }
-        };
-
-        fetchHost();
-    }, []);
 
     useEffect(() => {
         fetch("/data/proparties.json")
@@ -54,38 +31,22 @@ const ListingPayment = () => {
             .catch((err) => console.error(err));
     }, [id]);
 
-    console.log(property);
-
     const agreedFee = 300;
     const bookingFee = 300;
-    // const total = agreedFee + bookingFee;
 
     const peaceOfMindFee = 5;
 
-    // Calculate total dynamically
     const total = useMemo(() => {
         return agreedFee + bookingFee + (enabled ? peaceOfMindFee : 0);
     }, [agreedFee, bookingFee, enabled]);
 
     if (!property) return <p>Loading...</p>;
 
-    if (!host) return <p>Loading...</p>;
-
     return (
         <>
             <div className="container mx-auto">
                 <div className="mx-4 md:mx-0">
-                    <div className="mt-4 p-5 border border-[#C9A94D] flex justify-between items-center mb-8 flex-col md:flex-row gap-4">
-                        <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={handleClick}>
-                            <ArrowLeft />
-                            <p>Back To Previous</p>
-                        </div>
-                        <h1 className="text-2xl text-[#C9A94D]">Payment</h1>
-                        <div className="flex items-center gap-2">
-                            <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                            <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                        </div>
-                    </div>
+                    <PageHeader title={"Listing Payment"}></PageHeader>
                     <div className="text-[#C9A94D]">
                         <div className="max-w-[466px] bg-[#2D3546] mb-6 py-3 md:py-5 px-4 md:px-14 rounded-[12px] mx-auto">
                             <h1 className="font-bold text-center mb-2 text-[18px]">Nest Offer</h1>
