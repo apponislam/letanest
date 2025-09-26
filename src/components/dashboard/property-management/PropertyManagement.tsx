@@ -1,17 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Host } from "@/types/host";
-import { ArrowLeft, Star } from "lucide-react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { Star } from "lucide-react";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import PageHeader from "@/components/PageHeader";
 
 const PropertyManagement = () => {
-    const router = useRouter();
-    const [host, setHost] = useState<Host | null>(null);
     const [open, setOpen] = useState(false);
     const hostDetails = {
         name: "John Smith",
@@ -20,34 +17,9 @@ const PropertyManagement = () => {
         status: true,
     };
 
-    useEffect(() => {
-        const fetchHost = async () => {
-            try {
-                const res = await fetch("/data/host.json");
-                const data: Host[] = await res.json();
-                setHost(data[0]);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchHost();
-    }, []);
-
-    if (!host) return <p>Loading...</p>;
-
     return (
         <div className="container mx-auto">
-            <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
-                <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={() => router.back()}>
-                    <ArrowLeft />
-                    <p>Back To Previous</p>
-                </div>
-                <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
-                <div className="flex items-center gap-2">
-                    <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                    <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                </div>
-            </div>
+            <PageHeader title={"Property Management"}></PageHeader>
 
             <div className="w-full">
                 <Tabs defaultValue="property" className="w-full">

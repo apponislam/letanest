@@ -23,7 +23,7 @@ type SignUpFormInputs = z.infer<typeof signupSchema>;
 const SignUpForm = () => {
     const router = useRouter();
     const handleBack = () => {
-        router.back(); // Go back to previous page
+        router.back();
     };
 
     const [showPassword, setShowPassword] = useState(false);

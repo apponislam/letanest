@@ -1,10 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Host } from "@/types/host";
-import { ArrowLeft, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import React from "react";
 import * as z from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PageHeader from "@/components/PageHeader";
+import { X } from "lucide-react";
 
 const subscriptionSchema = z.object({
     title: z.string().min(2, { message: "Title is required" }),
@@ -29,22 +27,6 @@ const subscriptionSchema = z.object({
 type SubscriptionFormValues = z.infer<typeof subscriptionSchema>;
 
 const AddMembershipForm = () => {
-    const router = useRouter();
-    const [host, setHost] = useState<Host | null>(null);
-
-    useEffect(() => {
-        const fetchHost = async () => {
-            try {
-                const res = await fetch("/data/host.json");
-                const data: Host[] = await res.json();
-                setHost(data[0]);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchHost();
-    }, []);
-
     const {
         control,
         register,
@@ -77,21 +59,9 @@ const AddMembershipForm = () => {
         reset();
     };
 
-    if (!host) return <p>Loading...</p>;
-
     return (
         <div className="container mx-auto">
-            <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
-                <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={() => router.back()}>
-                    <ArrowLeft />
-                    <p>Back To Previous</p>
-                </div>
-                <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
-                <div className="flex items-center gap-2">
-                    <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                    <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                </div>
-            </div>
+            <PageHeader title={"Add Membership"}></PageHeader>
 
             <div className="bg-[#2D3546] border border-[#C9A94D] p-4 md:p-9 text-[#C9A94D]">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 w-full md:max-w-96">

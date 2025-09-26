@@ -1,15 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Host } from "@/types/host";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import React, { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 
 const reviews = [
     {
@@ -35,22 +32,6 @@ const reviews = [
 const categories = ["Communication", "Accuracy of Listing", "Cleanliness", "Check-In Experience", "Overall Experience"];
 
 const PropertyManagement = () => {
-    const router = useRouter();
-    const [host, setHost] = useState<Host | null>(null);
-
-    useEffect(() => {
-        const fetchHost = async () => {
-            try {
-                const res = await fetch("/data/host.json");
-                const data: Host[] = await res.json();
-                setHost(data[0]);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchHost();
-    }, []);
-
     const [openRow, setOpenRow] = useState<number | null>(null);
     const [ratings, setRatings] = useState<Record<number, Record<string, number>>>({});
 
@@ -61,21 +42,9 @@ const PropertyManagement = () => {
         }));
     };
 
-    if (!host) return <p>Loading...</p>;
-
     return (
         <div className="container mx-auto">
-            <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
-                <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={() => router.back()}>
-                    <ArrowLeft />
-                    <p>Back To Previous</p>
-                </div>
-                <h1 className="text-2xl text-[#C9A94D]">Dashboard</h1>
-                <div className="flex items-center gap-2">
-                    <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                    <div className="text-[#C9A94D] text-[18px]">{host.role}</div>
-                </div>
-            </div>
+            <PageHeader title={"Reviews"}></PageHeader>
 
             <div className="w-full">
                 <div className="bg-[#2D3546] border border-[#C9A94D] p-4 md:p-9 text-[#C9A94D] rounded-[20px] space-y-4">
