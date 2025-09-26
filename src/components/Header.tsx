@@ -42,7 +42,14 @@ const Header = () => {
                     {/* Left: Logo */}
                     <div className="flex items-center gap-3">
                         <Link href="/">
-                            <Image src="/logo.svg" alt="Logo" width={120} height={40} className="h-6 md:h-10 w-auto" />
+                            <Image
+                                src="/logo.svg"
+                                alt="Logo"
+                                width={120}
+                                height={40}
+                                className="h-6 md:h-10 w-auto"
+                                style={{ width: "auto" }} // ensures aspect ratio
+                            />
                         </Link>
                     </div>
 

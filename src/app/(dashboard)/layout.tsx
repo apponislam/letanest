@@ -1,5 +1,14 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Dashboard - Letanest – Unique Travel Experiences",
+    description: "Explore rare travel destinations and curated experiences with Letanest.",
+    icons: {
+        icon: "/favicon.svg",
+    },
+};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
