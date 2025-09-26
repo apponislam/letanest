@@ -188,9 +188,59 @@ const PropertyManagement = () => {
                                             <DropdownMenuItem className="bg-[#135E9A] text-white hover:bg-[#135E9A] focus:bg-[#135E9A] justify-center focus:text-white rounded-[20px]">
                                                 <span className="w-full text-center">Hide</span>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="bg-[#C9A94D] text-white hover:bg-[#C9A94D] focus:bg-[#C9A94D] justify-center focus:text-white rounded-[20px]">
+                                            <DropdownMenuItem
+                                                className="bg-[#C9A94D] text-white justify-center rounded-[20px] cursor-pointer"
+                                                onSelect={(event) => {
+                                                    event.preventDefault(); // prevent dropdown from closing
+                                                    setOpen(true); // open the modal
+                                                }}
+                                            >
                                                 <span className="w-full text-center">Host Details</span>
                                             </DropdownMenuItem>
+
+                                            <Dialog open={open} onOpenChange={setOpen}>
+                                                <DialogHeader>
+                                                    <DialogTitle></DialogTitle>
+                                                </DialogHeader>
+                                                <DialogContent className="bg-[#14213D] border border-[#C9A94D] rounded-[10px] p-6 w-[320px]">
+                                                    <style jsx global>{`
+                                                        [data-slot="dialog-close"] {
+                                                            color: white !important; /* make the X icon white */
+                                                            opacity: 1 !important; /* fully visible */
+                                                        }
+                                                        [data-slot="dialog-close"]:hover {
+                                                            color: #c9a94d !important; /* gold on hover */
+                                                        }
+                                                        [data-slot="dialog-close"] svg {
+                                                            stroke: currentColor; /* make the X follow the color */
+                                                        }
+                                                    `}</style>
+                                                    <div className="mt-4 space-y-2 text-[#C9A94D]">
+                                                        <div className="flex items-center justify-center mb-4 flex-col">
+                                                            <Image src="/listing/hostImage.png" alt="Host image" height={100} width={100} className="rounded-full mb-2 border border-[#C9A94D]"></Image>
+                                                            <Image src="/listing/messages-dots.png" alt="Message" height={24} width={24}></Image>
+                                                        </div>
+                                                        <p className="font-bold text-xl md:text-[28px] text-white"> {hostDetails.name}</p>
+
+                                                        <div className="flex items-center gap-2 text-[18px] font-bold">
+                                                            <Image src="/listing/mail.png" alt="Mail" height={24} width={24}></Image>
+                                                            <p>{hostDetails.email}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[18px] font-bold">
+                                                            <Image src="/listing/phone.png" alt="Mail" height={24} width={24}></Image>
+                                                            <p>{hostDetails.phone}</p>
+                                                        </div>
+                                                        <div className="flex items-center justify-center">
+                                                            <button className={`flex items-center gap-1 px-7 py-1 rounded-[20px] text-base justify-center ${hostDetails.status ? "bg-[#135E9A] text-white" : "bg-red-600 text-white"}`}>
+                                                                {hostDetails.status && <Star className="w-4 h-4" />}
+                                                                {hostDetails.status ? "Verified" : "Unverified"}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <DialogFooter></DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
@@ -217,9 +267,59 @@ const PropertyManagement = () => {
                                             <DropdownMenuItem className="bg-[#135E9A] text-white hover:bg-[#135E9A] focus:bg-[#135E9A] justify-center focus:text-white rounded-[20px]">
                                                 <span className="w-full text-center">Hide</span>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="bg-[#C9A94D] text-white hover:bg-[#C9A94D] focus:bg-[#C9A94D] justify-center focus:text-white rounded-[20px]">
+                                            <DropdownMenuItem
+                                                className="bg-[#C9A94D] text-white justify-center rounded-[20px] cursor-pointer"
+                                                onSelect={(event) => {
+                                                    event.preventDefault(); // prevent dropdown from closing
+                                                    setOpen(true); // open the modal
+                                                }}
+                                            >
                                                 <span className="w-full text-center">Host Details</span>
                                             </DropdownMenuItem>
+
+                                            <Dialog open={open} onOpenChange={setOpen}>
+                                                <DialogHeader>
+                                                    <DialogTitle></DialogTitle>
+                                                </DialogHeader>
+                                                <DialogContent className="bg-[#14213D] border border-[#C9A94D] rounded-[10px] p-6 w-[320px]">
+                                                    <style jsx global>{`
+                                                        [data-slot="dialog-close"] {
+                                                            color: white !important; /* make the X icon white */
+                                                            opacity: 1 !important; /* fully visible */
+                                                        }
+                                                        [data-slot="dialog-close"]:hover {
+                                                            color: #c9a94d !important; /* gold on hover */
+                                                        }
+                                                        [data-slot="dialog-close"] svg {
+                                                            stroke: currentColor; /* make the X follow the color */
+                                                        }
+                                                    `}</style>
+                                                    <div className="mt-4 space-y-2 text-[#C9A94D]">
+                                                        <div className="flex items-center justify-center mb-4 flex-col">
+                                                            <Image src="/listing/hostImage.png" alt="Host image" height={100} width={100} className="rounded-full mb-2 border border-[#C9A94D]"></Image>
+                                                            <Image src="/listing/messages-dots.png" alt="Message" height={24} width={24}></Image>
+                                                        </div>
+                                                        <p className="font-bold text-xl md:text-[28px] text-white"> {hostDetails.name}</p>
+
+                                                        <div className="flex items-center gap-2 text-[18px] font-bold">
+                                                            <Image src="/listing/mail.png" alt="Mail" height={24} width={24}></Image>
+                                                            <p>{hostDetails.email}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[18px] font-bold">
+                                                            <Image src="/listing/phone.png" alt="Mail" height={24} width={24}></Image>
+                                                            <p>{hostDetails.phone}</p>
+                                                        </div>
+                                                        <div className="flex items-center justify-center">
+                                                            <button className={`flex items-center gap-1 px-7 py-1 rounded-[20px] text-base justify-center ${hostDetails.status ? "bg-[#135E9A] text-white" : "bg-red-600 text-white"}`}>
+                                                                {hostDetails.status && <Star className="w-4 h-4" />}
+                                                                {hostDetails.status ? "Verified" : "Unverified"}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <DialogFooter></DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
