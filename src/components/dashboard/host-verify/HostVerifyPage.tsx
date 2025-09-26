@@ -70,8 +70,8 @@ const HostVerifyPage = () => {
 
             <div className="w-full">
                 <div className="bg-[#2D3546] border border-[#C9A94D] p-4 md:p-9 text-[#C9A94D] rounded-[20px] space-y-4">
-                    <div className="flex justify-between items-center">
-                        <span className=" text-[#C9A94D] text-[28px]">Review</span>
+                    <div className="flex justify-between  md:items-center gap-3 flex-col md:flex-row">
+                        <span className=" text-[#C9A94D] text-xl md:text-[28px]">Review</span>
 
                         <div className="flex items-center gap-2">
                             <span className="text-[#C9A94D] text-[28px]">Sort By:</span>
@@ -92,7 +92,7 @@ const HostVerifyPage = () => {
 
                     <div className="space-y-3 ">
                         {reviews.map((row, i) => (
-                            <div key={i} className="p-3 rounded-[12px] flex justify-between items-center border border-[#C9A94D]">
+                            <div key={i} className="p-3 rounded-[12px] flex justify-between md:items-center border border-[#C9A94D] flex-col md:flex-row gap-3">
                                 <div>
                                     <p className="font-bold text-2xl">Date</p>
                                     <span>{row.date}</span>
@@ -107,7 +107,7 @@ const HostVerifyPage = () => {
                                 </div>
                                 <div>
                                     <button
-                                        className="bg-[#C9A94D] text-white rounded-[10px] font-bold text-[14px] py-1 px-3"
+                                        className="bg-[#C9A94D] text-white rounded-[10px] font-bold text-[14px] py-1 px-3 w-full"
                                         onClick={(event) => {
                                             event.preventDefault();
                                             setOpen(true);
@@ -163,7 +163,7 @@ const HostVerifyPage = () => {
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <button className="p-2 rounded-full bg-[#434D64]">
+                                        <button className="p-2 rounded-full bg-[#434D64] w-9">
                                             <EllipsisVertical className="w-5 h-5 text-white" />
                                         </button>
                                     </DropdownMenuTrigger>
