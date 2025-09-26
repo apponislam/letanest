@@ -9,9 +9,9 @@ import React from "react";
 const HomeFilterForm = () => {
     // const [value, setValue] = React.useState<[number, number]>([150, 2550]);
 
-    const [value, setValue] = React.useState<[number, number]>([150, 2550]);
-    const min = 150;
-    const max = 2550;
+    const [value, setValue] = React.useState<[number, number]>([0, 3000]);
+    const min = 0;
+    const max = 3000;
 
     // Helper to convert value to % position
     const valueToPercent = (val: number) => ((val - min) / (max - min)) * 100;
