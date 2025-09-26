@@ -19,6 +19,7 @@ type ResetPasswordFormInputs = z.infer<typeof resetPasswordSchema>;
 
 const ResetPasswordForm = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [showPassword2, setShowPassword2] = useState(false);
 
     const {
         register,
@@ -58,9 +59,9 @@ const ResetPasswordForm = () => {
                         <div className="flex flex-col">
                             <label className="mb-4 text-[#C9A94D]">Confirm Password</label>
                             <div className="relative">
-                                <input type={showPassword ? "text" : "password"} placeholder="Confirm password" {...register("confirmPassword")} className="w-full px-7 py-5 border border-white rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none focus:ring-2 focus:ring-none" />
-                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-7 top-1/2 -translate-y-1/2 text-[#D4BA71] hover:text-[#C9A94D]">
-                                    {showPassword ? <EyeOff /> : <Eye />}
+                                <input type={showPassword2 ? "text" : "password"} placeholder="Confirm password" {...register("confirmPassword")} className="w-full px-7 py-5 border border-white rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none focus:ring-2 focus:ring-none" />
+                                <button type="button" onClick={() => setShowPassword2(!showPassword2)} className="absolute right-7 top-1/2 -translate-y-1/2 text-[#D4BA71] hover:text-[#C9A94D]">
+                                    {showPassword2 ? <EyeOff /> : <Eye />}
                                 </button>
                             </div>
                             {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
