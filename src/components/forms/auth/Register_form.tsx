@@ -121,7 +121,7 @@ const SignUpForm = () => {
                         <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors">
                             Sign Up
                         </button>
-                        <p className="text-[#C9A94D]">
+                        <p className="text-[#C9A94D] mb-2">
                             Already have an account?{" "}
                             <Link href="/auth/login" className="text-[#135E9A]">
                                 Sign In
