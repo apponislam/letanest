@@ -14,7 +14,7 @@ const HomeFooter = () => {
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">For Guests</h1>
                         <ul className="list-disc list-inside text-[#C9A94D] text-[14px] md:text-[18px] space-y-1">
                             <li>
-                                <Link href="/search-properties" className="hover:underline">
+                                <Link href="/listings" className="hover:underline">
                                     Search Properties
                                 </Link>
                             </li>
@@ -24,7 +24,7 @@ const HomeFooter = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/support" className="hover:underline">
+                                <Link href="/contact" className="hover:underline">
                                     Get Support
                                 </Link>
                             </li>
@@ -35,17 +35,17 @@ const HomeFooter = () => {
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">For Hosts</h1>
                         <ul className="list-disc list-inside text-[#C9A94D] text-[14px] md:text-[18px] space-y-1">
                             <li>
-                                <Link href="/list-property" className="hover:underline">
+                                <Link href="/dashboard/property-management" className="hover:underline">
                                     List Property
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/manage-bookings" className="hover:underline">
+                                <Link href="/dashboard" className="hover:underline">
                                     Manage Bookings
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/subscription-plans" className="hover:underline">
+                                <Link href="/dashboard/plans" className="hover:underline">
                                     Subscription Plans
                                 </Link>
                             </li>
