@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CirclePlus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const forgotPassSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -12,6 +13,8 @@ const forgotPassSchema = z.object({
 type ForgotPassFormInputs = z.infer<typeof forgotPassSchema>;
 
 const ForgotPassForm = () => {
+    const router = useRouter();
+
     const {
         register,
         handleSubmit,
@@ -23,6 +26,7 @@ const ForgotPassForm = () => {
 
     const onSubmit = (data: ForgotPassFormInputs) => {
         console.log("Forgot Password Submitted:", data);
+        router.push("/auth/forget-pass-otp");
         // You can add axios request here to trigger password recovery
     };
 

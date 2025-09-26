@@ -10,14 +10,14 @@ const BookingCards = () => {
             title: "Booking Made Easy",
             description: "Choose your dates, pick your nest, and relax—it’s that simple. No stress, no hassle, just your stay sorted in minutes.",
             button: "Start Booking",
-            link: "/booking",
+            link: "/listings",
         },
         {
             icon: "/home/home-roof.png",
             title: "Hosting Made Simple",
             description: " Start hosting in just a few clicks, set your availability, and welcome guests. We take care of the tricky bits so hosting stays simple and fun.",
             button: "Start Hosting",
-            link: "/nests",
+            link: "/dashboard",
         },
     ];
 
