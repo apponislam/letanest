@@ -11,7 +11,6 @@ const page = () => {
     return (
         <>
             <Heroarea></Heroarea>
-
             <main className="relative z-10 mt-[900px] md:mt-[100vh]">
                 <HomeCount></HomeCount>
                 <FeaturedNests></FeaturedNests>
