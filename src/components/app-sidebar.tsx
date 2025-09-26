@@ -16,7 +16,7 @@ const items = [
     { title: "Review", url: "/dashboard/review", icon: Star },
     { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
     { title: "Property Management", url: "/dashboard/property-management", icon: Home },
-    { title: "Contact Letanest", url: "/dashboard/contact-letanest", icon: Mail },
+    { title: "Contact Letanest", url: "/contact", icon: Mail },
     { title: "Memberships", url: "/dashboard/memberships", icon: Users },
     { title: "Host Verify", url: "/dashboard/host-verify", icon: BadgeCheck },
     { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
