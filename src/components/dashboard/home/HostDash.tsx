@@ -50,7 +50,7 @@ const HostDash = () => {
                             <h1 className="text-xl font-bold  text-center md:text-left">Unread 4+ massages</h1>
                         </div>
                     </div>
-                    <Link href="/" className="h-full">
+                    <Link href="/dashboard/listing/add" className="h-full">
                         <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5 h-full">
                             <Image src="/dashboard/host/plus.png" alt="Total Booking" width={35} height={35}></Image>
                             <p> Add Property</p>
