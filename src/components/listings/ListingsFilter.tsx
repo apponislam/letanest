@@ -75,6 +75,33 @@ export default function ListingsFilter() {
         setCurrentPage(page);
     };
 
+    const handleSearch = () => {
+        let filtered = properties;
+
+        // Filter by price range
+        filtered = filtered.filter((p) => Number(p.price_per_night) >= value[0] && Number(p.price_per_night) <= value[1]);
+
+        // Filter by amenities (case-insensitive match)
+        if (selectedAmenities.length > 0) {
+            filtered = filtered.filter((p) => selectedAmenities.every((amenity) => p.amenities.some((a) => a.toLowerCase() === amenity.toLowerCase())));
+        }
+
+        // Filter by rating (map text -> number)
+        if (selectedRating) {
+            const ratingMap: Record<string, number> = {
+                Good: 3,
+                "Above Good": 4,
+                Excellent: 5,
+            };
+
+            filtered = filtered.filter((p) => Number(p.rating) === ratingMap[selectedRating]);
+        }
+
+        console.log("Filtered results:", filtered);
+        setProperties(filtered);
+        setCurrentPage(1);
+    };
+
     return (
         <div className="container mx-auto py-10">
             <div className="mx-4 md:mx-0">
@@ -128,19 +155,14 @@ export default function ListingsFilter() {
                                 {/* Amenities */}
                                 <div>
                                     <h1 className="text-[#C9A94D] pt-8 text-xl font-semibold mb-4">Amenities</h1>
-
                                     <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
                                         {amenitiesList.map((amenity, idx) => (
                                             <div
                                                 key={idx}
-                                                className="flex items-center gap-2 cursor-pointer" // make whole row clickable
+                                                className="flex items-center gap-2 cursor-pointer" // whole row clickable
                                                 onClick={() => toggleAmenity(amenity)}
                                             >
-                                                <button
-                                                    type="button"
-                                                    className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${selectedAmenities.includes(amenity) ? "bg-[#14213D]" : "bg-transparent"}`}
-                                                    onClick={(e) => e.stopPropagation()} // prevent double toggle when button is clicked
-                                                >
+                                                <button type="button" className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${selectedAmenities.includes(amenity) ? "bg-[#14213D]" : "bg-transparent"}`}>
                                                     {selectedAmenities.includes(amenity) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}
                                                 </button>
                                                 <span className="text-[#C9A94D]">{amenity}</span>
@@ -171,7 +193,7 @@ export default function ListingsFilter() {
                                         ))}
                                     </div>
                                 </div>
-                                <button type="button" className="px-6 py-3 rounded-lg bg-[#C9A94D] text-white font-semibold text-lg hover:bg-[#af8d28] transition-colors w-full">
+                                <button onClick={handleSearch} type="button" className="px-6 py-3 rounded-lg bg-[#C9A94D] text-white font-semibold text-lg hover:bg-[#af8d28] transition-colors w-full">
                                     Search
                                 </button>
                             </div>
