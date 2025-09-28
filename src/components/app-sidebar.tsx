@@ -48,7 +48,7 @@ export function AppSidebar() {
                                         }`}
                                     >
                                         <SidebarMenuButton asChild>
-                                            <Link href={item.url} className="flex items-center gap-2 hover:text-white !p-0 !bg-transparent !hover:bg-transparent">
+                                            <Link href={item.url} className="flex items-center gap-2 hover:text-white !p-0 !bg-transparent !hover:bg-transparent focus-visible:shadow-none active:text-white">
                                                 <item.icon className="h-5 w-5" />
                                                 <span>{item.title}</span>
                                             </Link>
