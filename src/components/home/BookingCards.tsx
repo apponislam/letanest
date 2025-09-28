@@ -25,7 +25,7 @@ const BookingCards = () => {
         <div className="container mx-auto">
             <div className="flex flex-col gap-6 mx-4 md:mx-0">
                 {cards.map((card, idx) => (
-                    <div key={idx} className={`rounded-2xl py-6 md:py-14 px-4 md:px-8 transition-all duration-300 ${idx === 0 ? "border border-[#C9A94D]" : "border border-transparent hover:border-[#C9A94D]"}`}>
+                    <div key={idx} className="rounded-2xl py-6 md:py-14 px-4 md:px-8 transition-all duration-300 border border-transparent hover:border-[#C9A94D]">
                         <div className="flex items-center justify-center gap-5 mb-8 flex-col md:flex-row">
                             <Image src={card.icon} height={42} width={42} alt={card.title} />
                             <h1 className="text-[#C9A94D] text-2xl md:text-[32px] font-bold">{card.title}</h1>

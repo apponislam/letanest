@@ -4,15 +4,15 @@ import React, { useEffect, useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronLeft, ChevronRight, Home, MapPin, User } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Home, MapPin } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CustomDateInput from "@/utils/CustomDateInput";
 import { Property } from "@/types/proparty";
 import PropertyCard from "../PropertyCard";
+import { Input } from "../ui/input";
 
 const amenitiesList = ["Pet Friendly", "Free WiFi", "Onsite Parking", "Laundry Service", "TV", "Wifi", "Parking", "Hot Tub", "Towels Included", "Garden", "Pool", "Dryer", "Gym", "Beach Access", "Smoking Allowed", "Balcony", "Kitchen", "Lift Access"];
-
 const guestRatings = ["Good", "Above Good", "Excellent"];
 
 export default function ListingsFilter() {
@@ -21,7 +21,7 @@ export default function ListingsFilter() {
 
     const [properties, setProperties] = useState<Property[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const itemsPerPage = 6;
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -39,11 +39,8 @@ export default function ListingsFilter() {
         fetchProperties();
     }, []);
 
-    const guestOptions = ["1", "2", "3", "4"];
     const locationOptions = ["New York", "London", "Paris"];
-    const bedroomOptions = ["1", "2", "3", "4"];
     const propertyTypeOptions = ["Hotel", "Apartment", "Villa"];
-
     const [value, setValue] = React.useState<[number, number]>([0, 3000]);
     const min = 0;
     const max = 3000;
@@ -73,33 +70,6 @@ export default function ListingsFilter() {
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-    };
-
-    const handleSearch = () => {
-        let filtered = properties;
-
-        // Filter by price range
-        filtered = filtered.filter((p) => Number(p.price_per_night) >= value[0] && Number(p.price_per_night) <= value[1]);
-
-        // Filter by amenities (case-insensitive match)
-        if (selectedAmenities.length > 0) {
-            filtered = filtered.filter((p) => selectedAmenities.every((amenity) => p.amenities.some((a) => a.toLowerCase() === amenity.toLowerCase())));
-        }
-
-        // Filter by rating (map text -> number)
-        if (selectedRating) {
-            const ratingMap: Record<string, number> = {
-                Good: 3,
-                "Above Good": 4,
-                Excellent: 5,
-            };
-
-            filtered = filtered.filter((p) => Number(p.rating) === ratingMap[selectedRating]);
-        }
-
-        console.log("Filtered results:", filtered);
-        setProperties(filtered);
-        setCurrentPage(1);
     };
 
     return (
@@ -178,14 +148,10 @@ export default function ListingsFilter() {
                                         {guestRatings.map((rating, idx) => (
                                             <div
                                                 key={idx}
-                                                className="flex items-center gap-2 cursor-pointer" // make row clickable
-                                                onClick={() => setSelectedRating(rating)}
+                                                className="flex items-center gap-2 cursor-pointer" // whole row clickable
+                                                onClick={() => setSelectedRating((prev) => (prev === rating ? null : rating))}
                                             >
-                                                <button
-                                                    type="button"
-                                                    className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all`}
-                                                    onClick={(e) => e.stopPropagation()} // prevent double toggle
-                                                >
+                                                <button type="button" className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${selectedRating === rating ? "bg-[#14213D]" : "bg-transparent"}`}>
                                                     {selectedRating === rating && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}
                                                 </button>
                                                 <span className="text-[#C9A94D]">{rating}</span>
@@ -193,9 +159,6 @@ export default function ListingsFilter() {
                                         ))}
                                     </div>
                                 </div>
-                                <button onClick={handleSearch} type="button" className="px-6 py-3 rounded-lg bg-[#C9A94D] text-white font-semibold text-lg hover:bg-[#af8d28] transition-colors w-full">
-                                    Search
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -214,24 +177,15 @@ export default function ListingsFilter() {
                             </div>
 
                             {/* Guest */}
+
                             <div>
                                 <label className="block text-[#C9A94D] font-medium mb-2">Guest</label>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D]">
-                                            <User className="w-4 h-4" />
-                                            Guest
-                                            <ChevronDown className="w-4 h-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
-                                        {guestOptions.map((option, i) => (
-                                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 " key={i}>
-                                                {option}
-                                            </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                <Input
+                                    type="number"
+                                    defaultValue={1}
+                                    min={1} // prevents negative values
+                                    className="flex items-center justify-between w-full h-auto bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D] rounded-lg px-4 p-[6px] md:py-[10px] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                                />
                             </div>
 
                             {/* Location */}
@@ -256,24 +210,10 @@ export default function ListingsFilter() {
                             </div>
 
                             {/* Bedroom */}
+
                             <div>
-                                <label className="block text-[#C9A94D] font-medium mb-2">Bedroom</label>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D]">
-                                            <Home className="w-4 h-4" />
-                                            Bedroom
-                                            <ChevronDown className="w-4 h-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
-                                        {bedroomOptions.map((option, i) => (
-                                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 " key={i}>
-                                                {option}
-                                            </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                <label className="block text-[#C9A94D] font-medium mb-2">Guest</label>
+                                <Input type="number" defaultValue={1} min={1} className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D] rounded-lg px-4 py-3 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]" />
                             </div>
 
                             {/* Property Type */}

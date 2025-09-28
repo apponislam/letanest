@@ -18,9 +18,6 @@ const Footer = () => {
                         <Link href="/" target="_blank">
                             <Image src="/footer/Facebook.png" alt="Twitter" width={26} height={26}></Image>
                         </Link>
-                        <Link href="/" target="_blank">
-                            <Image src="/footer/Dribbble.png" alt="Twitter" width={26} height={26}></Image>
-                        </Link>
                     </div>
                 </div>
             </div>

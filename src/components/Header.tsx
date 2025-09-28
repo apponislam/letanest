@@ -37,7 +37,7 @@ const Header = () => {
     return (
         <header className={`w-full sticky top-0 z-50 ${scrolled ? "border-b-2 border-[#C9A94D] backdrop-blur-md bg-gradient-to-b from-[#14213D] via-[#14213D]/70 to-[#14213D]/40" : ""}`}>
             <div className={`container mx-auto  ${scrolled ? "py-4" : "md:py-10"}`}>
-                <div className={`flex items-center justify-between border-b-2 ${scrolled ? "border-none px-3" : "md:border-2 py-7 px-6 backdrop-blur-md bg-gradient-to-b from-[#14213D] from-0% via-[#14213D] via-50% to-[#14213D]/80 to-100%"} border-[#C9A94D`}>
+                <div className={`flex items-center justify-between border-b-2 border-[#C9A94D] ${scrolled ? "border-none px-3" : "md:border-2 py-7 px-6 backdrop-blur-md bg-gradient-to-b from-[#14213D] from-0% via-[#14213D] via-50% to-[#14213D]/80 to-100%"} border-[#C9A94D`}>
                     {/* <div className={`flex items-center justify-between ${scrolled ? "border-b-2" : "md:border-2 py-7 px-6"} border-[#C9A94D]`}> */}
                     {/* Left: Logo */}
                     <div className="flex items-center gap-3">
