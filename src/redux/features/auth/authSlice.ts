@@ -4,11 +4,16 @@ import { RootState } from "../../store";
 export type TUser = {
     _id: string;
     name: string;
-    username: string;
     email: string;
-    avatarUrl?: string;
+    phone?: string;
+    role: "GUEST" | "HOST" | "ADMIN";
+    isActive: boolean;
+    isEmailVerified?: boolean;
+    verificationToken?: string;
+    verificationTokenExpiry?: string;
     createdAt?: string;
     updatedAt?: string;
+    profileImg?: string;
 };
 
 type TAuthState = {
@@ -26,6 +31,7 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action: PayloadAction<{ user: TUser; token: string }>) => {
+            console.log(action);
             state.user = action.payload.user;
             state.token = action.payload.token;
         },
