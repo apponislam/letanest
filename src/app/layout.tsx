@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import { ReduxProviders } from "@/providers/ReduxProvider";
 
 const montserrat = Montserrat({
     weight: ["100", "300", "400", "500", "700", "900"],
@@ -24,7 +25,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${montserrat.className}  antialiased bg-[#14213D]`}>{children}</body>
+            <body className={`${montserrat.className}  antialiased bg-[#14213D]`}>
+                <ReduxProviders>{children}</ReduxProviders>
+            </body>
         </html>
     );
 }
