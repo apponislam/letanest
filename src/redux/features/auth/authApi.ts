@@ -3,6 +3,7 @@ import { TUser } from "./authSlice";
 
 type RefreshTokenResponse = {
     data: {
+        refreshToken: string;
         accessToken: string;
         user: TUser;
     };
@@ -17,7 +18,6 @@ const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: userInfo,
             }),
-            invalidatesTags: ["Cart"],
         }),
         register: builder.mutation({
             query: (userInfo) => ({
@@ -39,7 +39,6 @@ const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 credentials: "include",
             }),
-            invalidatesTags: ["Cart"],
         }),
     }),
 });

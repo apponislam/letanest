@@ -7,7 +7,7 @@ import { baseApi } from "./api/baseApi";
 const persistConfigure = {
     key: "auth",
     storage,
-    whitelist: ["user", "token"], //new
+    whitelist: ["user", "token"],
 };
 
 const persistAuthReducer = persistReducer(persistConfigure, authReducer);
@@ -21,7 +21,6 @@ const store = configureStore({
         getDefaultMiddlewares({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-                ignoredPaths: ["ordersApi.queries.downloadInvoice", "ordersApi.queries.downloadInvoiceHTML"],
             },
         }).concat(baseApi.middleware),
 });
