@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useResetPasswordWithTokenMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 const resetPasswordSchema = z
     .object({
@@ -19,7 +21,9 @@ const resetPasswordSchema = z
 type ResetPasswordFormInputs = z.infer<typeof resetPasswordSchema>;
 
 const ResetPasswordForm = () => {
+    const searchParams = useSearchParams();
     const router = useRouter();
+    const resetToken = searchParams.get("token");
     const [showPassword, setShowPassword] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
 
@@ -30,10 +34,21 @@ const ResetPasswordForm = () => {
     } = useForm<ResetPasswordFormInputs>({
         resolver: zodResolver(resetPasswordSchema),
     });
+    const [resetPasswordWithToken, { isLoading }] = useResetPasswordWithTokenMutation();
 
-    const onSubmit = (data: ResetPasswordFormInputs) => {
-        console.log("Reset Password Submitted:", data);
-        // Add axios request to reset password here
+    const onSubmit = async (data: ResetPasswordFormInputs) => {
+        if (!resetToken) {
+            toast.error("Invalid or missing token");
+            return;
+        }
+        const loadingToast = toast.loading("Resetting password...");
+        try {
+            await resetPasswordWithToken({ resetToken, newPassword: data.newPassword }).unwrap();
+            toast.success("Password reset successfully", { id: loadingToast });
+            router.push("/auth/login");
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Failed to reset password", { id: loadingToast });
+        }
     };
 
     return (
