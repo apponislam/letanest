@@ -3,15 +3,29 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, MessageSquare } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { currentUser, logOut, roles } from "@/redux/features/auth/authSlice";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import Avatar from "@/utils/Avatar";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useLogoutMutation } from "@/redux/features/auth/authApi";
 
 const menuItems = [
     { name: "Home", href: "/" },
     { name: "Listings", href: "/listings" },
     { name: "Dashboard", href: "/dashboard" },
-    { name: "Login", href: "/auth/login" },
+    // { name: "Login", href: "/auth/login" },
 ];
 
 const Header = () => {
+    const router = useRouter();
+    const user = useSelector(currentUser);
+    console.log(user);
+    // if (!user) {
+    //     menuItems.push({ name: "Login", href: "/auth/login" });
+    // }
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const [scrolled, setScrolled] = useState(false);
@@ -33,6 +47,22 @@ const Header = () => {
         handleScroll(); // initial check
         return () => window.removeEventListener("scroll", handleScroll);
     }, [scrolled]);
+
+    const dispatch = useDispatch();
+    const [logout] = useLogoutMutation();
+
+    const handleLogout = async () => {
+        const loadingToast = toast.loading("Logging out...");
+        try {
+            await logout().unwrap(); // RTK Query mutation
+            dispatch(logOut()); // use your slice's action
+            toast.success("Logged out successfully!", { id: loadingToast });
+
+            router.push("/"); // optional redirect
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Logout failed", { id: loadingToast });
+        }
+    };
 
     return (
         <header className={`w-full sticky top-0 z-50 ${scrolled ? "border-b-2 border-[#C9A94D] backdrop-blur-md bg-gradient-to-b from-[#14213D] via-[#14213D]/70 to-[#14213D]/40" : ""}`}>
@@ -64,16 +94,47 @@ const Header = () => {
                                         </Link>
                                     </li>
                                 ))}
+                                {!user && (
+                                    <li key="login">
+                                        <Link href="/auth/login" className="text-[#C9A94D] hover:text-[#C9A94D] font-medium">
+                                            Login
+                                        </Link>
+                                    </li>
+                                )}
                             </ul>
                         </nav>
+                        {user && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <div className="cursor-pointer">
+                                        <Avatar name={user.name} profileImg={user.profileImg} size={40} />
+                                    </div>
+                                </DropdownMenuTrigger>
+
+                                <DropdownMenuContent className="bg-[#14213D] text-white border border-[#C9A94D] w-48 p-0 rounded-none">
+                                    <Link href="/dashboard/profile">
+                                        <DropdownMenuItem className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none border-b border-[#C9A94D]">
+                                            <Image alt="Profile" src="/dashboard/user-eye.png" height={24} width={24} />
+                                            View Profile
+                                        </DropdownMenuItem>
+                                    </Link>
+                                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none">
+                                        <Image alt="Logout" src="/dashboard/logout.png" height={24} width={24} />
+                                        Logout
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
 
                         <Link href="/messages">
                             <MessageSquare className="text-[#C9A94D]" />
                         </Link>
 
-                        <Link href="/dashboard/listing/add" className="border border-[#C9A94D] text-[#C9A94D] font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors">
-                            + Add Listing
-                        </Link>
+                        {user?.role !== roles.GUEST && (
+                            <Link href="/dashboard/listing/add" className="border border-[#C9A94D] text-[#C9A94D] font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors">
+                                + Add Listing
+                            </Link>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -92,20 +153,41 @@ const Header = () => {
                         </Link>
                     ))}
 
+                    {user && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild className="w-10">
+                                <div className="cursor-pointer">
+                                    <Avatar name={user.name} profileImg={user.profileImg} size={40} />
+                                </div>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent className="bg-[#14213D] text-white border border-[#C9A94D] w-48 p-0 rounded-none">
+                                <Link href="/dashboard/profile">
+                                    <DropdownMenuItem className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none border-b border-[#C9A94D]">
+                                        <Image alt="Profile" src="/dashboard/user-eye.png" height={24} width={24} />
+                                        View Profile
+                                    </DropdownMenuItem>
+                                </Link>
+                                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none">
+                                    <Image alt="Logout" src="/dashboard/logout.png" height={24} width={24} />
+                                    Logout
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+
                     <Link href="/messages">
                         <div className="flex items-center gap-2">
                             <MessageSquare className="w-6 h-6 text-[#C9A94D]" />
                             <span className="text-[#C9A94D] font-medium">Message</span>
                         </div>
                     </Link>
-                    {/* <div className="flex items-center gap-2">
-                        <MessageSquare className="w-6 h-6 text-[#C9A94D]" />
-                        <span className="text-[#C9A94D] font-medium">Message</span>
-                    </div> */}
 
-                    <Link href="/dashboard/listing/add" className="border border-[#C9A94D] text-[#C9A94D] text-center font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                        + Add Listing
-                    </Link>
+                    {user?.role !== roles.GUEST && (
+                        <Link href="/dashboard/listing/add" className="border border-[#C9A94D] text-[#C9A94D] text-center font-semibold px-4 py-2 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                            + Add Listing
+                        </Link>
+                    )}
                 </nav>
             </div>
         </header>
