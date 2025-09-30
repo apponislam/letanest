@@ -57,21 +57,21 @@ const ListingPayment = () => {
                             <div className="flex flex-col gap-2 font-bold text-[18px]">
                                 <div className="flex items-center justify-between ">
                                     <h1>Agreed dates</h1>
-                                    <h1>${agreedFee}</h1>
+                                    <h1>£{agreedFee}</h1>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <h1>Booking Fee</h1>
-                                    <h1>${bookingFee}</h1>
+                                    <h1>£{bookingFee}</h1>
                                 </div>
                                 {enabled && (
                                     <div className="flex items-center justify-between">
                                         <h1>Peace of Mind Guarantee</h1>
-                                        <h1>${peaceOfMindFee}</h1>
+                                        <h1>£{peaceOfMindFee}</h1>
                                     </div>
                                 )}
                                 <div className="flex items-center justify-between">
                                     <h1>Total</h1>
-                                    <h1>${total}</h1>
+                                    <h1>£{total}</h1>
                                 </div>
                             </div>
                         </div>
@@ -81,7 +81,7 @@ const ListingPayment = () => {
                                     <Image alt="Property id" src="/listing/pay/shield.png" height={32} width={32} className="w-8 h-8"></Image>
                                     <div>
                                         <div className="flex items-center gap-5">
-                                            <h1 className="text-[18px] font-bold">Peace of Mind Guarantee +${peaceOfMindFee}</h1>
+                                            <h1 className="text-[18px] font-bold">Peace of Mind Guarantee +£{peaceOfMindFee}</h1>
                                             <div
                                                 className="relative"
                                                 onMouseEnter={() => setShowRules(true)}

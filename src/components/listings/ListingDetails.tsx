@@ -231,7 +231,7 @@ export default function PropertyPage() {
                     <div className="md:w-2/8">
                         <div className="md:sticky top-24 z-10">
                             <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
-                                <h1 className="text-[32px] mb-2 font-bold">${property.price_per_night}</h1>
+                                <h1 className="text-[32px] mb-2 font-bold">£{property.price_per_night}</h1>
                                 <div className="flex items-center gap-2 mb-6">
                                     <SingleStarRating rating={property.rating} size={20} />
                                     <p className="text-sm font-bold text-[#C9A94D]">{property.rating}</p>

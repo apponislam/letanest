@@ -5,6 +5,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, CirclePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useRequestPasswordResetOtpMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 const forgotPassSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -23,11 +25,17 @@ const ForgotPassForm = () => {
     } = useForm<ForgotPassFormInputs>({
         resolver: zodResolver(forgotPassSchema),
     });
+    const [requestPasswordResetOtp, { isLoading }] = useRequestPasswordResetOtpMutation();
 
-    const onSubmit = (data: ForgotPassFormInputs) => {
-        console.log("Forgot Password Submitted:", data);
-        router.push("/auth/forget-pass-otp");
-        // You can add axios request here to trigger password recovery
+    const onSubmit = async (data: ForgotPassFormInputs) => {
+        const loadingToast = toast.loading("Sending OTP...");
+        try {
+            await requestPasswordResetOtp({ email: data.email }).unwrap();
+            toast.success("OTP sent to your email", { id: loadingToast });
+            router.push(`/auth/forget-pass-otp?email=${encodeURIComponent(data.email)}`);
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Failed to send OTP", { id: loadingToast });
+        }
     };
 
     return (
@@ -40,7 +48,6 @@ const ForgotPassForm = () => {
                 <h1 className="text-[#C9A94D]  font-bold">Forgot Password</h1>
             </div>
 
-            {/* Centered Form */}
             <div className="flex items-center justify-center flex-1 px-4">
                 <div className="rounded-xl shadow-lg w-full">
                     <form className="flex flex-col gap-6 w-full" onSubmit={handleSubmit(onSubmit)}>
@@ -57,8 +64,8 @@ const ForgotPassForm = () => {
                         </div>
 
                         {/* Submit Button */}
-                        <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors">
-                            Next
+                        <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors" disabled={isLoading}>
+                            {isLoading ? "Sending..." : "Next"}
                         </button>
                     </form>
                 </div>
