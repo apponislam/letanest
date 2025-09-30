@@ -40,7 +40,7 @@ export default function ListingsFilter() {
     }, []);
 
     const locationOptions = ["New York", "London", "Paris"];
-    const propertyTypeOptions = ["Hotel", "Apartment", "Villa"];
+    const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
     const [value, setValue] = React.useState<[number, number]>([0, 3000]);
     const min = 0;
     const max = 3000;
@@ -103,13 +103,13 @@ export default function ListingsFilter() {
 
                                 {/* Price Range */}
                                 <div className="w-auto relative mb-8">
-                                    <h1 className="text-[#C9A94D] mb-4">Price Range</h1>
+                                    <h1 className="text-[#C9A94D] mb-4 text-center mt-4 md:mt-8">Price Range</h1>
                                     <div className="relative w-full h-6 mb-2">
                                         <span className="absolute text-[#C9A94D] font-medium" style={{ left: `${valueToPercent(value[0])}%`, transform: "translateX(-50%)" }}>
-                                            ${value[0]}
+                                            £{value[0]}
                                         </span>
                                         <span className="absolute text-[#C9A94D] font-medium" style={{ left: `${valueToPercent(value[1])}%`, transform: "translateX(-50%)" }}>
-                                            ${value[1]}
+                                            £{value[1]}
                                         </span>
                                     </div>
 
@@ -229,7 +229,7 @@ export default function ListingsFilter() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0:">
                                         {propertyTypeOptions.map((option, i) => (
-                                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 " key={i}>
+                                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 justify-center" key={i}>
                                                 {option}
                                             </DropdownMenuItem>
                                         ))}
