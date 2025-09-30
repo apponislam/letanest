@@ -5,10 +5,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { ArrowLeft, CirclePlus, Eye, EyeOff } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
-import { setUser } from "@/redux/features/auth/authSlice";
+import { redirectPath, setRedirectPath, setUser } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
@@ -31,6 +31,8 @@ const LoginForm = () => {
     });
     const dispatch = useDispatch();
     const [loginUser, { isLoading }] = useLoginMutation();
+
+    const path = useSelector(redirectPath);
 
     const onSubmit = async (data: LoginFormInputs) => {
         const loadingToast = toast.loading("Logging in...");
@@ -57,7 +59,12 @@ const LoginForm = () => {
             );
 
             console.log("Logged in user:", result);
-            router.push("/");
+            if (path) {
+                dispatch(setRedirectPath(null));
+                router.push(path);
+            } else {
+                router.push("/");
+            }
         } catch (err: any) {
             toast.error(err?.data?.message || "Login failed", { id: loadingToast });
         }
