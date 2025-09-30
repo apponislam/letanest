@@ -7,7 +7,7 @@ const MessageViews = () => {
         <>
             <div className="container mx-auto">
                 <div className="mx-4 md:mx-0">
-                    <PageHeader title={"Messages"} isHost={false}></PageHeader>
+                    <PageHeader title={"Messages"} isUser={false}></PageHeader>
 
                     <MessagesLayout2></MessagesLayout2>
                 </div>

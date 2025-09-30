@@ -6,30 +6,18 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Host } from "@/types/host";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
+import Avatar from "@/utils/Avatar";
 
 interface PageHeaderProps {
     title?: string;
-    isHost?: boolean;
+    isUser?: boolean;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isHost = true }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = true }) => {
     const router = useRouter();
-    const [host, setHost] = useState<Host | null>(null);
-
-    useEffect(() => {
-        if (isHost) {
-            const fetchHost = async () => {
-                try {
-                    const res = await fetch("/data/host.json");
-                    const data: Host[] = await res.json();
-                    setHost(data[0]);
-                } catch (error) {
-                    console.error("Failed to fetch host:", error);
-                }
-            };
-            fetchHost();
-        }
-    }, [isHost]);
+    const user = useAppSelector(currentUser);
 
     return (
         <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
@@ -40,11 +28,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isHost = t
 
             <h1 className="text-2xl text-[#C9A94D]">{title}</h1>
 
-            {isHost && (
+            {isUser && (
                 <>
-                    {host ? (
+                    {user ? (
                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                            {/* <DropdownMenuTrigger asChild>
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <Image
                                         src={host.image || "/home/avatar.jpg"} // fallback image
@@ -54,6 +42,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isHost = t
                                         className="rounded-full border-[0.3px] border-[#C9A94D] object-cover"
                                     />
                                     <div className="text-[#C9A94D] text-[18px]">{host.name || "Host"}</div>
+                                </div>
+                            </DropdownMenuTrigger> */}
+                            <DropdownMenuTrigger asChild>
+                                <div className="flex items-center gap-2 cursor-pointer">
+                                    {user?.profileImg ? <Image src={user.profileImg} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" /> : <Avatar name={user?.name || "User"} size={30} />}
+                                    <div className="text-[#C9A94D] text-[18px]">{user?.name || "User"}</div>
                                 </div>
                             </DropdownMenuTrigger>
 
