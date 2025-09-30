@@ -10,6 +10,7 @@ import { useRegisterMutation } from "@/redux/features/auth/authApi";
 import { currentUser, setUser } from "@/redux/features/auth/authSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/redux/hooks";
+import { toast } from "sonner";
 
 const signupSchema = z.object({
     fullName: z.string().min(2, "Full Name is required"),
@@ -51,6 +52,8 @@ const SignUpForm = () => {
     const [registerUser, { isLoading }] = useRegisterMutation();
 
     const onSubmit = async (data: SignUpFormInputs) => {
+        const loadingToast = toast.loading("Registering...");
+
         try {
             const payload = {
                 name: data.fullName,
@@ -59,16 +62,19 @@ const SignUpForm = () => {
                 phone: data.phone,
                 role: data.role,
             };
+
             const result = await registerUser(payload).unwrap();
+
+            toast.success(result?.message || "Registered successfully!", { id: loadingToast });
+
             dispatch(
                 setUser({
                     user: result.data.user,
                     token: result.data.accessToken,
                 })
             );
-            console.log("Registered user:", result);
-        } catch (err) {
-            console.error("Registration error:", err);
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Registration failed", { id: loadingToast });
         }
     };
 

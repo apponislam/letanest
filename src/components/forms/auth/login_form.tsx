@@ -4,7 +4,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { CirclePlus, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, CirclePlus, Eye, EyeOff } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
+import { setUser } from "@/redux/features/auth/authSlice";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -14,6 +19,7 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const {
         register,
@@ -23,16 +29,49 @@ const LoginForm = () => {
     } = useForm<LoginFormInputs>({
         resolver: zodResolver(loginSchema),
     });
+    const dispatch = useDispatch();
+    const [loginUser, { isLoading }] = useLoginMutation();
 
-    const onSubmit = (data: LoginFormInputs) => {
-        console.log("Form Submitted:", data);
-        // You can add axios login request here
+    const onSubmit = async (data: LoginFormInputs) => {
+        const loadingToast = toast.loading("Logging in...");
+
+        try {
+            // payload directly from form
+            const payload = {
+                email: data.email,
+                password: data.password,
+            };
+
+            // call the RTK Query login mutation
+            const result = await loginUser(payload).unwrap();
+
+            // show success toast
+            toast.success(result?.message || "Logged in successfully!", { id: loadingToast });
+
+            // save user and token in Redux
+            dispatch(
+                setUser({
+                    user: result.data.user,
+                    token: result.data.accessToken,
+                })
+            );
+
+            console.log("Logged in user:", result);
+            router.push("/");
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Login failed", { id: loadingToast });
+        }
     };
 
     return (
-        <div className="flex flex-col md:min-h-screen">
+        <div className="flex flex-col md:min-h-screen relative">
             {/* Heading stays at the top */}
-            <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-6 md:pt-[70px] md:absolute">Sign In</h1>
+            <div className="md:absolute p-4 md:p-0 left-4 top-6 md:top-[70px] flex items-center gap-4 text-4xl">
+                <div onClick={() => router.back()} className="cursor-pointer">
+                    <ArrowLeft className="text-[#C9A94D] w-8 h-8" />
+                </div>
+                <h1 className="text-[#C9A94D]  font-bold">Sign In</h1>
+            </div>
 
             {/* Centered Form */}
             <div className="flex items-center justify-center flex-1 px-4 ">
@@ -70,8 +109,8 @@ const LoginForm = () => {
                         </Link>
 
                         {/* Login Button */}
-                        <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors">
-                            Sign In
+                        <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors" disabled={isLoading}>
+                            {isLoading ? "Signing In..." : "Sign In"}
                         </button>
                     </form>
                 </div>

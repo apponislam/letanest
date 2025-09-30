@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { ReduxProviders } from "@/providers/ReduxProvider";
+import { Toaster } from "sonner";
 
 const montserrat = Montserrat({
     weight: ["100", "300", "400", "500", "700", "900"],
@@ -26,7 +27,19 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${montserrat.className}  antialiased bg-[#14213D]`}>
-                <ReduxProviders>{children}</ReduxProviders>
+                <ReduxProviders>
+                    <Toaster
+                        toastOptions={{
+                            style: {
+                                background: "#C9A94D",
+                                color: "#fff",
+                                fontWeight: "bold",
+                            },
+                        }}
+                    />
+
+                    {children}
+                </ReduxProviders>
             </body>
         </html>
     );
