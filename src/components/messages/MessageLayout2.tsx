@@ -5,6 +5,7 @@ import Image from "next/image";
 import { initialConversations, people } from "./messages";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Star } from "lucide-react";
 
 export default function MessagesLayout2() {
     const [selected, setSelected] = useState<number>(people[0].id);
@@ -12,6 +13,7 @@ export default function MessagesLayout2() {
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
     const messages = useMemo(() => conversations[selected] || [], [conversations, selected]);
+    console.log(messages);
 
     const router = useRouter();
 
@@ -111,7 +113,7 @@ export default function MessagesLayout2() {
             {/* Conversation */}
             <div className="flex-1 md:flex flex-col bg-[#B6BAC3] border-l border-[#C9A94D] hidden">
                 <div
-                    className="flex-1 overflow-y-auto p-2 space-y-3"
+                    className="flex-1 flex flex-col overflow-y-auto"
                     style={{
                         scrollbarWidth: "thin",
                         scrollbarColor: "#C9A94D transparent",
@@ -129,169 +131,137 @@ export default function MessagesLayout2() {
                             border-radius: 4px;
                         }
                     `}</style>
-
-                    {/* {messages?.map((msg, i) => {
-                        if (msg.type === "offer") {
-                            return (
-                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
-                                    <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-                                        <p className="font-semibold text-sm mb-1 text-center">Nest Offer</p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Property ID:</span>
-                                            <span>{msg.propertyId}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Agreed dates:</span>
-                                            <span>{msg.dates}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Agreed Fee:</span>
-                                            <span>{msg.agreedFee}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Booking Fee:</span>
-                                            <span>{msg.bookingFee}</span>
-                                        </p>
-                                        <p className="text-xs font-semibold flex justify-between">
-                                            <span>Total:</span>
-                                            <span>{msg.total}</span>
-                                        </p>
-                                        <div className="mt-2">
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Pay</button>
-                                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
-                                            </div>
-                                        </div>
+                    <div className="sticky top-0 w-full bg-[#9399A6] py-[10px] px-5">
+                        <div className="flex items-center gap-3">
+                            <Image src="/home/avatar.jpg" alt="Host Image" width={30} height={30} className="rounded-full border border-white mr-2 h-[66px] w-[66px]" />
+                            <div className="text-[#14213D]">
+                                <h1 className="text-[18px] font-bold">Jhon</h1>
+                                <div className="flex items-center gap-6 text-sm">
+                                    <p className="">Host</p>
+                                    <div className="flex items-center gap-2">
+                                        <Star className="h-3 w-3"></Star>
+                                        <p>4.5</p>
                                     </div>
-                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full h-[30px] w-[30px] ml-2" />}
                                 </div>
-                            );
-                        }
-
-                     
-                        return (
-                            <div key={i} className={`flex items-end ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                                {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2" />}
-                                <p className={`px-3 py-2 rounded-lg max-w-xs break-words ${msg.from === "Me" ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>{msg.text}</p>
-                                {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2" />}
                             </div>
-                        );
-                    })} */}
-                    {messages?.map((msg, i) => {
-                        if (msg.type === "offer") {
-                            // Offer message (your current design)
-                            return (
-                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
-                                    <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-                                        <p className="font-semibold text-sm mb-1 text-center">Nest Offer</p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Property ID:</span>
-                                            <span>{msg.propertyId}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Agreed dates:</span>
-                                            <span>{msg.dates}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Agreed Fee:</span>
-                                            <span>{msg.agreedFee}</span>
-                                        </p>
-                                        <p className="text-xs flex justify-between">
-                                            <span>Booking Fee:</span>
-                                            <span>{msg.bookingFee}</span>
-                                        </p>
-                                        <p className="text-xs font-semibold flex justify-between">
-                                            <span>Total:</span>
-                                            <span>{msg.total}</span>
-                                        </p>
-                                        <div className="flex flex-col gap-2">
-                                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                                <Link href="/listings/1/pay" className="w-full">
-                                                    <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full">Pay</button>
-                                                </Link>
-                                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
-                                            </div>
-                                            <div>
-                                                <Link href="/listings/1">
-                                                    <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full">View Property Details</button>
-                                                </Link>
+                        </div>
+                    </div>
+                    <div className="p-2 space-y-3">
+                        {messages?.map((msg, i) => {
+                            if (msg.type === "offer") {
+                                // Offer message (your current design)
+                                return (
+                                    <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                        {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                        <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
+                                            <p className="font-semibold text-sm mb-1 text-center">Nest Offer</p>
+                                            <p className="text-xs flex justify-between">
+                                                <span>Property ID:</span>
+                                                <span>{msg.propertyId}</span>
+                                            </p>
+                                            <p className="text-xs flex justify-between">
+                                                <span>Agreed dates:</span>
+                                                <span>{msg.dates}</span>
+                                            </p>
+                                            <p className="text-xs flex justify-between">
+                                                <span>Agreed Fee:</span>
+                                                <span>{msg.agreedFee}</span>
+                                            </p>
+                                            <p className="text-xs flex justify-between">
+                                                <span>Booking Fee:</span>
+                                                <span>{msg.bookingFee}</span>
+                                            </p>
+                                            <p className="text-xs font-semibold flex justify-between">
+                                                <span>Total:</span>
+                                                <span>{msg.total}</span>
+                                            </p>
+                                            <div className="flex flex-col gap-2">
+                                                <div className="mt-2 grid grid-cols-2 gap-2">
+                                                    <Link href="/listings/1/pay" className="w-full">
+                                                        <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full">Pay</button>
+                                                    </Link>
+                                                    <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold">Cancel</button>
+                                                </div>
+                                                <div>
+                                                    <Link href="/listings/1">
+                                                        <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full">View Property Details</button>
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
+                                        {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full h-[30px] w-[30px] ml-2" />}
                                     </div>
-                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full h-[30px] w-[30px] ml-2" />}
-                                </div>
-                            );
-                        } else if (msg.type === "accepted") {
-                            // Accepted message with property details
-                            return (
-                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                );
+                            } else if (msg.type === "accepted") {
+                                // Accepted message with property details
+                                return (
+                                    <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                        {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
 
-                                    <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-                                        <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
+                                        <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
+                                            <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
 
-                                        <div className="flex flex-col gap-2">
-                                            <div className="text-xs flex justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
-                                                    <span>Property name:</span>
+                                            <div className="flex flex-col gap-2">
+                                                <div className="text-xs flex justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
+                                                        <span>Property name:</span>
+                                                    </div>
+                                                    <span>{msg.propertyName || "Radison"}</span>
                                                 </div>
-                                                <span>{msg.propertyName || "Radison"}</span>
-                                            </div>
 
-                                            <div className="text-xs flex justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
-                                                    <span>Address:</span>
+                                                <div className="text-xs flex justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
+                                                        <span>Address:</span>
+                                                    </div>
+                                                    <span>{msg.address || "New City"}</span>
                                                 </div>
-                                                <span>{msg.address || "New City"}</span>
-                                            </div>
 
-                                            <div className="text-xs flex justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
-                                                    <span>Property Manager:</span>
+                                                <div className="text-xs flex justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
+                                                        <span>Property Manager:</span>
+                                                    </div>
+                                                    <span>{msg.manager || "Jhon"}</span>
                                                 </div>
-                                                <span>{msg.manager || "Jhon"}</span>
-                                            </div>
 
-                                            <div className="text-xs flex justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
-                                                    <span>Phone:</span>
+                                                <div className="text-xs flex justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
+                                                        <span>Phone:</span>
+                                                    </div>
+                                                    <span>{msg.phone || "0000000000"}</span>
                                                 </div>
-                                                <span>{msg.phone || "0000000000"}</span>
                                             </div>
                                         </div>
+
+                                        {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
                                     </div>
+                                );
+                            } else if (msg.type === "rejected") {
+                                // Rejected message (simple)
+                                return (
+                                    <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                        {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                        <div className="bg-red-200 p-3 rounded-lg w-64 text-center font-semibold text-red-900">Offer Rejected</div>
+                                        {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
+                                    </div>
+                                );
+                            } else {
+                                // Normal text message
+                                return (
+                                    <div key={i} className={`flex items-end ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
+                                        {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
+                                        <p className={`px-3 py-2 rounded-lg max-w-xs break-words ${msg.from === "Me" ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>{msg.text}</p>
+                                        {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
+                                    </div>
+                                );
+                            }
+                        })}
 
-                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
-                                </div>
-                            );
-                        } else if (msg.type === "rejected") {
-                            // Rejected message (simple)
-                            return (
-                                <div key={i} className={`flex ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
-                                    <div className="bg-red-200 p-3 rounded-lg w-64 text-center font-semibold text-red-900">Offer Rejected</div>
-                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
-                                </div>
-                            );
-                        } else {
-                            // Normal text message
-                            return (
-                                <div key={i} className={`flex items-end ${msg.from === "Me" ? "justify-end" : "justify-start"}`}>
-                                    {msg.from !== "Me" && <Image src={msg.avatar} alt={msg.from} width={30} height={30} className="rounded-full mr-2 h-[30px] w-[30px]" />}
-                                    <p className={`px-3 py-2 rounded-lg max-w-xs break-words ${msg.from === "Me" ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>{msg.text}</p>
-                                    {msg.from === "Me" && <Image src={msg.avatar} alt="Me" width={30} height={30} className="rounded-full ml-2 h-[30px] w-[30px]" />}
-                                </div>
-                            );
-                        }
-                    })}
-
-                    <div ref={messagesEndRef} />
+                        <div ref={messagesEndRef} />
+                    </div>
                 </div>
 
                 {/* Input Box */}

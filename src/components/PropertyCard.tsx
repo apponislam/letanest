@@ -53,7 +53,7 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                 {/* Price + Button */}
                 <div className="flex items-center justify-between">
                     <p className="text-base font-semibold text-[#14213D]">
-                        Starting From <span className="text-black">${price_per_night.toLocaleString()}</span>
+                        Starting From <span className="text-black">£{price_per_night.toLocaleString()}</span>
                     </p>
                     <Link href={`/listings/${_id}`}>
                         <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px]">Details</Button>
