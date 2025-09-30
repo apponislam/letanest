@@ -3,7 +3,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CirclePlus } from "lucide-react";
+import { ArrowLeft, CirclePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const forgotPassSchema = z.object({
@@ -31,9 +31,14 @@ const ForgotPassForm = () => {
     };
 
     return (
-        <div className="flex flex-col md:min-h-screen">
+        <div className="flex flex-col md:min-h-screen relative">
             {/* Heading stays at the top */}
-            <h1 className="text-[#C9A94D] text-4xl font-bold mb-8 text-left px-4 pt-6 md:pt-[70px] md:absolute">Forgot Password</h1>
+            <div className="md:absolute p-4 md:p-0 left-4 top-6 md:top-[70px] flex items-center gap-4 text-4xl">
+                <div onClick={() => router.back()} className="cursor-pointer">
+                    <ArrowLeft className="text-[#C9A94D] w-8 h-8" />
+                </div>
+                <h1 className="text-[#C9A94D]  font-bold">Forgot Password</h1>
+            </div>
 
             {/* Centered Form */}
             <div className="flex items-center justify-center flex-1 px-4">
