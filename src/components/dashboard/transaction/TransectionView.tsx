@@ -53,7 +53,7 @@ const TransectionView = () => {
                                 <tr key={tx.id} className="hover:bg-[#C9A94D]/20">
                                     <td className="py-3 px-6 font-normal">{tx.id}</td>
                                     <td className="py-3 px-6 font-normal">{tx.guestName}</td>
-                                    <td className="py-3 px-6 font-normal">${tx.propertyPrice}</td>
+                                    <td className="py-3 px-6 font-normal">£{tx.propertyPrice}</td>
                                     <td className="py-3 px-6 font-normal">{tx.adminCommission}</td>
                                     <td className="py-3 px-6 font-normal">{tx.paymentStatus}</td>
                                     <td className="py-3 px-6 font-normal">{tx.date}</td>
@@ -114,15 +114,15 @@ const TransectionView = () => {
                     <div className="flex flex-col gap-3 border border-[#C9A94D] px-5 py-[10px] rounded-[12px] text-[#C9A94D]">
                         <div className="flex justify-between  text-xl md:text-[24px] font-bold border-b border-[#C9A94D] ">
                             <span>Total Revenue:</span>
-                            <span>$4,300.00</span>
+                            <span>£4,300.00</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Admin Commission Paid:</span>
-                            <span>$215.00</span>
+                            <span>£215.00</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Hosts Earnings (after commission):</span>
-                            <span>$4,085.00</span>
+                            <span>£4,085.00</span>
                         </div>
                     </div>
                 </div>

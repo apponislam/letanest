@@ -33,16 +33,16 @@ function UserAction({ user }: { user: User }) {
                             <span>Phone:</span> {user.phone}
                         </div>
                         <div>
-                            <span>Booking:</span> $4
+                            <span>Booking:</span> £4
                         </div>
                         <div>
-                            <span>Message:</span> $4
+                            <span>Message:</span> £4
                         </div>
                         <div>
-                            <span>Earning:</span> $4
+                            <span>Earning:</span> £4
                         </div>
                         <div>
-                            <span>Guest Fees Spent:</span> $4
+                            <span>Guest Fees Spent:</span> £4
                         </div>
                     </div>
 

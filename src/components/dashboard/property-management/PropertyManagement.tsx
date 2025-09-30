@@ -36,7 +36,7 @@ const PropertyManagement = () => {
                         <div className="bg-[#2D3546] border border-[#C9A94D] p-4 md:p-9 text-[#C9A94D] rounded-[20px] space-y-4">
                             <div className="flex justify-between">
                                 <span className="font-semibold">Home</span>
-                                <span>Total: $2000</span>
+                                <span>Total: £2000</span>
                             </div>
                             <div className="space-y-3">
                                 <div className="p-3 rounded-[12px] flex justify-between items-center border border-[#C9A94D]">
@@ -45,7 +45,7 @@ const PropertyManagement = () => {
                                         <div>
                                             <p className="font-semibold">Town City</p>
                                             <p className="text-sm">2024-01-01 - 2024-01-10</p>
-                                            <p>2 Guest · $450</p>
+                                            <p>2 Guest · £450</p>
                                         </div>
                                     </div>
                                     <DropdownMenu>
@@ -74,7 +74,7 @@ const PropertyManagement = () => {
                                         <div>
                                             <p className="font-semibold">Town City</p>
                                             <p className="text-sm">2024-01-01 - 2024-01-10</p>
-                                            <p>2 Guest · $450</p>
+                                            <p>2 Guest · £450</p>
                                         </div>
                                     </div>
                                     <DropdownMenu>
@@ -103,7 +103,7 @@ const PropertyManagement = () => {
                                         <div>
                                             <p className="font-semibold">Town City</p>
                                             <p className="text-sm">2024-01-01 - 2024-01-10</p>
-                                            <p>2 Guest · $450</p>
+                                            <p>2 Guest · £450</p>
                                         </div>
                                     </div>
                                     <DropdownMenu>
@@ -134,7 +134,7 @@ const PropertyManagement = () => {
                         <div className="bg-[#2D3546] border border-[#C9A94D] p-4 md:p-9 text-[#C9A94D] rounded-[20px] space-y-4">
                             <div className="flex justify-between">
                                 <span className="font-semibold">Booking Summary</span>
-                                <span>Total: $1350</span>
+                                <span>Total: £1350</span>
                             </div>
                             <div className="space-y-3">
                                 <div className="p-3 rounded-[12px] flex justify-between items-center border border-[#C9A94D]">
@@ -143,7 +143,7 @@ const PropertyManagement = () => {
                                         <div>
                                             <p className="font-semibold">Town City</p>
                                             <p className="text-sm">2024-01-01 - 2024-01-10</p>
-                                            <p>2 Guest · $450</p>
+                                            <p>2 Guest · £450</p>
                                         </div>
                                     </div>
                                     <DropdownMenu>
@@ -222,7 +222,7 @@ const PropertyManagement = () => {
                                         <div>
                                             <p className="font-semibold">Town City</p>
                                             <p className="text-sm">2024-01-01 - 2024-01-10</p>
-                                            <p>2 Guest · $450</p>
+                                            <p>2 Guest · £450</p>
                                         </div>
                                     </div>
                                     <DropdownMenu>
@@ -301,7 +301,7 @@ const PropertyManagement = () => {
                                         <div>
                                             <p className="font-semibold">Town City</p>
                                             <p className="text-sm">2024-01-01 - 2024-01-10</p>
-                                            <p>2 Guest · $450</p>
+                                            <p>2 Guest · £450</p>
                                         </div>
                                     </div>
                                     <DropdownMenu>

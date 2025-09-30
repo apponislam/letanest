@@ -43,7 +43,7 @@ const Guest = () => {
                             <div>
                                 <h1 className="font-bold text-xl">Modern Downtown Appartment</h1>
                                 <p>2024-01-01 - 2024-01-10</p>
-                                <p>2 Guest . $450</p>
+                                <p>2 Guest . £450</p>
                             </div>
                         </div>
                         <div>
@@ -56,7 +56,7 @@ const Guest = () => {
                             <div>
                                 <h1 className="font-bold text-xl">Modern Downtown Appartment</h1>
                                 <p>2024-01-01 - 2024-01-10</p>
-                                <p>2 Guest . $450</p>
+                                <p>2 Guest . £450</p>
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">

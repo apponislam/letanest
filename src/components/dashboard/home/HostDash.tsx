@@ -97,7 +97,7 @@ const HostDash = () => {
                                 <div>
                                     <h1 className="font-bold text-xl">Town city</h1>
                                     <p>2024-01-01 - 2024-01-10</p>
-                                    <p>2 Guest . $450</p>
+                                    <p>2 Guest . £450</p>
                                 </div>
                             </div>
                             <div>
@@ -110,7 +110,7 @@ const HostDash = () => {
                                 <div>
                                     <h1 className="font-bold text-xl">Town city</h1>
                                     <p>2024-01-01 - 2024-01-10</p>
-                                    <p>2 Guest . $450</p>
+                                    <p>2 Guest . £450</p>
                                 </div>
                             </div>
                             <div>
@@ -126,7 +126,7 @@ const HostDash = () => {
                                 <div>
                                     <h1 className="font-bold text-xl">Jhon Vance</h1>
                                     <p>City town</p>
-                                    <p>$450</p>
+                                    <p>£450</p>
                                 </div>
                             </div>
                             <div>

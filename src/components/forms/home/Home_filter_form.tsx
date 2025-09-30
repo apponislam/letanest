@@ -78,10 +78,10 @@ const HomeFilterForm = () => {
                     <h1 className="text-[#C9A94D] mb-4">Price Range</h1>
                     <div className="relative w-full h-6 mb-2">
                         <span className="absolute text-[#C9A94D] font-medium" style={{ left: `${valueToPercent(value[0])}%`, transform: "translateX(-50%)" }}>
-                            ${value[0]}
+                            £{value[0]}
                         </span>
                         <span className="absolute text-[#C9A94D] font-medium" style={{ left: `${valueToPercent(value[1])}%`, transform: "translateX(-50%)" }}>
-                            ${value[1]}
+                            £{value[1]}
                         </span>
                     </div>
 
