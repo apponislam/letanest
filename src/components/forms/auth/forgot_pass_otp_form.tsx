@@ -2,8 +2,10 @@
 import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useResendResetOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 const otpSchema = z.object({
     otp: z
@@ -16,6 +18,8 @@ type OtpFormInputs = z.infer<typeof otpSchema>;
 
 const OtpForm = () => {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const email = searchParams.get("email");
     const {
         setError,
         clearErrors,
@@ -26,6 +30,12 @@ const OtpForm = () => {
 
     const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
     const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+    if (!email) {
+        toast.error("Email is missing");
+        router.push("/auth/forgot-password");
+        return;
+    }
 
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return;
@@ -42,20 +52,37 @@ const OtpForm = () => {
         }
     };
 
-    const handleSubmit = () => {
-        const enteredOtp = otp.join(""); // join 6 digits into one string
+    const [verifyOtp] = useVerifyOtpMutation();
+    const [resendResetOtp] = useResendResetOtpMutation();
+
+    const handleSubmit = async () => {
+        const enteredOtp = otp.join(""); // join 6 digits
         const validation = otpSchema.safeParse({ otp: enteredOtp });
+
         if (!validation.success) {
             setError("otp", { type: "manual", message: validation.error.issues[0].message });
             return;
         }
 
-        console.log("OTP Submitted:", enteredOtp);
-        router.push("/auth/new-pass");
+        const loadingToast = toast.loading("Verifying OTP...");
+        try {
+            const result = await verifyOtp({ email, otp: enteredOtp }).unwrap();
+
+            toast.success("OTP verified!", { id: loadingToast });
+            router.push(`/auth/new-pass?token=${encodeURIComponent(result?.data?.resetToken)}`);
+        } catch (err: any) {
+            toast.error(err?.data?.message || "OTP verification failed", { id: loadingToast });
+        }
     };
 
-    const handleResend = () => {
-        console.log("Resend OTP clicked");
+    const handleResend = async () => {
+        const loadingToast = toast.loading("Resending OTP...");
+        try {
+            await resendResetOtp({ email }).unwrap();
+            toast.success("OTP resent to your email", { id: loadingToast });
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Failed to resend OTP", { id: loadingToast });
+        }
     };
 
     return (
