@@ -8,6 +8,7 @@ import React from "react";
 
 const HomeFilterForm = () => {
     // const [value, setValue] = React.useState<[number, number]>([150, 2550]);
+    const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
     const [value, setValue] = React.useState<[number, number]>([0, 3000]);
     const min = 0;
@@ -30,9 +31,11 @@ const HomeFilterForm = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
-                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option 1</DropdownMenuItem>
-                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option 2</DropdownMenuItem>
-                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 ">Option 3</DropdownMenuItem>
+                            {propertyTypeOptions.map((option, i) => (
+                                <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 justify-center" key={i}>
+                                    {option}
+                                </DropdownMenuItem>
+                            ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
