@@ -8,9 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { Home, X } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -53,6 +54,7 @@ type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
 
 const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access"];
+const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
 const AddListingForm: React.FC = () => {
     const [activeTab, setActiveTab] = useState("step1");
@@ -61,16 +63,17 @@ const AddListingForm: React.FC = () => {
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [photosPreview, setPhotosPreview] = useState<string[]>([]);
     const [showRules, setShowRules] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
 
     const step1Form = useForm<Step1Data>({
         resolver: zodResolver(step1Schema),
         defaultValues: { title: "", description: "", location: "", postCode: "", propertyType: "" },
     });
 
-    // const step2Form = useForm<Step2Data>({
-    //     resolver: zodResolver(step2Schema),
-    //     defaultValues: { maxGuests: 1, bedrooms: 1, bathrooms: 1, price: 0, availableFrom: new Date(), availableTo: new Date(), amenities: [] },
-    // });
+    const { setValue, watch, formState } = step1Form;
+    const selectedType = watch("propertyType");
+    const [open, setOpen] = useState(false);
+
     const step2Form = useForm<Step2Data>({
         resolver: zodResolver(step2Schema),
         defaultValues: {
@@ -86,6 +89,7 @@ const AddListingForm: React.FC = () => {
 
     const onSubmitStep1 = (data: Step1Data) => {
         setStep1Data(data);
+        console.log("Step 1 Data:", data);
         setActiveTab("step2");
     };
 
@@ -140,7 +144,7 @@ const AddListingForm: React.FC = () => {
     const [verifyAttFile, setVerifyAttFile] = useState<File | null>(null);
     const [verifyAttPreview, setVerifyAttPreview] = useState<string | null>(null);
 
-    console.log(verifyAttFile);
+    // console.log(verifyAttFile);
 
     const handleVerifyAttDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -220,7 +224,7 @@ const AddListingForm: React.FC = () => {
                             {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
                         </div>
                     ))}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium">Property Type</label>
                         <select {...step1Form.register("propertyType")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none">
                             <option value="">Select Type</option>
@@ -230,6 +234,33 @@ const AddListingForm: React.FC = () => {
                             <option value="Studio">Studio</option>
                         </select>
                         {step1Form.formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.propertyType?.message}</p>}
+                    </div> */}
+                    <div>
+                        <label className="block text-sm font-medium">Property Type</label>
+                        <DropdownMenu open={open} onOpenChange={setOpen}>
+                            <DropdownMenuTrigger asChild>
+                                <button type="button" className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 text-left focus:ring-2 focus:ring-[#C9A94D] focus:outline-none">
+                                    {selectedType || "Select Type"}
+                                </button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
+                                {propertyTypeOptions.map((option, i) => (
+                                    <DropdownMenuItem
+                                        key={i}
+                                        className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer"
+                                        onClick={() => {
+                                            setValue("propertyType", option, { shouldValidate: true });
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        {option}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
                     </div>
                     <div className="flex justify-between mt-4">
                         {/* If you want, you can keep this disabled or hidden for step1 */}
@@ -336,26 +367,6 @@ const AddListingForm: React.FC = () => {
             <TabsContent value="step3" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Photos</h1>
                 <p className="mb-8">Add photos to showcase your property</p>
-                {/* <div className="flex flex-col md:flex-row gap-14">
-                    <div className="w-full md:w-80">
-                        <div className="w-full border border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex items-center justify-center">
-                            <Image src="/listing/add/upload.png" alt="Upload photo" height={32} width={32}></Image>
-                        </div>
-                        <div className="w-full border border-dashed border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex items-center justify-center h-60 relative">
-                            <X className="w-6 h-6 absolute top-3 right-3 text-[#D00000]" />
-                            <p className="text-white">Cover </p>
-                        </div>
-                    </div>
-                    <div className="w-full md:w-80">
-                        <div className="w-full border border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex items-center justify-center">
-                            <Image src="/listing/add/upload.png" alt="Upload photo" height={32} width={32}></Image>
-                        </div>
-                        <div className="w-full border border-dashed border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex items-center justify-center h-60 relative">
-                            <X className="w-6 h-6 absolute top-3 right-3 text-[#D00000]" />
-                            <p className="text-white">Photo</p>
-                        </div>
-                    </div>
-                </div> */}
 
                 <form onSubmit={step3Form.handleSubmit(onSubmitStep3)} className="space-y-5">
                     <div className="flex flex-col md:flex-row gap-14">
@@ -405,61 +416,6 @@ const AddListingForm: React.FC = () => {
                             {step3Form.formState.errors.coverPhoto?.message && <p className="text-red-500 text-sm mt-1">{String(step3Form.formState.errors.coverPhoto?.message)}</p>}
                         </div>
 
-                        {/* Additional Photos */}
-                        {/* <div className="w-full md:w-80">
-                            <div className="w-full border border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex items-center justify-center cursor-pointer">
-                                <label className="flex items-center gap-2 cursor-pointer w-full justify-center">
-                                    <Image src="/listing/add/upload.png" alt="Upload photo" height={32} width={32} />
-                                    <span className="text-white">Upload Photos</span>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            const files = e.target.files ? Array.from(e.target.files) : [];
-                                            step3Form.setValue("photos", files);
-                                            setPhotosPreview(files.map((f) => URL.createObjectURL(f)));
-                                        }}
-                                    />
-                                </label>
-                            </div>
-
-                            <div
-                                className="w-full border border-dashed border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex flex-wrap gap-2 h-60 overflow-auto relative"
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={(e) => {
-                                    e.preventDefault();
-                                    const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
-                                    if (files.length) {
-                                        const currentFiles = step3Form.getValues("photos") || [];
-                                        const newFiles = [...currentFiles, ...files];
-                                        step3Form.setValue("photos", newFiles);
-                                        setPhotosPreview(newFiles.map((f: File) => URL.createObjectURL(f)));
-                                    }
-                                }}
-                            >
-                                {photosPreview.length > 0 ? (
-                                    photosPreview.map((url, i) => (
-                                        <div key={i} className="w-28 h-28 relative rounded-lg overflow-hidden">
-                                            <Image src={url} alt={`Photo ${i + 1}`} fill className="object-cover" unoptimized />
-                                            <X
-                                                className="w-5 h-5 absolute top-1 right-1 text-[#D00000] cursor-pointer"
-                                                onClick={() => {
-                                                    const newPreviews = photosPreview.filter((_, idx) => idx !== i);
-                                                    const newFiles = (step3Form.getValues("photos") as File[]).filter((_, idx) => idx !== i);
-                                                    setPhotosPreview(newPreviews);
-                                                    step3Form.setValue("photos", newFiles);
-                                                }}
-                                            />
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="text-white">Photo</p>
-                                )}
-                            </div>
-                            {step3Form.formState.errors.photos?.message && <p className="text-red-500 text-sm mt-1">{String(step3Form.formState.errors.photos?.message)}</p>}
-                        </div> */}
                         <div className="w-full md:w-80">
                             {/* Upload Button */}
                             <div className="w-full border border-[#C9A94D] bg-[#2D3546] p-5 rounded-[12px] mb-4 md:mb-10 flex items-center justify-center cursor-pointer">
@@ -543,10 +499,10 @@ const AddListingForm: React.FC = () => {
                         <div className="flex gap-5">
                             {/* Img - cover */}
                             <div className="relative w-40 h-32 flex items-center justify-center rounded-lg overflow-hidden border border-[#C9A94D] bg-[#2D3546]">{coverPreview ? <Image src={coverPreview} alt="Cover Preview" fill className="object-cover rounded-lg" unoptimized /> : <p className="text-white text-sm">Cover</p>}</div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-xl font-bold">Name: {step1Data?.title || "N/A"}</span>
-                                <span>Location: {step1Data?.location || "N/A"}</span>
-                                <button className="rounded-[20px] text-[#14213D] bg-[#B6BAC3] py-1 px-2 w-auto inline">{step1Data?.propertyType || "N/A"}</button>
+                            <div className="gap-1">
+                                <p className="text-xl font-bold">Name: {step1Data?.title || "N/A"}</p>
+                                <p>Location: {step1Data?.location || "N/A"}</p>
+                                <button className="rounded-[20px] text-[#14213D] bg-[#B6BAC3] py-1 px-2 w-auto inline-block">{step1Data?.propertyType || "N/A"}</button>
                             </div>
                         </div>
                         <span className="text-xl font-bold">Starting From: {step2Data?.price || "---"}</span>
@@ -566,73 +522,6 @@ const AddListingForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* <div className="flex items-center gap-2">
-                     
-                        <form onSubmit={handleVerifyAttSubmit}>
-                            <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
-                                <DialogTrigger asChild>
-                                    <div className="flex items-center gap-1 cursor-pointer">
-                                        <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
-                                        <p>Verify Address (Optional)</p>
-                                    </div>
-                                </DialogTrigger>
-
-                            
-                                <DialogContent className="bg-[#2D3546] border border-[#C9A94D] rounded-[12px] p-6 max-w-lg w-full">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-white text-lg">Upload Attachment</DialogTitle>
-                                    </DialogHeader>
-
-                                    <div className="w-full border border-dashed border-[#C9A94D] p-5 rounded-[12px] flex items-center justify-center h-60 relative cursor-pointer" onDragOver={(e) => e.preventDefault()} onDrop={handleVerifyAttDrop} onClick={handleVerifyAttClickUpload}>
-                                        {verifyAttPreview ? (
-                                            <>
-                                                <Image src={verifyAttPreview} alt="Attachment Preview" fill className="object-cover rounded-lg" unoptimized />
-                                                <X className="w-6 h-6 absolute top-3 right-3 text-[#D00000] cursor-pointer" onClick={handleVerifyAttRemove} />
-                                            </>
-                                        ) : (
-                                            <span className="text-white text-center">Drag & Drop or Click to Upload</span>
-                                        )}
-                                    </div>
-                                 
-
-                                    <DialogFooter>
-                                        <Button type="submit" variant="secondary" disabled={!verifyAttFile} className="bg-[#C9A94D] text-white hover:bg-[#b8973e]">
-                                            Submit
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                        </form>
-
-                        <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
-                            <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
-
-                            {showRules && (
-                                <div className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg md:-translate-x-1/2 border border-[#C9A94D] z-50" style={{ maxHeight: "80vh", overflowY: "auto" }}>
-                                    <h2 className="font-bold mb-2 text-[14px]">Common Proof of Address Documents</h2>
-                                    <p className="mb-2">Please provide one of the following recent documents showing your full name and address:</p>
-
-                                    <ol className="list-decimal list-outside ml-4 mb-2 text-[13px] space-y-1">
-                                        <li>
-                                            <span className="font-semibold">Utility Bill (gas, electricity, water, landline, broadband):</span> Must be recent (usually within the last 3 months). Must show your full name and address.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Bank or Building Society Statement:</span> Printed or digital copy is usually acceptable. Must be recent and include your name and address.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Council Tax Bill or Local Authority Letter:</span> Shows your address and is usually considered official.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Government-Issued Letter:</span> HMRC tax document, benefit letter, or other government correspondence. Must be recent and show your name and address.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Tenancy Agreement or Mortgage Statement:</span> Must be current and officially issued.
-                                        </li>
-                                    </ol>
-                                </div>
-                            )}
-                        </div>
-                    </div> */}
                     <div className="flex items-center gap-2">
                         {/* Trigger */}
                         <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
@@ -682,12 +571,7 @@ const AddListingForm: React.FC = () => {
                             <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
 
                             {showRules && (
-                                <div
-                                    className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 
-                   w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg 
-                   md:-translate-x-1/2 border border-[#C9A94D] z-50"
-                                    style={{ maxHeight: "80vh", overflowY: "auto" }}
-                                >
+                                <div className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg md:-translate-x-1/2 border border-[#C9A94D] z-50" style={{ maxHeight: "80vh", overflowY: "auto" }}>
                                     <h2 className="font-bold mb-2 text-[14px]">Common Proof of Address Documents</h2>
                                     <p className="mb-2">Please provide one of the following recent documents showing your full name and address:</p>
 
