@@ -224,17 +224,6 @@ const AddListingForm: React.FC = () => {
                             {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
                         </div>
                     ))}
-                    {/* <div>
-                        <label className="block text-sm font-medium">Property Type</label>
-                        <select {...step1Form.register("propertyType")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none">
-                            <option value="">Select Type</option>
-                            <option value="House">House</option>
-                            <option value="Apartment">Apartment</option>
-                            <option value="Villa">Villa</option>
-                            <option value="Studio">Studio</option>
-                        </select>
-                        {step1Form.formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.propertyType?.message}</p>}
-                    </div> */}
                     <div>
                         <label className="block text-sm font-medium">Property Type</label>
                         <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -500,8 +489,8 @@ const AddListingForm: React.FC = () => {
                             {/* Img - cover */}
                             <div className="relative w-40 h-32 flex items-center justify-center rounded-lg overflow-hidden border border-[#C9A94D] bg-[#2D3546]">{coverPreview ? <Image src={coverPreview} alt="Cover Preview" fill className="object-cover rounded-lg" unoptimized /> : <p className="text-white text-sm">Cover</p>}</div>
                             <div className="gap-1">
-                                <p className="text-xl font-bold">Name: {step1Data?.title || "N/A"}</p>
-                                <p>Location: {step1Data?.location || "N/A"}</p>
+                                <p className="text-xl font-bold mb-2">Name: {step1Data?.title || "N/A"}</p>
+                                <p className="mb-2">Location: {step1Data?.location || "N/A"}</p>
                                 <button className="rounded-[20px] text-[#14213D] bg-[#B6BAC3] py-1 px-2 w-auto inline-block">{step1Data?.propertyType || "N/A"}</button>
                             </div>
                         </div>
@@ -601,7 +590,7 @@ const AddListingForm: React.FC = () => {
                 {/* Agreement Form */}
                 <form onSubmit={step4Form.handleSubmit(onSubmitStep4)}>
                     <div className="flex items-center mb-6">
-                        <input type="checkbox" {...step4Form.register("agreeTerms")} className="mr-3 w-4 h-4 text-[#C9A94D] border-[#C9A94D] focus:ring-[#C9A94D]" />
+                        <input type="checkbox" {...step4Form.register("agreeTerms")} className="mr-3 w-4 h-4 text-[#C9A94D] border-[#C9A94D] focus:ring-[#C9A94D] accent-[#C9A94D]" />
                         <label htmlFor="agreeTerms" className="text-sm font-medium">
                             I Agree to LetANest Terms & Conditions
                         </label>
