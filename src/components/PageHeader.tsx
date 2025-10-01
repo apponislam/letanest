@@ -7,8 +7,11 @@ import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Host } from "@/types/host";
 import { useAppSelector } from "@/redux/hooks";
-import { currentUser } from "@/redux/features/auth/authSlice";
+import { currentUser, logOut } from "@/redux/features/auth/authSlice";
 import Avatar from "@/utils/Avatar";
+import { useDispatch } from "react-redux";
+import { useLogoutMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 interface PageHeaderProps {
     title?: string;
@@ -18,6 +21,21 @@ interface PageHeaderProps {
 const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = true }) => {
     const router = useRouter();
     const user = useAppSelector(currentUser);
+    const dispatch = useDispatch();
+    const [logout] = useLogoutMutation();
+
+    const handleLogout = async () => {
+        const loadingToast = toast.loading("Logging out...");
+        try {
+            await logout().unwrap(); // RTK Query mutation
+            dispatch(logOut()); // use your slice's action
+            toast.success("Logged out successfully!", { id: loadingToast });
+
+            router.push("/"); // optional redirect
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Logout failed", { id: loadingToast });
+        }
+    };
 
     return (
         <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
@@ -58,7 +76,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
                                         View Profile
                                     </DropdownMenuItem>
                                 </Link>
-                                <DropdownMenuItem className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none">
+                                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 hover:bg-[#C9A94D]/30 focus:bg-[#C9A94D]/30 focus:text-white rounded-none">
                                     <Image alt="Logout" src="/dashboard/logout.png" height={24} width={24} />
                                     Logout
                                 </DropdownMenuItem>
