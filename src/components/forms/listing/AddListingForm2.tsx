@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import { Home, X } from "lucide-react";
+import { Home, X, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -56,14 +56,15 @@ type Step4Data = z.infer<typeof step4Schema>;
 const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access"];
 const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
-const AddListingForm: React.FC = () => {
+const AddListingForm2: React.FC = () => {
     const [activeTab, setActiveTab] = useState("step1");
     const [step1Data, setStep1Data] = useState<Step1Data | null>(null);
     const [step2Data, setStep2Data] = useState<Step2Data | null>(null);
+    const [step3Data, setStep3Data] = useState<Step3Data | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [photosPreview, setPhotosPreview] = useState<string[]>([]);
     const [showRules, setShowRules] = useState(false);
-    const [currentStep, setCurrentStep] = useState(1);
+    const [completedSteps, setCompletedSteps] = useState<string[]>([]);
 
     const step1Form = useForm<Step1Data>({
         resolver: zodResolver(step1Schema),
@@ -89,19 +90,18 @@ const AddListingForm: React.FC = () => {
 
     const onSubmitStep1 = (data: Step1Data) => {
         setStep1Data(data);
+        setCompletedSteps((prev) => [...prev, "step1"]);
         console.log("Step 1 Data:", data);
         setActiveTab("step2");
     };
 
     const onSubmitStep2 = (data: Step2Data) => {
         setStep2Data(data);
-        console.log("Final Data:", { ...step1Data, ...data });
+        setCompletedSteps((prev) => [...prev, "step2"]);
+        console.log("Step 2 Data:", data);
         setActiveTab("step3");
     };
 
-    // React state for previews
-
-    // useForm
     const step3Form = useForm<Step3Data>({
         resolver: zodResolver(step3Schema),
         defaultValues: {
@@ -110,17 +110,15 @@ const AddListingForm: React.FC = () => {
         },
     });
 
-    // Step 3 submit handler
     const onSubmitStep3 = (data: Step3Data) => {
-        // Merge all step data
+        setStep3Data(data);
+        setCompletedSteps((prev) => [...prev, "step3"]);
         const finalData = {
             ...step1Data,
             ...step2Data,
-            ...data, // step3 data
+            ...data,
         };
-
         console.log("Final combined data:", finalData);
-
         setActiveTab("step4");
     };
 
@@ -129,8 +127,8 @@ const AddListingForm: React.FC = () => {
         defaultValues: { agreeTerms: false },
     });
 
-    // Submit handler
     const onSubmitStep4 = (data: Step4Data) => {
+        setCompletedSteps((prev) => [...prev, "step4"]);
         console.log(data);
         console.log("Final submit data:", {
             ...step1Data,
@@ -143,8 +141,6 @@ const AddListingForm: React.FC = () => {
     const [verifyAttOpen, setVerifyAttOpen] = useState(false);
     const [verifyAttFile, setVerifyAttFile] = useState<File | null>(null);
     const [verifyAttPreview, setVerifyAttPreview] = useState<string | null>(null);
-
-    // console.log(verifyAttFile);
 
     const handleVerifyAttDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -176,36 +172,66 @@ const AddListingForm: React.FC = () => {
 
     const handleVerifyAttSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        e.stopPropagation(); // stop parent form submit
-
-        console.log(e);
+        e.stopPropagation();
 
         if (!verifyAttFile) return;
 
         console.log("Submitting file:", verifyAttFile);
-
-        // example API call
         const formData = new FormData();
         formData.append("attachment", verifyAttFile);
 
         setVerifyAttOpen(false);
     };
 
+    // Function to check if a step is completed
+    const isStepCompleted = (step: string) => completedSteps.includes(step);
+
+    // Function to handle tab change with validation
+    const handleTabChange = (tab: string) => {
+        const stepNumber = parseInt(tab.replace("step", ""));
+        const currentStepNumber = parseInt(activeTab.replace("step", ""));
+
+        // Allow going back to previous steps
+        if (stepNumber < currentStepNumber) {
+            setActiveTab(tab);
+            return;
+        }
+
+        // Only allow going to next step if current step is completed
+        if (stepNumber === currentStepNumber + 1 && isStepCompleted(activeTab)) {
+            setActiveTab(tab);
+        }
+    };
+
+    // Step indicator component
+    const StepIndicator = ({ step, label }: { step: string; label: string }) => {
+        const isCompleted = isStepCompleted(step);
+        const isActive = activeTab === step;
+        const stepNumber = parseInt(step.replace("step", ""));
+
+        return (
+            <TabsTrigger value={step} className={`flex flex-col items-center justify-center data-[state=active]:bg-transparent relative ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"}`} onClick={() => handleTabChange(step)}>
+                <div className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-200 ${isActive ? "bg-[#C9A94D] text-white" : isCompleted ? "bg-[#C9A94D] text-white" : "bg-[#9399A6] text-[#B6BAC3]"}`}>{isCompleted ? <Check className="w-6 h-6" /> : stepNumber}</div>
+                <p className={`mt-2 text-center transition-colors duration-200 ${isActive ? "text-[#C9A94D] font-semibold" : isCompleted ? "text-[#C9A94D] font-semibold" : "text-[#B6BAC3]"}`}>{label}</p>
+
+                {/* Progress line between steps */}
+                {/* {stepNumber < 4 && <div className={`absolute top-6 left-full w-8 h-0.5 -translate-y-1/2 ${isCompleted ? "bg-green-500" : "bg-[#9399A6]"}`} />} */}
+            </TabsTrigger>
+        );
+    };
+
     return (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-8 grid gap-3 md:grid-cols-4 grid-cols-2 bg-transparent w-full h-auto">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="mb-8 grid gap-3 md:grid-cols-4 grid-cols-2 bg-transparent w-full h-auto relative">
                 {["Basic info", "Details", "Photos", "Review"].map((label, i) => (
-                    <TabsTrigger key={i} value={`step${i + 1}`} className="flex flex-col items-center justify-center data-[state=active]:bg-transparent [&[data-state=active]>div]:bg-[#C9A94D] [&[data-state=active]>div]:text-white [&[data-state=active]>p]:text-[#C9A94D]">
-                        <div className="flex items-center justify-center bg-[#9399A6] rounded-full w-12 h-12 text-[#B6BAC3]">{i + 1}</div>
-                        <p className="text-[#B6BAC3] mt-2 text-center">{label}</p>
-                    </TabsTrigger>
+                    <StepIndicator key={i} step={`step${i + 1}`} label={label} />
                 ))}
             </TabsList>
 
             {/* Step 1 */}
             <TabsContent value="step1" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Basic Information</h1>
-                <p className="mb-8">Let’s start with the basics about your property</p>
+                <p className="mb-8">Let's start with the basics about your property</p>
 
                 <form onSubmit={step1Form.handleSubmit(onSubmitStep1)} className="space-y-5">
                     {["title", "description", "location", "postCode"].map((field) => (
@@ -247,7 +273,6 @@ const AddListingForm: React.FC = () => {
                         {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
                     </div>
                     <div className="flex justify-between mt-4">
-                        {/* If you want, you can keep this disabled or hidden for step1 */}
                         <button type="button" className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition opacity-50 cursor-not-allowed" disabled>
                             Previous
                         </button>
@@ -348,6 +373,7 @@ const AddListingForm: React.FC = () => {
                 </form>
             </TabsContent>
 
+            {/* Step 3 */}
             <TabsContent value="step3" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Photos</h1>
                 <p className="mb-8">Add photos to showcase your property</p>
@@ -473,6 +499,8 @@ const AddListingForm: React.FC = () => {
                     </div>
                 </form>
             </TabsContent>
+
+            {/* Step 4 */}
             <TabsContent value="step4" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Nearly Done</h1>
                 <p className="mb-8">Make sure everything looks right before you submit. </p>
@@ -531,7 +559,7 @@ const AddListingForm: React.FC = () => {
                                                 <X
                                                     className="w-6 h-6 absolute top-3 right-3 text-[#D00000] cursor-pointer"
                                                     onClick={(e) => {
-                                                        e.stopPropagation(); // prevents file picker opening
+                                                        e.stopPropagation();
                                                         handleVerifyAttRemove();
                                                     }}
                                                 />
@@ -607,4 +635,4 @@ const AddListingForm: React.FC = () => {
     );
 };
 
-export default AddListingForm;
+export default AddListingForm2;

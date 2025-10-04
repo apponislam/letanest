@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import AddListingForm from "@/components/forms/listing/AddListingForm";
+import AddListingForm2 from "@/components/forms/listing/AddListingForm2";
 import PageHeader from "@/components/PageHeader";
 
 const AddListing = () => {
@@ -9,7 +9,7 @@ const AddListing = () => {
         <div className="container mx-auto">
             <PageHeader title={"Add Listing"}></PageHeader>
             <div>
-                <AddListingForm></AddListingForm>
+                <AddListingForm2></AddListingForm2>
             </div>
         </div>
     );
