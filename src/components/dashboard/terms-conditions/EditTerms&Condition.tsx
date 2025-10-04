@@ -87,20 +87,12 @@ const EditTermsCondition = () => {
         }
     };
 
-    // const config = {
-    //     readonly: false,
-    //     toolbarSticky: false,
-    //     height: 400,
-    //     theme: "dark",
-    //     toolbarAdaptive: false,
-    //     buttons: ["bold", "italic", "underline", "|", "ul", "ol", "|", "link", "image", "table", "|", "undo", "redo"],
-    //     uploader: { insertImageAsBase64URI: true },
-    // };
     const config = {
         readonly: false,
         toolbarSticky: false,
         height: 400,
         theme: "dark",
+        color: "#C9A94D",
         toolbarAdaptive: false,
         buttons: ["source", "|", "bold", "italic", "underline", "strikethrough", "|", "ul", "ol", "outdent", "indent", "|", "font", "fontsize", "brush", "paragraph", "|", "table", "link", "hr", "|", "align", "undo", "redo", "|", "copyformat", "fullsize", "selectall", "print", "preview", "find"],
         uploader: { insertImageAsBase64URI: true },
@@ -179,7 +171,7 @@ const EditTermsCondition = () => {
                         ) : (
                             <>
                                 <div
-                                    className="self-stretch text-justify justify-start md:leading-7 tracking-tight whitespace-pre-line min-h-[200px]"
+                                    className="rich-text-content self-stretch text-justify justify-start md:leading-7 tracking-tight whitespace-pre-line min-h-[200px]"
                                     dangerouslySetInnerHTML={{
                                         __html:
                                             content ||

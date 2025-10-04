@@ -68,20 +68,12 @@ const EditTermsConditionForHost = () => {
             setError(error?.data?.message || "Failed to save Host Terms & Conditions");
         }
     };
-    // const config = {
-    //     readonly: false,
-    //     toolbarSticky: false,
-    //     height: 400,
-    //     theme: "dark",
-    //     toolbarAdaptive: false,
-    //     buttons: ["source", "|", "bold", "italic", "underline", "strikethrough", "|", "ul", "ol", "outdent", "indent", "|", "font", "fontsize", "brush", "paragraph", "|", "image", "video", "file", "table", "link", "hr", "|", "align", "undo", "redo", "|", "copyformat", "fullsize", "selectall", "print", "preview", "find"],
-    //     uploader: { insertImageAsBase64URI: true },
-    // };
     const config = {
         readonly: false,
         toolbarSticky: false,
         height: 400,
         theme: "dark",
+        color: "#C9A94D",
         toolbarAdaptive: false,
         buttons: ["source", "|", "bold", "italic", "underline", "strikethrough", "|", "ul", "ol", "outdent", "indent", "|", "font", "fontsize", "brush", "paragraph", "|", "table", "link", "hr", "|", "align", "undo", "redo", "|", "copyformat", "fullsize", "selectall", "print", "preview", "find"],
         uploader: { insertImageAsBase64URI: true },
@@ -134,7 +126,7 @@ const EditTermsConditionForHost = () => {
                             </>
                         ) : (
                             <>
-                                <div className="text-justify leading-7 tracking-tight" dangerouslySetInnerHTML={{ __html: content || "<p>No default T&C set yet.</p>" }} />
+                                <div className="rich-text-content text-justify leading-7 tracking-tight" dangerouslySetInnerHTML={{ __html: content || "<p>No default T&C set yet.</p>" }} />
                                 <div className="flex justify-end mt-6">
                                     <button onClick={() => setIsEditing(true)} className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-6 py-2 rounded-[10px]">
                                         {content ? "Edit Default Host T&C" : "Create Default Host T&C"}
