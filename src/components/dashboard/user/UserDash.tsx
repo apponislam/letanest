@@ -182,6 +182,7 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import UserAction from "./ViewUser";
 import { useGetAllUsersQuery } from "@/redux/features/users/usersApi";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const UserDash = () => {
     const [search, setSearch] = useState("");
@@ -256,9 +257,9 @@ const UserDash = () => {
 
                     <div className="gap-5 bg-[#2D3546] rounded-2xl p-5">
                         {/* Search and Filter Section */}
-                        <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+                        {/* <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
                             <div className="flex flex-col md:flex-row gap-4">
-                                {/* Role Filter */}
+                            
                                 <select value={roleFilter} onChange={handleRoleFilterChange} className="rounded-[12px] text-white bg-[#C9A94D] border border-[#C9A94D] py-2 px-3 text-sm focus:outline-none focus:ring-0">
                                     <option value="">All Roles</option>
                                     <option value="GUEST">Guest</option>
@@ -267,9 +268,32 @@ const UserDash = () => {
                                 </select>
                             </div>
 
-                            {/* Search */}
                             <div className="relative w-full md:w-80 transition-all duration-300">
                                 <input type="text" placeholder="Search by name or email..." value={search} onChange={handleSearchChange} className="w-full rounded-[12px] text-white placeholder:text-white bg-[#C9A94D] border border-[#C9A94D] py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-0" />
+                                <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 text-white" />
+                            </div>
+                        </div> */}
+                        <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <Select value={roleFilter || "all"} onValueChange={(value) => handleRoleFilterChange({ target: { value: value === "all" ? "" : value } } as React.ChangeEvent<HTMLSelectElement>)}>
+                                    <SelectTrigger className="rounded-[12px] text-white bg-[#C9A94D] border border-[#C9A94D] py-2 px-3 text-sm focus:outline-none focus:ring-0">
+                                        <SelectValue placeholder="All Roles" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#C9A94D] text-white">
+                                        <SelectItem value="all">All Roles</SelectItem>
+                                        <SelectItem value="GUEST">Guest</SelectItem>
+                                        <SelectItem value="HOST">Host</SelectItem>
+                                        <SelectItem value="ADMIN">Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* <div className="relative w-full md:w-80 transition-all duration-300">
+                                <input type="text" placeholder="Search by name or email..." value={search} onChange={handleSearchChange} className="w-full rounded-[12px] text-white placeholder:text-white bg-[#C9A94D] border border-[#C9A94D] py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-0" />
+                                <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 text-white" />
+                            </div> */}
+                            <div className="relative w-36 transition-all duration-300 focus-within:w-80">
+                                <input type="text" placeholder="Search..." value={search} onChange={handleSearchChange} className="w-full rounded-[12px] text-white placeholder:text-white bg-[#C9A94D] border border-[#C9A94D] py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-0" />
                                 <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 text-white" />
                             </div>
                         </div>
