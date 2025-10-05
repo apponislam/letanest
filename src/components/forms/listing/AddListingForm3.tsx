@@ -12,8 +12,6 @@ import { X, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
-import { toast } from "sonner";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -129,62 +127,18 @@ const AddListingForm2: React.FC = () => {
         defaultValues: { agreeTerms: false },
     });
 
-    const [createProperty, { isLoading, error }] = useCreatePropertyMutation();
+    // const [createProperty, { isLoading, error }] = useCreatePropertyMutation();
 
-    const onSubmitStep4 = async (step4Data: Step4Data) => {
-        if (!step1Data || !step2Data || !step3Data) return; // safety check
-
+    const onSubmitStep4 = (data: Step4Data) => {
         setCompletedSteps((prev) => [...prev, "step4"]);
-
-        const coverPhotoFile: File = step3Data.coverPhoto;
-        const photosFiles: File[] = step3Data.photos;
-
-        const formData = new FormData();
-
-        // Append Step1 & Step2 fields
-        Object.entries({
+        console.log(data);
+        console.log("Final submit data:", {
             ...step1Data,
             ...step2Data,
-        }).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                if (value instanceof Date) {
-                    formData.append(key, value.toISOString());
-                } else if (Array.isArray(value)) {
-                    value.forEach((v) => formData.append(key, v.toString()));
-                } else {
-                    formData.append(key, value.toString());
-                }
-            }
+            coverPhoto: step3Form.getValues("coverPhoto"),
+            photos: step3Form.getValues("photos"),
         });
-
-        // Append Step3 files
-        formData.append("coverPhoto", coverPhotoFile);
-        photosFiles.forEach((file) => formData.append("photos", file));
-
-        // Step4 agreement
-        formData.append("agreeTerms", step4Data.agreeTerms.toString());
-
-        try {
-            // Send FormData via RTK Query mutation
-            const result = await createProperty(formData).unwrap();
-            console.log("Property created successfully:", result);
-            toast.success("Property created successfully!");
-        } catch (err: any) {
-            toast.error(err?.data?.message || "Failed to create property");
-            console.error("Error creating property:", err);
-        }
     };
-
-    // const onSubmitStep4 = (data: Step4Data) => {
-    //     setCompletedSteps((prev) => [...prev, "step4"]);
-    //     console.log(data);
-    //     console.log("Final submit data:", {
-    //         ...step1Data,
-    //         ...step2Data,
-    //         coverPhoto: step3Form.getValues("coverPhoto"),
-    //         photos: step3Form.getValues("photos"),
-    //     });
-    // };
 
     const [verifyAttOpen, setVerifyAttOpen] = useState(false);
     const [verifyAttFile, setVerifyAttFile] = useState<File | null>(null);
