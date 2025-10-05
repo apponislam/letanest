@@ -23,15 +23,20 @@ const baseQuery = fetchBaseQuery({
 export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
 
-    if (result?.error?.status === 401) {
+    if (result?.error?.status === 401 || result?.error?.status === 403) {
         console.log("Access token expired. Attempting refresh...");
 
         const refreshResult = await baseQuery({ url: "/auth/refresh-token", method: "POST", credentials: "include" }, api, extraOptions);
+
+        console.log(refreshResult);
 
         if (refreshResult.data && typeof refreshResult.data === "object" && "data" in refreshResult.data) {
             const backendData = (refreshResult.data as RefreshTokenResponse).data;
             const user = backendData.user;
             const accessToken = backendData.accessToken;
+
+            console.log(user);
+            console.log(accessToken);
 
             if (user && accessToken) {
                 api.dispatch(setUser({ user, token: accessToken }));
@@ -54,6 +59,6 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
 export const baseApi = createApi({
     reducerPath: "api",
     baseQuery: baseQueryWithReauth,
-    tagTypes: ["User", "Terms", "Users", "Properties"],
+    tagTypes: ["User", "Terms", "Users", "Properties", "Verifications"],
     endpoints: () => ({}),
 });

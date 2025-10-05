@@ -28,8 +28,7 @@ import { menuItems } from "@/config/menuConfig";
 export function AppSidebar() {
     const pathname = usePathname();
     const user = useSelector(currentUser);
-    const role = user?.role || roles.GUEST; // fallback to guest if no user
-
+    const role = user?.role || roles.GUEST;
     const items = menuItems[role];
 
     return (
