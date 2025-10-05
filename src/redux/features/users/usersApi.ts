@@ -21,6 +21,15 @@ export interface IUser {
     isEmailVerified?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    isVerifiedByAdmin?: boolean;
+    verificationStatus?: "pending" | "approved" | "rejected" | "under_review";
+    address?: {
+        street?: string;
+        city?: string;
+        country?: string;
+        zip?: string;
+    };
+    gender?: "Male" | "Female" | "Other";
 }
 
 interface GetUsersParams {
@@ -35,6 +44,23 @@ interface GetUsersResponse {
     total: number;
     page: number;
     limit: number;
+}
+
+export interface UpdateProfileRequest {
+    firstName: string;
+    lastName: string;
+    gender: "Male" | "Female" | "Other";
+    phone: string;
+    address: string;
+    country: string;
+    city: string;
+    zip: string;
+    profileImg?: File;
+}
+
+interface UpdateProfileResponse {
+    data: IUser;
+    message: string;
 }
 
 export const userApi = baseApi.injectEndpoints({
@@ -65,7 +91,15 @@ export const userApi = baseApi.injectEndpoints({
             }),
             providesTags: (result, error, id) => [{ type: "Users", id }],
         }),
+        updateUserProfile: build.mutation<UpdateProfileResponse, FormData>({
+            query: (formData) => ({
+                url: "/users/profile",
+                method: "PATCH",
+                body: formData,
+            }),
+            invalidatesTags: ["Users"],
+        }),
     }),
 });
 
-export const { useGetAllUsersQuery, useGetSingleUserQuery } = userApi;
+export const { useGetAllUsersQuery, useGetSingleUserQuery, useUpdateUserProfileMutation } = userApi;

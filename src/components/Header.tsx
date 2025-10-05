@@ -22,10 +22,6 @@ const Header = () => {
     const router = useRouter();
     const user = useSelector(currentUser);
     console.log(user);
-    // if (!user) {
-    //     menuItems.push({ name: "Login", href: "/auth/login" });
-    // }
-
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const [scrolled, setScrolled] = useState(false);

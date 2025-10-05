@@ -12,6 +12,7 @@ export const menuItems = {
         { title: "Property Management", url: "/dashboard/property-management", icon: Home },
         { title: "Membership", url: "/dashboard/memberships", icon: Users },
         { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
+        { title: "Host Verify", url: "/dashboard/host-verify", icon: BadgeCheck },
     ],
     [roles.HOST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },

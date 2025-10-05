@@ -50,21 +50,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
                 <>
                     {user ? (
                         <DropdownMenu>
-                            {/* <DropdownMenuTrigger asChild>
-                                <div className="flex items-center gap-2 cursor-pointer">
-                                    <Image
-                                        src={host.image || "/home/avatar.jpg"} // fallback image
-                                        alt={host.name || "Host"}
-                                        width={30}
-                                        height={30}
-                                        className="rounded-full border-[0.3px] border-[#C9A94D] object-cover"
-                                    />
-                                    <div className="text-[#C9A94D] text-[18px]">{host.name || "Host"}</div>
-                                </div>
-                            </DropdownMenuTrigger> */}
                             <DropdownMenuTrigger asChild>
                                 <div className="flex items-center gap-2 cursor-pointer">
-                                    {user?.profileImg ? <Image src={user.profileImg} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" /> : <Avatar name={user?.name || "User"} size={30} />}
+                                    {user?.profileImg ? <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${user.profileImg}`} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" /> : <Avatar name={user?.name || "User"} size={30} />}
                                     <div className="text-[#C9A94D] text-[18px]">{user?.name || "User"}</div>
                                 </div>
                             </DropdownMenuTrigger>
