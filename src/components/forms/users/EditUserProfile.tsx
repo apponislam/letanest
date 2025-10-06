@@ -225,10 +225,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import { useUpdateUserProfileMutation, useGetSingleUserQuery } from "@/redux/features/users/usersApi";
-import { currentUser } from "@/redux/features/auth/authSlice";
+import { currentUser, setUser } from "@/redux/features/auth/authSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { toast } from "sonner";
 import { splitFullName } from "@/utils/splitFullName";
+import { useDispatch } from "react-redux";
+import { useRefreshTokenMutation } from "@/redux/features/auth/authApi";
 
 // --- Zod Schema ---
 const userSchema = z.object({
@@ -292,6 +294,9 @@ const EditUserProfileForm = () => {
         }
     }, [userData, reset]);
 
+    const dispatch = useDispatch();
+    const [refreshToken] = useRefreshTokenMutation();
+
     const onSubmit = async (data: UserFormType) => {
         try {
             const formData = new FormData();
@@ -312,6 +317,27 @@ const EditUserProfileForm = () => {
             const result = await updateUserProfile(formData).unwrap();
             toast.success("Profile updated successfully!");
             console.log("Profile updated:", result);
+
+            try {
+                const refreshResult = await refreshToken().unwrap();
+
+                if (refreshResult.data) {
+                    const backendData = refreshResult.data;
+                    const user = backendData.user;
+                    const accessToken = backendData.accessToken;
+
+                    console.log("Refreshed user:", user);
+                    console.log("New access token:", accessToken);
+
+                    // Update user and token in Redux store
+                    dispatch(setUser({ user, token: accessToken }));
+
+                    toast.success("Profile and session updated successfully!");
+                }
+            } catch (refreshError) {
+                console.warn("Token refresh failed, but profile was updated:", refreshError);
+                // Continue even if token refresh fails since profile update was successful
+            }
 
             // Redirect back to profile
             router.push("/dashboard/profile");
