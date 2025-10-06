@@ -165,24 +165,28 @@ const UserProfileDetails = () => {
                                 <p className="font-bold text-[#C9A94D]">{user.email || "N/A"}</p>
                             </div>
                             <div className="flex gap-2 flex-col md:flex-row">
-                                {user.verificationStatus === "approved" ? (
-                                    <button className="bg-[#135E9A] text-white rounded-[20px] px-7 py-1 flex items-center gap-1 text-base justify-center">
-                                        <Star className="w-4 h-4" />
-                                        Verified
-                                    </button>
-                                ) : user.verificationStatus === "pending" ? (
-                                    <button className="bg-yellow-500 text-white rounded-[20px] px-7 py-1 flex items-center gap-1 text-base justify-center">
-                                        <Clock className="w-4 h-4" />
-                                        Under Review
-                                    </button>
-                                ) : user.verificationStatus === "rejected" ? (
-                                    <Link href="/dashboard/profile/verify">
-                                        <button className="bg-red-500 text-white rounded-[20px] px-7 py-1 text-base">Re-submit Verification</button>
-                                    </Link>
-                                ) : (
-                                    <Link href="/dashboard/profile/verify">
-                                        <button className="bg-[#135E9A] text-white rounded-[20px] px-7 py-1 text-base">Add Verify</button>
-                                    </Link>
+                                {user.role === "HOST" && (
+                                    <>
+                                        {user.verificationStatus === "approved" ? (
+                                            <button className="bg-[#135E9A] text-white rounded-[20px] px-7 py-1 flex items-center gap-1 text-base justify-center">
+                                                <Star className="w-4 h-4" />
+                                                Verified
+                                            </button>
+                                        ) : user.verificationStatus === "pending" ? (
+                                            <button className="bg-yellow-500 text-white rounded-[20px] px-7 py-1 flex items-center gap-1 text-base justify-center">
+                                                <Clock className="w-4 h-4" />
+                                                Under Review
+                                            </button>
+                                        ) : user.verificationStatus === "rejected" ? (
+                                            <Link href="/dashboard/profile/verify">
+                                                <button className="bg-red-500 text-white rounded-[20px] px-7 py-1 text-base">Re-submit Verification</button>
+                                            </Link>
+                                        ) : (
+                                            <Link href="/dashboard/profile/verify">
+                                                <button className="bg-[#135E9A] text-white rounded-[20px] px-7 py-1 text-base">Add Verify</button>
+                                            </Link>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
