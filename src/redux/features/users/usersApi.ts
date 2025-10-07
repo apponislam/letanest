@@ -63,7 +63,56 @@ interface UpdateProfileResponse {
     message: string;
 }
 
+export type IUserSubscriptionItem = {
+    _id: string;
+    user: string;
+    subscription:
+        | string
+        | {
+              _id: string;
+              bookingFee?: number;
+              bookingLimit?: number;
+              commission?: number;
+              freeBookings?: number;
+              listingLimit?: number;
+              isFreeTier?: boolean;
+              cancelAtPeriodEnd?: boolean;
+              currentPeriodStart?: string;
+              currentPeriodEnd?: string;
+              createdAt?: string;
+              updatedAt?: string;
+              status?: string;
+              stripeCustomerId?: string;
+              stripeSubscriptionId?: string;
+              stripePriceId?: string;
+              [key: string]: any;
+          };
+    status: string;
+    stripeCustomerId: string;
+    stripeSubscriptionId: string;
+    stripePriceId: string;
+    createdAt?: string;
+    updatedAt?: string;
+    __v?: number;
+};
+
+export interface IUserWithSubscriptions {
+    _id: string;
+    name: string;
+    email: string;
+    role: Role;
+    profileImg?: string;
+    subscriptions?: IUserSubscriptionItem[];
+}
+
+export interface IUserSubscriptionsResponse {
+    success: boolean;
+    message: string;
+    data: IUserWithSubscriptions;
+}
+
 export const userApi = baseApi.injectEndpoints({
+    overrideExisting: true,
     endpoints: (build) => ({
         getAllUsers: build.query<GetUsersResponse, GetUsersParams>({
             query: (params = {}) => {
@@ -99,7 +148,15 @@ export const userApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Users"],
         }),
+        // NEW: Get current user subscriptions
+        getMySubscriptions: build.query<IUserSubscriptionsResponse, void>({
+            query: () => ({
+                url: "/users/me/subscriptions",
+                method: "GET",
+            }),
+            providesTags: ["MySubscriptions"],
+        }),
     }),
 });
 
-export const { useGetAllUsersQuery, useGetSingleUserQuery, useUpdateUserProfileMutation } = userApi;
+export const { useGetAllUsersQuery, useGetSingleUserQuery, useUpdateUserProfileMutation, useGetMySubscriptionsQuery } = userApi;

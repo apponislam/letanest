@@ -6,7 +6,7 @@ import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
-import { useGetAllSubscriptionsAdminQuery, useGetAllSubscriptionsQuery, useGetSubscriptionsByTypeForAdminQuery, useGetSubscriptionsByTypeQuery, useToggleSubscriptionStatusMutation } from "@/redux/features/subscription/subscriptionApi";
+import { useGetAllSubscriptionsAdminQuery, useGetSubscriptionsByTypeForAdminQuery, useToggleSubscriptionStatusMutation } from "@/redux/features/subscription/subscriptionApi";
 import { toast } from "sonner";
 import { ISubscription } from "@/redux/features/subscription/subscriptionApi";
 
@@ -31,13 +31,11 @@ const MemberShip = () => {
     // Mutations
     const [toggleStatus] = useToggleSubscriptionStatusMutation();
 
-    console.log(subscriptionsData);
-    console.log(guestSubscriptions);
-    console.log(hostSubscriptions);
-
-    const subscriptions = subscriptionsData?.data || [];
+    const subscriptions = subscriptionsData || [];
     const guestPlans = guestSubscriptions || [];
     const hostPlans = hostSubscriptions || [];
+
+    console.log("subscription data", subscriptionsData);
 
     const toggleExpand = (planId: string) => {
         setExpandedPlan(expandedPlan === planId ? null : planId);
@@ -198,6 +196,8 @@ const MemberShip = () => {
         );
     }
 
+    // console.log(subscriptions);
+
     return (
         <div className="container mx-auto">
             <PageHeader title="Memberships" />
@@ -210,8 +210,8 @@ const MemberShip = () => {
                     </div>
 
                     <div className="text-sm text-gray-300">
-                        <p>Total Plans: {subscriptions.length}</p>
-                        <p>Active: {subscriptions.filter((s: ISubscription) => s.isActive).length}</p>
+                        <p>Total Plans: {subscriptions?.length}</p>
+                        <p>Active: {subscriptions?.filter((s: ISubscription) => s.isActive).length}</p>
                     </div>
                 </div>
 

@@ -26,11 +26,11 @@ const subscriptionSchema = z.object({
     currency: z.string().min(1, { message: "Currency is required" }),
 
     // GUEST specific
-    bookingFee: z.union([z.number(), z.string()]).optional(),
+    bookingFee: z.number().optional(),
     bookingLimit: z.number().optional(),
 
     // HOST specific
-    commission: z.union([z.number(), z.string()]).optional(),
+    commission: z.number().optional(),
     freeBookings: z.number().optional(),
     listingLimit: z.number().optional(),
 
@@ -77,8 +77,8 @@ const EditMembershipForm = () => {
             billingPeriod: "none",
             cost: 0,
             currency: "gbp",
-            bookingFee: "",
-            commission: "",
+            bookingFee: undefined,
+            commission: undefined,
             bookingLimit: undefined,
             freeBookings: undefined,
             listingLimit: undefined,
@@ -99,8 +99,8 @@ const EditMembershipForm = () => {
                 billingPeriod: subscription.billingPeriod,
                 cost: subscription.cost,
                 currency: subscription.currency,
-                bookingFee: subscription.bookingFee || "",
-                commission: subscription.commission || "",
+                bookingFee: subscription.bookingFee || undefined,
+                commission: subscription.commission || undefined,
                 bookingLimit: subscription.bookingLimit,
                 freeBookings: subscription.freeBookings,
                 listingLimit: subscription.listingLimit,
@@ -131,13 +131,13 @@ const EditMembershipForm = () => {
             if (watchType === "GUEST") {
                 switch (watchLevel) {
                     case "free":
-                        setValue("bookingFee", "10%");
+                        setValue("bookingFee", 10);
                         setValue("bookingLimit", undefined);
                         setValue("cost", 0);
                         setValue("billingPeriod", "none");
                         break;
                     case "premium":
-                        setValue("bookingFee", "10% after 4 bookings");
+                        setValue("bookingFee", 10);
                         setValue("bookingLimit", 4);
                         setValue("cost", 4.99);
                         setValue("billingPeriod", "monthly");
@@ -154,7 +154,7 @@ const EditMembershipForm = () => {
             } else if (watchType === "HOST") {
                 switch (watchLevel) {
                     case "free":
-                        setValue("commission", "10% after 10 bookings");
+                        setValue("commission", 10);
                         setValue("freeBookings", 10);
                         setValue("listingLimit", 1);
                         setValue("cost", 0);
