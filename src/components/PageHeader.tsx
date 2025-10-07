@@ -1,11 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Host } from "@/types/host";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser, logOut } from "@/redux/features/auth/authSlice";
 import Avatar from "@/utils/Avatar";
@@ -52,7 +51,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <div className="flex items-center gap-2 cursor-pointer">
-                                    {user?.profileImg ? <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${user.profileImg}`} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" /> : <Avatar name={user?.name || "User"} size={30} />}
+                                    {user?.profileImg ? <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${user.profileImg}`} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover h-[30px] w-[30px]" /> : <Avatar name={user?.name || "User"} size={30} />}
                                     <div className="text-[#C9A94D] text-[18px]">{user?.name || "User"}</div>
                                 </div>
                             </DropdownMenuTrigger>
