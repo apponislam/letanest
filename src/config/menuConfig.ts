@@ -17,6 +17,7 @@ export const menuItems = {
     [roles.HOST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Transaction", url: "/dashboard/transaction", icon: CreditCard },
+        { title: "Memberships", url: "/dashboard/memberships", icon: Users },
         { title: "Property Listing", url: "/dashboard/property-listing", icon: Home },
         { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
     ],
