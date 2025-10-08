@@ -96,12 +96,27 @@ export type IUserSubscriptionItem = {
     __v?: number;
 };
 
+export interface IFreeTireSub {
+    _id: string;
+    billingPeriod?: string;
+    bookingFee?: number;
+    level?: string;
+    paymentLink?: string;
+    type?: string;
+    freeBookings?: number;
+    listingLimit?: number;
+    commission?: number;
+}
+
 export interface IUserWithSubscriptions {
     _id: string;
     name: string;
     email: string;
     role: Role;
     profileImg?: string;
+    freeTireUsed?: boolean;
+    freeTireExpiry?: string;
+    freeTireSub?: IFreeTireSub;
     subscriptions?: IUserSubscriptionItem[];
 }
 
@@ -156,7 +171,17 @@ export const userApi = baseApi.injectEndpoints({
             }),
             providesTags: ["MySubscriptions"],
         }),
+
+        // 🆕 ✅ Activate Free Tier
+        activateFreeTier: build.mutation<{ success: boolean; message: string; data?: any }, { subscriptionId: string }>({
+            query: (data) => ({
+                url: "/users/me/free-tier/activate",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ["MySubscriptions", "Users"],
+        }),
     }),
 });
 
-export const { useGetAllUsersQuery, useGetSingleUserQuery, useUpdateUserProfileMutation, useGetMySubscriptionsQuery } = userApi;
+export const { useGetAllUsersQuery, useGetSingleUserQuery, useUpdateUserProfileMutation, useGetMySubscriptionsQuery, useActivateFreeTierMutation } = userApi;
