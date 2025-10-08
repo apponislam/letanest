@@ -173,12 +173,25 @@ const MemberShip = () => {
                 </div>
 
                 {/* Stripe Info */}
-                <div className="mt-2 text-xs text-gray-400">
+                {/* <div className="mt-2 text-xs text-gray-400">
                     <p>Stripe: {plan.stripeProductId ? "Connected" : "Not connected"}</p>
                     {plan.paymentLink && plan.paymentLink !== "free_tier" && (
-                        <a href={plan.paymentLink} target="_blank" rel="noopener noreferrer" className="text-[#C9A94D] hover:underline block mt-1">
+                        <Link href={plan.paymentLink} target="_blank" rel="noopener noreferrer" className="text-[#C9A94D] hover:underline block mt-1">
                             View Payment Link
-                        </a>
+                        </Link>
+                    )}
+                </div> */}
+                <div className="mt-2 text-xs text-gray-400">
+                    <p>Stripe: {plan.stripeProductId ? "Connected" : "Not connected"}</p>
+                    {plan.paymentLink && plan.paymentLink.startsWith("free-tier-") && (
+                        <Link href={`/${plan.paymentLink}`} target="_blank" className="text-[#C9A94D] hover:underline block mt-1">
+                            Activate Free Tier
+                        </Link>
+                    )}
+                    {plan.paymentLink && !plan.paymentLink.startsWith("free-tier-") && plan.paymentLink !== "free_tier" && (
+                        <Link href={plan.paymentLink} target="_blank" rel="noopener noreferrer" className="text-[#C9A94D] hover:underline block mt-1">
+                            View Payment Link
+                        </Link>
                     )}
                 </div>
             </div>
