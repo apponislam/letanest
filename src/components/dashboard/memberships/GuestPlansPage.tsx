@@ -39,9 +39,14 @@ const GuestPlansPage = () => {
 
         return userSubscriptionsData.subscriptions.some((sub: any) => {
             const subscriptionData = sub.subscription;
-            const subscriptionId = subscriptionData.subscription;
+            // Add null check for subscriptionData
+            if (!subscriptionData) return false;
 
-            return subscriptionId === planId && subscriptionData.status === "active" && subscriptionData.currentPeriodEnd && new Date(subscriptionData.currentPeriodEnd) > new Date();
+            const subscriptionId = subscriptionData.subscription;
+            // Add null check for subscriptionId and other required fields
+            if (!subscriptionId || !subscriptionData.status || !subscriptionData.currentPeriodEnd) return false;
+
+            return subscriptionId === planId && subscriptionData.status === "active" && new Date(subscriptionData.currentPeriodEnd) > new Date();
         });
     };
 
@@ -51,13 +56,23 @@ const GuestPlansPage = () => {
 
         const userSubscription = userSubscriptionsData.subscriptions.find((sub: any) => {
             const subscriptionData = sub.subscription;
-            return subscriptionData.subscription === planId;
+            // Add null check for subscriptionData
+            if (!subscriptionData) return false;
+
+            const subscriptionId = subscriptionData.subscription;
+            // Add null check for subscriptionId
+            if (!subscriptionId) return false;
+
+            return subscriptionId === planId;
         });
 
         if (!userSubscription) return null;
 
         const subscriptionData = userSubscription.subscription;
-        const isActive = subscriptionData.status === "active" && subscriptionData.currentPeriodEnd && new Date(subscriptionData.currentPeriodEnd) > new Date();
+        // Add null check for subscriptionData and its properties
+        if (!subscriptionData || !subscriptionData.status || !subscriptionData.currentPeriodEnd) return null;
+
+        const isActive = subscriptionData.status === "active" && new Date(subscriptionData.currentPeriodEnd) > new Date();
 
         return {
             status: subscriptionData.status,
