@@ -9,11 +9,15 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import { X, Check } from "lucide-react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+// import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+// import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
+import Link from "next/link";
+import { useGetMyDefaultHostTermsQuery } from "@/redux/features/public/publicApi";
+// import { de, sl } from "zod/v4/locales";
+import TermsSelection from "./TermsSelection";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -129,7 +133,43 @@ const AddListingForm2: React.FC = () => {
         defaultValues: { agreeTerms: false },
     });
 
+    const [showOptions, setShowOptions] = useState(false);
+    const [selectedTermsId, setSelectedTermsId] = useState<string | null>(null);
+    const [selectedCustomTermsId, setSelectedCustomTermsId] = useState<string | null>(null);
     const [createProperty, { isLoading, error }] = useCreatePropertyMutation();
+    const { data: defaultTermsResponse, isLoading: termsLoading } = useGetMyDefaultHostTermsQuery();
+
+    const handleUseDefault = () => {
+        console.log("clicked use default");
+        if (defaultTermsResponse?.data?._id) {
+            setSelectedTermsId(defaultTermsResponse.data._id);
+            setSelectedCustomTermsId(null); // Clear custom if default is selected
+            console.log("Using default T&C ID:", defaultTermsResponse.data._id);
+            toast.success("Default terms and conditions applied!");
+        } else {
+            console.log("No T&C ID available");
+            toast.error("No default terms found!");
+        }
+        setShowOptions(false);
+    };
+
+    const handleRemoveDefault = () => {
+        setSelectedTermsId(null);
+        setShowOptions(false);
+        console.log("Removed default T&C");
+        toast.info("Default terms and conditions removed!");
+    };
+
+    const handleTermsChange = (termsId: string | null) => {
+        setSelectedCustomTermsId(termsId);
+        setSelectedTermsId(null); // Clear default if custom is selected
+        console.log("Selected Custom Terms ID:", termsId);
+    };
+
+    // Get the final selected terms ID (custom has priority over default)
+    const getFinalTermsId = () => {
+        return selectedCustomTermsId || selectedTermsId;
+    };
 
     const onSubmitStep4 = async (step4Data: Step4Data) => {
         if (!step1Data || !step2Data || !step3Data) return; // safety check
@@ -163,6 +203,10 @@ const AddListingForm2: React.FC = () => {
 
         // Step4 agreement
         formData.append("agreeTerms", step4Data.agreeTerms.toString());
+        const finalTermsId = getFinalTermsId();
+        if (finalTermsId) {
+            formData.append("termsAndConditions", finalTermsId);
+        }
 
         try {
             // Send FormData via RTK Query mutation
@@ -175,61 +219,50 @@ const AddListingForm2: React.FC = () => {
         }
     };
 
-    // const onSubmitStep4 = (data: Step4Data) => {
-    //     setCompletedSteps((prev) => [...prev, "step4"]);
-    //     console.log(data);
-    //     console.log("Final submit data:", {
-    //         ...step1Data,
-    //         ...step2Data,
-    //         coverPhoto: step3Form.getValues("coverPhoto"),
-    //         photos: step3Form.getValues("photos"),
-    //     });
+    // const [verifyAttOpen, setVerifyAttOpen] = useState(false);
+    // const [verifyAttFile, setVerifyAttFile] = useState<File | null>(null);
+    // const [verifyAttPreview, setVerifyAttPreview] = useState<string | null>(null);
+
+    // const handleVerifyAttDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    //     e.preventDefault();
+    //     const file = e.dataTransfer.files[0];
+    //     if (file) {
+    //         setVerifyAttFile(file);
+    //         setVerifyAttPreview(URL.createObjectURL(file));
+    //     }
     // };
 
-    const [verifyAttOpen, setVerifyAttOpen] = useState(false);
-    const [verifyAttFile, setVerifyAttFile] = useState<File | null>(null);
-    const [verifyAttPreview, setVerifyAttPreview] = useState<string | null>(null);
+    // const handleVerifyAttClickUpload = () => {
+    //     const input = document.createElement("input");
+    //     input.type = "file";
+    //     input.accept = "*/*";
+    //     input.onchange = () => {
+    //         const file = input.files?.[0];
+    //         if (file) {
+    //             setVerifyAttFile(file);
+    //             setVerifyAttPreview(URL.createObjectURL(file));
+    //         }
+    //     };
+    //     input.click();
+    // };
 
-    const handleVerifyAttDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            setVerifyAttFile(file);
-            setVerifyAttPreview(URL.createObjectURL(file));
-        }
-    };
+    // const handleVerifyAttRemove = () => {
+    //     setVerifyAttFile(null);
+    //     setVerifyAttPreview(null);
+    // };
 
-    const handleVerifyAttClickUpload = () => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "*/*";
-        input.onchange = () => {
-            const file = input.files?.[0];
-            if (file) {
-                setVerifyAttFile(file);
-                setVerifyAttPreview(URL.createObjectURL(file));
-            }
-        };
-        input.click();
-    };
+    // const handleVerifyAttSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     e.stopPropagation();
 
-    const handleVerifyAttRemove = () => {
-        setVerifyAttFile(null);
-        setVerifyAttPreview(null);
-    };
+    //     if (!verifyAttFile) return;
 
-    const handleVerifyAttSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    //     console.log("Submitting file:", verifyAttFile);
+    //     const formData = new FormData();
+    //     formData.append("attachment", verifyAttFile);
 
-        if (!verifyAttFile) return;
-
-        console.log("Submitting file:", verifyAttFile);
-        const formData = new FormData();
-        formData.append("attachment", verifyAttFile);
-
-        setVerifyAttOpen(false);
-    };
+    //     setVerifyAttOpen(false);
+    // };
 
     // Function to check if a step is completed
     const isStepCompleted = (step: string) => completedSteps.includes(step);
@@ -277,7 +310,7 @@ const AddListingForm2: React.FC = () => {
             </TabsList>
 
             {/* Step 1 */}
-            <TabsContent value="step1" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            <TabsContent value="step1" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Basic Information</h1>
                 <p className="mb-8">Let's start with the basics about your property</p>
 
@@ -333,7 +366,7 @@ const AddListingForm2: React.FC = () => {
             </TabsContent>
 
             {/* Step 2 */}
-            <TabsContent value="step2" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            <TabsContent value="step2" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Property Details</h1>
                 <p className="mb-8">Tell us about the capacity and layout</p>
                 <form onSubmit={step2Form.handleSubmit(onSubmitStep2)} className="space-y-5">
@@ -422,7 +455,7 @@ const AddListingForm2: React.FC = () => {
             </TabsContent>
 
             {/* Step 3 */}
-            <TabsContent value="step3" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            <TabsContent value="step3" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Photos</h1>
                 <p className="mb-8">Add photos to showcase your property</p>
 
@@ -549,14 +582,14 @@ const AddListingForm2: React.FC = () => {
             </TabsContent>
 
             {/* Step 4 */}
-            <TabsContent value="step4" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            <TabsContent value="step4" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Nearly Done</h1>
                 <p className="mb-8">Make sure everything looks right before you submit. </p>
 
                 {/* Preview Section */}
-                <div className="space-y-4 mb-6 border border-[#C9A94D] p-5 rounded-[20px] text-[#C9A94D]">
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-5">
+                <div className="space-y-4 mb-6 border border-[#C9A94D] p-3 md:p-5 rounded-[20px] text-[#C9A94D]">
+                    <div className="flex items-center justify-between gap-3 flex-col md:flex-row">
+                        <div className="flex gap-5 flex-col md:flex-row">
                             {/* Img - cover */}
                             <div className="relative w-40 h-32 flex items-center justify-center rounded-lg overflow-hidden border border-[#C9A94D] bg-[#2D3546]">{coverPreview ? <Image src={coverPreview} alt="Cover Preview" fill className="object-cover rounded-lg" unoptimized /> : <p className="text-white text-sm">Cover</p>}</div>
                             <div className="gap-1">
@@ -583,8 +616,12 @@ const AddListingForm2: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* Trigger */}
-                        <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
+                        <Image src="/listing/add/plus-circle.png" alt="Attachment" width={24} height={24} />
+                        <p>Add To Bank Details (Optional)</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        {/* <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
                             <DialogTrigger asChild>
                                 <div className="flex items-center gap-1 cursor-pointer">
                                     <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
@@ -592,13 +629,12 @@ const AddListingForm2: React.FC = () => {
                                 </div>
                             </DialogTrigger>
 
-                            {/* Modal Content */}
+                       
                             <DialogContent className="bg-[#2D3546] border border-[#C9A94D] rounded-[12px] p-6 max-w-lg w-full">
                                 <DialogHeader>
                                     <DialogTitle className="text-white text-lg">Upload Attachment</DialogTitle>
                                 </DialogHeader>
 
-                                {/* Form INSIDE modal */}
                                 <form onSubmit={handleVerifyAttSubmit} className="space-y-4">
                                     <div className="w-full border border-dashed border-[#C9A94D] p-5 rounded-[12px] flex items-center justify-center h-60 relative cursor-pointer" onDragOver={(e) => e.preventDefault()} onDrop={handleVerifyAttDrop} onClick={handleVerifyAttClickUpload}>
                                         {verifyAttPreview ? (
@@ -624,7 +660,13 @@ const AddListingForm2: React.FC = () => {
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
-                        </Dialog>
+                        </Dialog> */}
+                        <Link href="/dashboard/profile/verify" target="_blank">
+                            <div className="flex items-center gap-1 cursor-pointer">
+                                <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
+                                <p>Verify Address (Optional)</p>
+                            </div>
+                        </Link>
 
                         {/* Tooltip */}
                         <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
@@ -656,6 +698,44 @@ const AddListingForm2: React.FC = () => {
                             )}
                         </div>
                     </div>
+                    <div className="flex items-center justify-end gap-2 flex-col md:flex-row relative">
+                        {/* <button className="bg-[#626A7D] py-1 px-7 text-white rounded-[8px] w-full md:w-auto">Upload Your Own Host T&Cs</button> */}
+                        <TermsSelection onTermsChange={handleTermsChange} selectedCustomTermsId={selectedCustomTermsId} setSelectedCustomTermsId={setSelectedCustomTermsId} />
+
+                        <div className="relative">
+                            <button className="bg-[#626A7D] py-1 px-7 text-white rounded-[8px] w-full md:w-auto flex items-center gap-1" onClick={() => setShowOptions(!showOptions)} disabled={termsLoading}>
+                                Use/Edit Default Host T&Cs
+                                {termsLoading && " (Loading...)"}
+                            </button>
+
+                            {showOptions && (
+                                <div className="absolute top-full left-0 mt-1 w-full flex flex-col gap-1 z-10">
+                                    {!selectedTermsId ? (
+                                        <button className="w-full bg-[#626A7D] py-1 px-7 text-white rounded-[8px] hover:bg-[#535a6b]" onClick={handleUseDefault} disabled={!defaultTermsResponse?.data?._id}>
+                                            Use Default
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="w-full bg-red-600 py-1 px-7 text-white rounded-[8px] hover:bg-red-700"
+                                            onClick={handleRemoveDefault} // Use the new handler
+                                        >
+                                            Remove Default
+                                        </button>
+                                    )}
+                                    <Link href={"/dashboard/terms-conditions"} target="_blank">
+                                        <button
+                                            className="w-full bg-[#626A7D] py-1 px-7 text-white rounded-[8px] hover:bg-[#535a6b]"
+                                            onClick={() => {
+                                                setShowOptions(false);
+                                            }}
+                                        >
+                                            Edit Default
+                                        </button>
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Agreement Form */}
@@ -669,7 +749,7 @@ const AddListingForm2: React.FC = () => {
                     {step4Form.formState.errors.agreeTerms && <p className="text-red-500 text-sm mb-4">{step4Form.formState.errors.agreeTerms.message}</p>}
 
                     {/* Buttons */}
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-3 flex-col md:flex-row">
                         <button type="button" onClick={() => setActiveTab("step3")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition">
                             Previous
                         </button>
