@@ -49,14 +49,6 @@ export const propertyApi = baseApi.injectEndpoints({
         }),
 
         // Create property
-        // createProperty: build.mutation<IProperty, Partial<IProperty>>({
-        //     query: (data) => ({
-        //         url: "/property",
-        //         method: "POST",
-        //         body: data,
-        //     }),
-        //     invalidatesTags: ["Properties"],
-        // }),
         createProperty: build.mutation<any, FormData>({
             query: (formData) => ({
                 url: "/property",
@@ -76,7 +68,39 @@ export const propertyApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: (result, error, { id }) => [{ type: "Properties", id }],
         }),
+
+        getAllPropertiesForAdmin: build.query<GetPropertiesResponse, GetPropertiesQuery | void>({
+            query: (params = {}) => {
+                // Set default values
+                const defaultParams = {
+                    page: 1,
+                    limit: 1,
+                    ...params,
+                };
+
+                const searchParams = new URLSearchParams();
+                Object.entries(defaultParams).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== "") {
+                        searchParams.append(key, value.toString());
+                    }
+                });
+
+                return {
+                    url: `/property/admin/all?${searchParams.toString()}`,
+                    method: "GET",
+                };
+            },
+            providesTags: ["Properties"],
+        }),
+        changePropertyStatus: build.mutation<IProperty, { id: string; status: string }>({
+            query: ({ id, status }) => ({
+                url: `/property/${id}/status`,
+                method: "PATCH",
+                body: { status },
+            }),
+            invalidatesTags: ["Properties"],
+        }),
     }),
 });
 
-export const { useGetAllPropertiesQuery, useGetSinglePropertyQuery, useCreatePropertyMutation, useUpdatePropertyMutation } = propertyApi;
+export const { useGetAllPropertiesQuery, useGetSinglePropertyQuery, useCreatePropertyMutation, useUpdatePropertyMutation, useGetAllPropertiesForAdminQuery, useChangePropertyStatusMutation } = propertyApi;
