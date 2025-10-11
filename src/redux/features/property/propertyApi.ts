@@ -17,6 +17,7 @@ interface GetPropertiesResponse {
         page: number;
         limit: number;
         totalPages: number;
+        totalAmount?: number;
     };
 }
 
@@ -69,6 +70,30 @@ export const propertyApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, { id }) => [{ type: "Properties", id }],
         }),
 
+        getPublishedPropertiesForAdmin: build.query<GetPropertiesResponse, GetPropertiesQuery | void>({
+            query: (params = {}) => {
+                // Set default values
+                const defaultParams = {
+                    page: 1,
+                    limit: 1,
+                    ...params,
+                };
+
+                const searchParams = new URLSearchParams();
+                Object.entries(defaultParams).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== "") {
+                        searchParams.append(key, value.toString());
+                    }
+                });
+
+                return {
+                    url: `/property/admin/published?${searchParams.toString()}`,
+                    method: "GET",
+                };
+            },
+            providesTags: ["Properties"],
+        }),
+
         getAllPropertiesForAdmin: build.query<GetPropertiesResponse, GetPropertiesQuery | void>({
             query: (params = {}) => {
                 // Set default values
@@ -100,7 +125,51 @@ export const propertyApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Properties"],
         }),
+
+        // Host
+
+        getHostProperties: build.query<GetPropertiesResponse, GetPropertiesQuery | void>({
+            query: (params = {}) => {
+                const defaultParams = {
+                    page: 1,
+                    limit: 10,
+                    ...params,
+                };
+
+                const searchParams = new URLSearchParams();
+                Object.entries(defaultParams).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== "") {
+                        searchParams.append(key, value.toString());
+                    }
+                });
+
+                return {
+                    url: `/property/host/my-properties?${searchParams.toString()}`,
+                    method: "GET",
+                };
+            },
+            providesTags: ["Properties"],
+        }),
+
+        deleteHostProperty: build.mutation<{ success: boolean; message: string }, string>({
+            query: (id) => ({
+                url: `/property/host/my-properties/${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["Properties"],
+        }),
     }),
 });
 
-export const { useGetAllPropertiesQuery, useGetSinglePropertyQuery, useCreatePropertyMutation, useUpdatePropertyMutation, useGetAllPropertiesForAdminQuery, useChangePropertyStatusMutation } = propertyApi;
+export const {
+    useGetAllPropertiesQuery,
+    useGetSinglePropertyQuery,
+    useCreatePropertyMutation,
+    useUpdatePropertyMutation,
+    useGetPublishedPropertiesForAdminQuery,
+    useGetAllPropertiesForAdminQuery,
+    useChangePropertyStatusMutation,
+    // Host endpoints exports
+    useGetHostPropertiesQuery,
+    useDeleteHostPropertyMutation,
+} = propertyApi;

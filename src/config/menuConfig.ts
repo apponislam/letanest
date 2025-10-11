@@ -23,7 +23,7 @@ export const menuItems = {
     ],
     [roles.GUEST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-        { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
+        // { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
         { title: "Contact Letanest", url: "/contact", icon: Mail },
         { title: "Memberships", url: "/dashboard/memberships", icon: Users },
     ],
