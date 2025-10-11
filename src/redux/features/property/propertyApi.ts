@@ -41,7 +41,14 @@ export const propertyApi = baseApi.injectEndpoints({
         }),
 
         // Get single property
-        getSingleProperty: build.query<IProperty, string>({
+        getSingleProperty: build.query<
+            {
+                success: boolean;
+                message: string;
+                data: IProperty;
+            },
+            string
+        >({
             query: (id) => ({
                 url: `/property/${id}`,
                 method: "GET",

@@ -1,3 +1,25 @@
+export interface IUser {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    profileImg?: string;
+    role: "GUEST" | "HOST" | "ADMIN";
+    isActive: boolean;
+    isEmailVerified?: boolean;
+    isVerifiedByAdmin?: boolean;
+    verificationStatus?: string;
+    address?: {
+        street: string;
+        country: string;
+        city: string;
+        zip: string;
+    };
+    gender?: "Male" | "Female" | "Other";
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 // Predefined lists (frontend)
 export const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access"] as const;
 
@@ -14,6 +36,10 @@ export interface IPropertyStep1 {
     location: string;
     postCode: string;
     propertyType: PropertyType;
+    coordinates?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 // Step 2: Property details
@@ -41,7 +67,9 @@ export interface IPropertyStep4 {
 // Complete Property Interface (frontend)
 export interface IProperty extends IPropertyStep1, IPropertyStep2, IPropertyStep3, IPropertyStep4 {
     _id: string;
-    createdBy: string;
+    propertyNumber?: string;
+    createdBy: IUser;
+    // createdBy: string;
     createdAt?: string;
     updatedAt?: string;
     status?: "pending" | "published" | "rejected" | "hidden";
