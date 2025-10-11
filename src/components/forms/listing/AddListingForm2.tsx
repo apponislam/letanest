@@ -18,6 +18,9 @@ import Link from "next/link";
 import { useGetMyDefaultHostTermsQuery } from "@/redux/features/public/publicApi";
 // import { de, sl } from "zod/v4/locales";
 import TermsSelection from "./TermsSelection";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
+import { useRouter } from "next/navigation";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -171,6 +174,9 @@ const AddListingForm2: React.FC = () => {
         return selectedCustomTermsId || selectedTermsId;
     };
 
+    const mainuser = useAppSelector(currentUser);
+    const router = useRouter();
+
     const onSubmitStep4 = async (step4Data: Step4Data) => {
         if (!step1Data || !step2Data || !step3Data) return; // safety check
 
@@ -212,6 +218,15 @@ const AddListingForm2: React.FC = () => {
             // Send FormData via RTK Query mutation
             const result = await createProperty(formData).unwrap();
             console.log("Property created successfully:", result);
+            // Redirect based on user role
+            if (mainuser?.role === "ADMIN") {
+                router.push("/dashboard/property-management");
+            } else if (mainuser?.role === "HOST") {
+                router.push("/dashboard/property-listing");
+            } else {
+                // Fallback redirect
+                router.push("/dashboard");
+            }
             toast.success("Property created successfully!");
         } catch (err: any) {
             toast.error(err?.data?.message || "Failed to create property");
