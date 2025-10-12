@@ -3,6 +3,7 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 import authReducer from "./features/auth/authSlice";
 import storage from "redux-persist/lib/storage";
 import { baseApi } from "./api/baseApi";
+import socketReducer from "@/redux/features/socket/socketSlice";
 
 const persistConfigure = {
     key: "auth",
@@ -16,6 +17,7 @@ const store = configureStore({
     reducer: {
         [baseApi.reducerPath]: baseApi.reducer,
         auth: persistAuthReducer,
+        socket: socketReducer,
     },
     middleware: (getDefaultMiddlewares) =>
         getDefaultMiddlewares({

@@ -1,6 +1,8 @@
 "use client";
-import MessagesLayout2 from "./MessageLayout2";
+
 import PageHeader from "../PageHeader";
+import MessagesLayout2 from "./MessageLayout2";
+import MessagesLayout from "./MessagesLayout";
 
 const MessageViews = () => {
     return (
@@ -9,6 +11,7 @@ const MessageViews = () => {
                 <div className="mx-4 md:mx-0">
                     <PageHeader title={"Messages"} isUser={false}></PageHeader>
 
+                    {/* <MessagesLayout></MessagesLayout> */}
                     <MessagesLayout2></MessagesLayout2>
                 </div>
             </div>

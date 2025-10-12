@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -13,13 +13,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { useGetSinglePropertyQuery } from "@/redux/features/property/propertyApi";
-import { IProperty } from "@/types/property";
+import { useCreateConversationMutation } from "@/redux/features/messages/messageApi";
 
 export default function PropertyPage2() {
     const params = useParams();
     const { id } = params;
 
     const { data: response, isLoading, error } = useGetSinglePropertyQuery(id as string);
+
+    const router = useRouter();
+    const [createConversation] = useCreateConversationMutation();
 
     const property = response?.data;
 
@@ -81,6 +84,31 @@ export default function PropertyPage2() {
         }
 
         return `${process.env.NEXT_PUBLIC_BASE_API || ""}${imagePath}`;
+    };
+
+    const handleChatWithHost = async () => {
+        // if (!user) {
+        //     // If user is not logged in, redirect to login
+        //     router.push("/auth/login");
+        //     return;
+        // }
+
+        if (!property?.createdBy?._id) {
+            console.error("Host information not available");
+            return;
+        }
+
+        try {
+            const result = await createConversation({
+                participants: [property.createdBy._id], // Only send host ID
+                propertyId: property._id,
+            }).unwrap();
+
+            // Navigate to messages page
+            router.push("/messages");
+        } catch (error) {
+            console.error("Failed to start chat:", error);
+        }
     };
 
     return (
@@ -240,7 +268,7 @@ export default function PropertyPage2() {
                                         </div>
                                     </div>
                                     <div>
-                                        <button className="flex items-center gap-2 font-light text-white text-xl md:text-2xl bg-[#C9A94D] hover:bg-[#af8d28] rounded-xl h-auto py-4 px-6">
+                                        <button onClick={handleChatWithHost} className="flex items-center gap-2 font-light text-white text-xl md:text-2xl bg-[#C9A94D] hover:bg-[#af8d28] rounded-xl h-auto py-4 px-6">
                                             <MessagesSquare className="md:h-6 md:w-6  h-5 w-5" />
                                             Chat with Host
                                         </button>
