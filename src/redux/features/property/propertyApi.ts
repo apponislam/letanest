@@ -165,6 +165,14 @@ export const propertyApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Properties"],
         }),
+
+        getMyPublishedProperties: build.query<any, void>({
+            query: () => ({
+                url: `/property/host/my-published-properties`,
+                method: "GET",
+            }),
+            providesTags: ["Properties"],
+        }),
     }),
 });
 
@@ -179,4 +187,5 @@ export const {
     // Host endpoints exports
     useGetHostPropertiesQuery,
     useDeleteHostPropertyMutation,
+    useGetMyPublishedPropertiesQuery,
 } = propertyApi;
