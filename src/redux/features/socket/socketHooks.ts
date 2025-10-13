@@ -8,6 +8,10 @@ export const useSocket = () => {
     const { isConnected, onlineUsers, typingUsers } = useSelector((state: RootState) => state.socket);
 
     const connectSocket = useCallback((userId: string) => {
+        if (!userId) {
+            console.warn("⚠️ No user ID provided for socket connection");
+            return;
+        }
         socketService.connect(userId);
     }, []);
 
@@ -16,14 +20,20 @@ export const useSocket = () => {
     }, []);
 
     const joinConversation = useCallback((conversationId: string) => {
+        if (!conversationId) {
+            console.warn("⚠️ No conversation ID provided");
+            return;
+        }
         socketService.joinConversation(conversationId);
     }, []);
 
     const leaveConversation = useCallback((conversationId: string) => {
+        if (!conversationId) return;
         socketService.leaveConversation(conversationId);
     }, []);
 
     const sendTyping = useCallback((conversationId: string, userId: string, isTyping: boolean) => {
+        if (!conversationId || !userId) return;
         socketService.sendTyping(conversationId, userId, isTyping);
     }, []);
 
