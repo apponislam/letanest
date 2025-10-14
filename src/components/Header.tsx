@@ -21,7 +21,7 @@ const menuItems = [
 const Header = () => {
     const router = useRouter();
     const user = useSelector(currentUser);
-    console.log(user);
+    // console.log(user);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const [scrolled, setScrolled] = useState(false);

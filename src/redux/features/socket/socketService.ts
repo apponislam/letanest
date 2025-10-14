@@ -77,6 +77,34 @@ class SocketService {
             this.addNewConversation(conversation);
         });
 
+        this.socket.on("offer:rejected", (data) => {
+            console.log("📌 Offer rejected via socket:", data);
+
+            // 1️⃣ Update conversation messages
+            store.dispatch(
+                messageApi.util.updateQueryData("getConversationMessages", { conversationId: data.conversationId }, (draft: any) => {
+                    if (!draft?.data || !Array.isArray(draft.data)) return;
+
+                    // Replace the whole array to trigger React re-render
+                    draft.data = draft.data.map((m: any) => (m._id === data.messageId ? { ...m, type: "rejected" } : m));
+                })
+            );
+
+            // 2️⃣ Update lastMessage in conversation list
+            store.dispatch(
+                messageApi.util.updateQueryData("getUserConversations", undefined, (draft: any) => {
+                    if (!draft?.data || !Array.isArray(draft.data)) return;
+
+                    draft.data = draft.data.map((conv: any) => {
+                        if (conv._id === data.conversationId && conv.lastMessage?._id === data.messageId) {
+                            return { ...conv, lastMessage: { ...conv.lastMessage, type: "rejected" } };
+                        }
+                        return conv;
+                    });
+                })
+            );
+        });
+
         this.isInitialized = true;
     }
 
