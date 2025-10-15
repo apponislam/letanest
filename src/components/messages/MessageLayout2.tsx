@@ -59,6 +59,7 @@ export default function MessagesLayout2() {
     // Get conversations
     const { data: conversationsResponse, isLoading: loadingConversations, error: conversationsError, refetch: refetchConversations } = useGetUserConversationsQuery({});
     const conversations = conversationsResponse?.data || [];
+    // console.log(conversations);
 
     const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
 
@@ -287,11 +288,11 @@ export default function MessagesLayout2() {
 
         switch (lastMessage.type) {
             case "offer":
-                return `Nest Offer: ${lastMessage.propertyId || ""}`;
+                return `Nest Offer: ${lastMessage.propertyId.propertyNumber || ""}`;
             case "accepted":
-                return `Accepted: ${lastMessage.propertyId || ""}`;
+                return `Accepted: ${lastMessage.propertyId.propertyNumber || ""}`;
             case "rejected":
-                return `Rejected: ${lastMessage.propertyId || ""}`;
+                return `Rejected: ${lastMessage.propertyId.propertyNumber || ""}`;
             default:
                 return lastMessage.text || "";
         }
@@ -782,7 +783,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                                 </button>
                             ) : (
                                 // Active Pay button when message is from other user
-                                <Link href={`/listings/${message.propertyId._id}/pay`} className="w-full">
+                                <Link href={`/listings/${message._id}/pay`} className="w-full">
                                     <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Pay</button>
                                 </Link>
                             )}
