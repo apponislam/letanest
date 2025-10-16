@@ -11,6 +11,9 @@ import { useSocket } from "@/redux/features/socket/socketHooks";
 import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useMarkConversationAsReadMutation, useRejectOfferMutation } from "@/redux/features/messages/messageApi";
 import { useGetMyPublishedPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { socketService } from "@/redux/features/socket/socketService";
+import { useConnectStripeAccountMutation, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: number; className?: string }) => {
@@ -75,8 +78,25 @@ export default function MessagesLayout2() {
     const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
     const [agreed, setAgreed] = useState(false);
     const { data: publishedProperties, isLoading } = useGetMyPublishedPropertiesQuery();
-
     const messagesData = messagesResponse?.data || [];
+    const [showStripeTooltip, setShowStripeTooltip] = useState(false);
+    const { data: response, isLoading: stripeLoading } = useGetStripeAccountStatusQuery();
+    const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
+    const stripeAccount = response?.data;
+    console.log(stripeAccount);
+    const isStripeConnected = stripeAccount?.status === "verified";
+
+    const handleConnectStripe = async () => {
+        try {
+            const result = await connectStripeAccount().unwrap();
+            if (result.data?.onboardingUrl) {
+                window.location.href = result.data.onboardingUrl;
+            }
+        } catch (error: any) {
+            toast.error(error.message ? error.message : "Failed to connect Stripe");
+            // console.error("Failed to connect Stripe:", error);
+        }
+    };
 
     const router = useRouter();
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -341,6 +361,8 @@ export default function MessagesLayout2() {
 
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">
+            <StripeStatusModal></StripeStatusModal>
+
             {/* Left Sidebar */}
             <div className="w-full md:w-1/3 bg-[#B6BAC3] border-r border-[#C9A94D] flex flex-col">
                 <div className="py-8 px-5 border-b border-[#C9A94D]">
@@ -504,13 +526,12 @@ export default function MessagesLayout2() {
                             {/* Input Box */}
                             <div className="border-t border-[#C9A94D] p-4 bg-[#B6BAC3]">
                                 {/* {user?.role === "GUEST" ? null : <button className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">Make an Offer</button>} */}
-                                {user?.role === "GUEST" ? null : (
+                                {/* {user?.role === "GUEST" ? null : (
                                     <div className="relative">
                                         <button onClick={() => setShowOfferModal(true)} className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">
                                             Make an Offer
                                         </button>
 
-                                        {/* Offer Modal */}
                                         {showOfferModal && (
                                             <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]">
                                                 <div className="flex justify-between items-center mb-3">
@@ -520,7 +541,6 @@ export default function MessagesLayout2() {
                                                     </button>
                                                 </div>
 
-                                                {/* Property Selection */}
                                                 <div className="mb-4">
                                                     <label className="block text-sm font-medium text-[#14213D] mb-2">Select Property</label>
                                                     {isLoading ? (
@@ -544,7 +564,6 @@ export default function MessagesLayout2() {
                                                     )}
                                                 </div>
 
-                                                {/* Date and Price Inputs */}
                                                 <div className="space-y-3 mb-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex-1">
@@ -577,7 +596,6 @@ export default function MessagesLayout2() {
                                                     </div>
                                                 </div>
 
-                                                {/* ✅ Agree to T&Cs (only for offers to customers) */}
                                                 <div className="flex items-center gap-2 mb-3">
                                                     <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
                                                     <label htmlFor="agree" className="text-sm text-gray-700 cursor-pointer select-none">
@@ -588,7 +606,6 @@ export default function MessagesLayout2() {
                                                     </label>
                                                 </div>
 
-                                                {/* Action Buttons */}
                                                 <div className="flex gap-2">
                                                     <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
                                                         Send Offer
@@ -607,8 +624,138 @@ export default function MessagesLayout2() {
                                             </div>
                                         )}
                                     </div>
-                                )}
+                                )} */}
+                                {user?.role === "GUEST" ? null : (
+                                    <div className="relative">
+                                        {/* Stripe Connection Check */}
+                                        {stripeLoading ? (
+                                            <button disabled className="bg-gray-400 w-full text-white rounded-lg mb-1 p-2 opacity-50 cursor-not-allowed">
+                                                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                                            </button>
+                                        ) : !isStripeConnected ? (
+                                            <div className="relative">
+                                                <button onClick={() => setShowStripeTooltip(!showStripeTooltip)} className="bg-gray-400 w-full text-white rounded-lg mb-1 p-2 cursor-pointer">
+                                                    Connect Stripe to Make Offers
+                                                </button>
 
+                                                {/* Click-based Tooltip */}
+                                                {showStripeTooltip && (
+                                                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 z-50">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <p className="font-medium">Stripe Account Required</p>
+                                                                <p className="text-xs mt-1">You need to connect your Stripe account to receive payments for offers.</p>
+                                                            </div>
+                                                            <button onClick={() => setShowStripeTooltip(false)} className="text-yellow-600 hover:text-yellow-800 ml-2">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowStripeTooltip(false);
+                                                                handleConnectStripe();
+                                                            }}
+                                                            disabled={isConnectingStripe}
+                                                            className="w-full bg-yellow-500 text-white py-2 px-3 rounded text-sm font-medium hover:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {isConnectingStripe ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Connect Stripe Now"}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => setShowOfferModal(true)} className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">
+                                                    Make an Offer
+                                                </button>
+
+                                                {/* Offer Modal */}
+                                                {showOfferModal && (
+                                                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]">
+                                                        <div className="flex justify-between items-center mb-3">
+                                                            <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
+                                                            <button onClick={() => setShowOfferModal(false)} className="text-gray-500 hover:text-gray-700">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Property Selection */}
+                                                        <div className="mb-4">
+                                                            <label className="block text-sm font-medium text-[#14213D] mb-2">Select Property</label>
+                                                            {isLoading ? (
+                                                                <div className="text-center py-2">
+                                                                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                                                                    <span className="text-xs text-gray-600">Loading properties...</span>
+                                                                </div>
+                                                            ) : publishedProperties?.data ? (
+                                                                <div className="space-y-2 max-h-20 overflow-y-auto">
+                                                                    {publishedProperties.data.map((property: any) => (
+                                                                        <label key={property._id} className="flex items-center space-x-2 cursor-pointer">
+                                                                            <input type="radio" name="property" value={property._id} checked={selectedProperty === property._id} onChange={(e) => setSelectedProperty(e.target.value)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
+                                                                            <span className="text-sm">
+                                                                                Property No: <span className="text-[#C9A94D] font-bold">{property.propertyNumber}</span> - Price: <span className="text-[#C9A94C] font-bold">£{property.price}</span>
+                                                                            </span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-sm text-gray-600">No published properties found</p>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Date and Price Inputs */}
+                                                        <div className="space-y-3 mb-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex-1">
+                                                                    <label className="block text-sm font-medium text-[#14213D] mb-1">Check-in Date</label>
+                                                                    <input id="checkInDate" type="date" className="w-full border border-[#C9A94D] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C9A94D] text-sm" />
+                                                                </div>
+
+                                                                <div className="flex-1">
+                                                                    <label className="block text-sm font-medium text-[#14213D] mb-1">Check-out Date</label>
+                                                                    <input id="checkOutDate" type="date" className="w-full border border-[#C9A94D] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C9A94D] text-sm" />
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-[#14213D] mb-1">Fee Offered (£)</label>
+                                                                <input id="offerFee" type="number" placeholder="Enter amount" className="w-full border border-[#C9A94D] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C9A94D] text-sm" />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* ✅ Agree to T&Cs */}
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
+                                                            <label htmlFor="agree" className="text-sm text-gray-700 cursor-pointer select-none">
+                                                                I agree to the{" "}
+                                                                <Link href="/terms-of-conditions" target="_blank" className="text-[#C9A94D] hover:underline">
+                                                                    T&Cs
+                                                                </Link>
+                                                            </label>
+                                                        </div>
+
+                                                        {/* Action Buttons */}
+                                                        <div className="flex gap-2">
+                                                            <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                                                                Send Offer
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setShowOfferModal(false);
+                                                                    setSelectedProperty(null);
+                                                                    setAgreed(false);
+                                                                }}
+                                                                className="px-4 py-2 border border-gray-300 rounded-lg text-[#14213D] text-sm"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="text"
@@ -813,6 +960,8 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         );
     }
 
+    console.log(message);
+
     if (message.type === "accepted") {
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
@@ -834,33 +983,33 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                 <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
                     <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
                     <div className="flex flex-col gap-2">
-                        <div className="text-xs flex justify-between">
+                        <div className="text-xs flex justify-between flex-wrap items-start">
                             <div className="flex items-center gap-2">
                                 <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
                                 <span>Property name:</span>
                             </div>
-                            <span>{message.propertyName}</span>
+                            <span className="text-right flex-1">{message?.propertyId?.title}</span>
                         </div>
-                        <div className="text-xs flex justify-between">
+                        <div className="text-xs flex justify-between flex-wrap items-start">
                             <div className="flex items-center gap-2">
                                 <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
                                 <span>Address:</span>
                             </div>
-                            <span>{message.address}</span>
+                            <span className="text-right flex-1">{message?.propertyId?.location}</span>
                         </div>
-                        <div className="text-xs flex justify-between">
+                        <div className="text-xs flex justify-between flex-wrap items-start">
                             <div className="flex items-center gap-2">
                                 <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
                                 <span>Property Manager:</span>
                             </div>
-                            <span>{message.manager}</span>
+                            <span className="text-right flex-1">{message?.sender?.name}</span>
                         </div>
-                        <div className="text-xs flex justify-between">
+                        <div className="text-xs flex justify-between flex-wrap items-start">
                             <div className="flex items-center gap-2">
                                 <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
                                 <span>Phone:</span>
                             </div>
-                            <span>{message.phone}</span>
+                            <span>{message?.sender?.phone}</span>
                         </div>
                     </div>
                 </div>
@@ -958,6 +1107,107 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                 ) : (
                     <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
                 ))}
+        </div>
+    );
+};
+
+// import React, { useEffect, useState } from "react";
+// import { useConnectStripeAccountMutation } from "@/redux/features/users/usersApi";
+// import { Loader2 } from "lucide-react";
+
+// Stripe Status Modal Component
+const StripeStatusModal = () => {
+    const searchParams = useSearchParams();
+    const [isVisible, setIsVisible] = useState(false);
+    const [status, setStatus] = useState<"success" | "failed" | null>(null);
+    const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
+
+    const handleConnectStripe = async () => {
+        try {
+            const result = await connectStripeAccount().unwrap();
+            if (result.data?.onboardingUrl) {
+                window.location.href = result.data.onboardingUrl;
+            }
+        } catch (error) {
+            console.error("Failed to connect Stripe:", error);
+        }
+    };
+
+    useEffect(() => {
+        const stripe = searchParams.get("stripe");
+
+        if (stripe === "success" || stripe === "failed") {
+            setStatus(stripe);
+            setIsVisible(true);
+
+            // Remove the stripe parameter from URL without page reload
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete("stripe");
+            window.history.replaceState({}, "", newUrl.toString());
+        }
+    }, [searchParams]);
+
+    const closeModal = () => {
+        setIsVisible(false);
+        setStatus(null);
+    };
+
+    if (!isVisible) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+                {/* Close Button */}
+                <button onClick={closeModal} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                {/* Content */}
+                <div className="text-center">
+                    {status === "success" ? (
+                        <>
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Stripe Connected Successfully!</h3>
+                            <p className="text-gray-600 mb-6">Your Stripe account has been verified and you can now make offers and receive payments.</p>
+                        </>
+                    ) : (
+                        <>
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Stripe Connection Failed</h3>
+                            <p className="text-gray-600 mb-6">There was an issue connecting your Stripe account. Please try again to start receiving payments.</p>
+                        </>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                        {status === "failed" && (
+                            <button
+                                onClick={() => {
+                                    closeModal();
+                                    handleConnectStripe();
+                                }}
+                                disabled={isConnectingStripe}
+                                className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isConnectingStripe ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Connect Stripe Now"}
+                            </button>
+                        )}
+                        <button onClick={closeModal} className={`bg-[#14213D] text-white py-2 px-4 rounded-lg hover:bg-[#1a2d5a] transition-colors font-medium ${status === "failed" ? "flex-1" : "w-full"}`}>
+                            Continue to Messages
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
