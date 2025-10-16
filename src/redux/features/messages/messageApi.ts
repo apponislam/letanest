@@ -148,37 +148,6 @@ export const messageApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["Conversations"],
         }),
-        // rejectOffer: builder.mutation({
-        //     query: ({ messageId, conversationId }) => ({
-        //         url: `/messages/${messageId}/reject`,
-        //         method: "PATCH",
-        //         body: { conversationId },
-        //     }),
-        //     invalidatesTags: (_result, _error, arg) => [{ type: "Messages", id: arg.conversationId }, "Messages", "Conversations"],
-        //     // Add optimistic update for better UX
-        //     onQueryStarted: async ({ messageId, conversationId }, { dispatch, queryFulfilled }) => {
-        //         // Optimistically update the message to rejected
-        //         const patchResult = dispatch(
-        //             messageApi.util.updateQueryData("getConversationMessages", { conversationId }, (draft: any) => {
-        //                 const messages = draft?.data || draft || [];
-        //                 const messageIndex = messages.findIndex((msg: any) => msg._id === messageId);
-
-        //                 if (messageIndex !== -1) {
-        //                     messages[messageIndex] = {
-        //                         ...messages[messageIndex],
-        //                         type: "rejected",
-        //                     };
-        //                 }
-        //             })
-        //         );
-
-        //         try {
-        //             await queryFulfilled;
-        //         } catch (error) {
-        //             patchResult.undo();
-        //         }
-        //     },
-        // }),
         rejectOffer: builder.mutation({
             query: ({ messageId, conversationId }) => ({
                 url: `/messages/${messageId}/reject`,

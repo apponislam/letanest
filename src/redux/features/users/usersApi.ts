@@ -126,6 +126,55 @@ export interface IUserSubscriptionsResponse {
     data: IUserWithSubscriptions;
 }
 
+// Add Stripe Connect interfaces
+export interface IHostStripeAccount {
+    stripeAccountId: string;
+    status: "pending" | "verified" | "rejected";
+    createdAt: string;
+    verifiedAt?: string;
+}
+
+export interface ConnectStripeResponse {
+    success: boolean;
+    message: string;
+    data: {
+        accountId: string;
+        onboardingUrl: string;
+        status: string;
+    };
+}
+
+export interface StripeAccountStatusResponse {
+    success: boolean;
+    message: string;
+    data: {
+        status: "pending" | "verified" | "rejected";
+        stripeStatus: {
+            chargesEnabled: boolean;
+            payoutsEnabled: boolean;
+            detailsSubmitted: boolean;
+        };
+        accountId: string;
+    };
+}
+
+export interface StripeDashboardResponse {
+    success: boolean;
+    message: string;
+    data: {
+        dashboardUrl: string;
+    };
+}
+
+export interface DisconnectStripeResponse {
+    success: boolean;
+    message: string;
+    data: {
+        success: boolean;
+        message: string;
+    };
+}
+
 export const userApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
@@ -181,7 +230,51 @@ export const userApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["MySubscriptions", "Users"],
         }),
+
+        // 🆕 ✅ Stripe Connect Endpoints
+        connectStripeAccount: build.mutation<ConnectStripeResponse, void>({
+            query: () => ({
+                url: "/users/stripe/connect",
+                method: "POST",
+            }),
+            invalidatesTags: ["Users", "MySubscriptions"],
+        }),
+
+        getStripeAccountStatus: build.query<StripeAccountStatusResponse, void>({
+            query: () => ({
+                url: "/users/stripe/status",
+                method: "GET",
+            }),
+            providesTags: ["StripeAccount"],
+        }),
+
+        getStripeDashboard: build.query<StripeDashboardResponse, void>({
+            query: () => ({
+                url: "/users/stripe/dashboard",
+                method: "GET",
+            }),
+            providesTags: ["StripeAccount"],
+        }),
+
+        disconnectStripeAccount: build.mutation<DisconnectStripeResponse, void>({
+            query: () => ({
+                url: "/users/stripe/disconnect",
+                method: "POST",
+            }),
+            invalidatesTags: ["Users", "StripeAccount", "MySubscriptions"],
+        }),
     }),
 });
 
-export const { useGetAllUsersQuery, useGetSingleUserQuery, useUpdateUserProfileMutation, useGetMySubscriptionsQuery, useActivateFreeTierMutation } = userApi;
+export const {
+    useGetAllUsersQuery,
+    useGetSingleUserQuery,
+    useUpdateUserProfileMutation,
+    useGetMySubscriptionsQuery,
+    useActivateFreeTierMutation,
+    // 🆕 Stripe Connect hooks
+    useConnectStripeAccountMutation,
+    useGetStripeAccountStatusQuery,
+    useGetStripeDashboardQuery,
+    useDisconnectStripeAccountMutation,
+} = userApi;
