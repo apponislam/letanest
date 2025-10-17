@@ -66,6 +66,7 @@ const SignUpForm = () => {
             const result = await registerUser(payload).unwrap();
 
             toast.success(result?.message || "Registered successfully!", { id: loadingToast });
+            router.push("/");
 
             dispatch(
                 setUser({
