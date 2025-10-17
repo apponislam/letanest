@@ -12,6 +12,7 @@ export interface IPayment {
     commissionRate: number;
     commissionAmount: number;
     hostAmount: number;
+    platFormTotal: number;
 
     userId: string;
     propertyId: string;
@@ -60,6 +61,74 @@ interface ConfirmPaymentRequest {
     paymentMethodId: string;
 }
 
+// ADMIN INTERFACES
+interface GetAllPaymentsResponse {
+    success: boolean;
+    message: string;
+    data: IPayment[]; // Just the payments array
+    meta: {
+        // Meta at root level
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+}
+
+interface GetAllPaymentsParams {
+    page?: number;
+    limit?: number;
+    status?: string;
+    propertyId?: string;
+    userId?: string;
+    startDate?: string;
+    endDate?: string;
+    sortBy?: string;
+    sortOrder?: string;
+}
+
+interface PaymentTotalsResponse {
+    success: boolean;
+    message: string;
+    data: {
+        totalRevenue: number;
+        totalCommission: number;
+        totalBookingFees: number;
+        totalExtraFees: number;
+        totalPlatformTotal: number;
+        totalHostEarnings: number;
+        totalTransactions: number;
+        completedTransactions: number;
+    } | null;
+}
+
+interface PaymentStatsResponse {
+    success: boolean;
+    message: string;
+    data: {
+        totals: {
+            payments: number;
+            completed: number;
+            pending: number;
+            failed: number;
+        };
+        revenue: {
+            total: number;
+            platform: number;
+            host: number;
+        };
+        monthly: Array<{
+            _id: {
+                year: number;
+                month: number;
+            };
+            total: number;
+            platform: number;
+            host: number;
+        }>;
+    } | null;
+}
+
 export const paymentApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
@@ -100,7 +169,49 @@ export const paymentApi = baseApi.injectEndpoints({
             }),
             providesTags: (result, error, id) => [{ type: "propertyPayments", id }],
         }),
+        getAllPayments: builder.query<GetAllPaymentsResponse, GetAllPaymentsParams>({
+            query: (params = {}) => {
+                const queryString = new URLSearchParams(
+                    Object.entries({
+                        page: params.page?.toString() ?? "1",
+                        limit: params.limit?.toString() ?? "10",
+                        ...(params.status ? { status: params.status } : {}),
+                        ...(params.propertyId ? { propertyId: params.propertyId } : {}),
+                        ...(params.userId ? { userId: params.userId } : {}),
+                        ...(params.startDate ? { startDate: params.startDate } : {}),
+                        ...(params.endDate ? { endDate: params.endDate } : {}),
+                        ...(params.sortBy ? { sortBy: params.sortBy } : {}),
+                        ...(params.sortOrder ? { sortOrder: params.sortOrder } : {}),
+                    })
+                ).toString();
+
+                return {
+                    url: `/property-payment/admin?${queryString}`,
+                    method: "GET",
+                    credentials: "include",
+                };
+            },
+            providesTags: ["propertyPayments"],
+        }),
+
+        getPaymentTotals: builder.query<PaymentTotalsResponse, void>({
+            query: () => ({
+                url: "/property-payment/admin/totals",
+                method: "GET",
+                credentials: "include",
+            }),
+            providesTags: ["propertyPayments"],
+        }),
+
+        getPaymentStatistics: builder.query<PaymentStatsResponse, void>({
+            query: () => ({
+                url: "/property-payment/admin/stats/statistics",
+                method: "GET",
+                credentials: "include",
+            }),
+            providesTags: ["propertyPayments"],
+        }),
     }),
 });
 
-export const { useCreatePaymentMutation, useConfirmPaymentMutation, useGetMyPaymentsQuery, useGetPaymentByIdQuery } = paymentApi;
+export const { useCreatePaymentMutation, useConfirmPaymentMutation, useGetMyPaymentsQuery, useGetPaymentByIdQuery, useGetAllPaymentsQuery, useGetPaymentTotalsQuery, useGetPaymentStatisticsQuery } = paymentApi;

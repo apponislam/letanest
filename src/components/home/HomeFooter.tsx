@@ -56,7 +56,7 @@ const HomeFooter = () => {
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">Company</h1>
                         <ul className="list-disc list-inside text-[#C9A94D] text-[14px] md:text-[18px] space-y-1">
                             <li>
-                                <Link href="/privacy-policy" className="hover:underline">
+                                <Link href="/terms-of-conditions" className="hover:underline">
                                     Privacy Policy
                                 </Link>
                             </li>

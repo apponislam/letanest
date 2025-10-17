@@ -161,7 +161,7 @@ const PaymentFormContent: React.FC<{
             }).unwrap();
 
             if (confirmResponse.success) {
-                router.push("");
+                router.push("/messages");
                 toast.success("Payment completed successfully!");
 
                 // Clear form

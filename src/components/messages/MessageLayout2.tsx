@@ -93,8 +93,8 @@ export default function MessagesLayout2() {
                 window.location.href = result.data.onboardingUrl;
             }
         } catch (error: any) {
+            console.log(error);
             toast.error(error.message ? error.message : "Failed to connect Stripe");
-            // console.error("Failed to connect Stripe:", error);
         }
     };
 
