@@ -208,11 +208,14 @@ const TransectionView = () => {
                                             <span
                                                 className="cursor-help truncate max-w-[120px] inline-block border-b border-dashed border-gray-400 select-all"
                                                 onDoubleClick={(e) => {
+                                                    const el = e.currentTarget; // ✅ store reference
+                                                    const originalText = el.textContent;
                                                     navigator.clipboard.writeText(tx.stripePaymentIntentId);
-                                                    const originalText = e.currentTarget.textContent;
-                                                    e.currentTarget.textContent = "Copied!";
+                                                    el.textContent = "Copied!";
                                                     setTimeout(() => {
-                                                        e.currentTarget.textContent = originalText;
+                                                        if (el && document.body.contains(el)) {
+                                                            el.textContent = originalText;
+                                                        }
                                                     }, 1000);
                                                 }}
                                                 title="Double-click to copy"
