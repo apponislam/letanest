@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/PageHeader";
 import { useCreateTermsMutation, useUpdateTermMutation, useGetTermsByTargetQuery } from "@/redux/features/public/publicApi";
+import "jodit/es2021/jodit.fat.min.css";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 

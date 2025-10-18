@@ -9,8 +9,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import { X, Check } from "lucide-react";
-// import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
@@ -178,7 +176,7 @@ const AddListingForm2: React.FC = () => {
     const router = useRouter();
 
     const onSubmitStep4 = async (step4Data: Step4Data) => {
-        if (!step1Data || !step2Data || !step3Data) return; // safety check
+        if (!step1Data || !step2Data || !step3Data) return;
 
         setCompletedSteps((prev) => [...prev, "step4"]);
 
@@ -445,12 +443,31 @@ const AddListingForm2: React.FC = () => {
                         </div>
                     </div>
 
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium mb-2">Amenities</label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">
                             {amenitiesList.map((amenity) => (
                                 <label key={amenity} className="flex items-center gap-2">
                                     <input type="checkbox" value={amenity} {...step2Form.register("amenities")} className="accent-[#C9A94D]" />
+                                    <span>{amenity}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {step2Form.formState.errors.amenities && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.amenities.message}</p>}
+                    </div> */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Amenities</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">
+                            {amenitiesList.map((amenity) => (
+                                <label key={amenity} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        value={amenity}
+                                        {...step2Form.register("amenities")}
+                                        className="hidden" // Hide the default checkbox
+                                    />
+                                    {/* Custom checkbox */}
+                                    <div className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${step2Form.watch("amenities")?.includes(amenity) ? "bg-[#14213D]" : "bg-transparent"}`}>{step2Form.watch("amenities")?.includes(amenity) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}</div>
                                     <span>{amenity}</span>
                                 </label>
                             ))}

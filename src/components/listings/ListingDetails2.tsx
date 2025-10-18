@@ -14,6 +14,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { useGetSinglePropertyQuery } from "@/redux/features/property/propertyApi";
 import { useCreateConversationMutation } from "@/redux/features/messages/messageApi";
+import ListingIcon from "@/utils/ListingIcon";
 
 export default function PropertyPage2() {
     const params = useParams();
@@ -26,29 +27,22 @@ export default function PropertyPage2() {
 
     const property = response?.data;
 
-    const amenitiesIcons: Record<string, string> = {
-        Wifi: "/listing/wifi.png",
-        TV: "/listing/tv.png",
-        Baseball: "/listing/baseball.png",
-        "Washer & Dyer": "/listing/guidanceLaundry.png",
-        Gym: "/listing/gym.png",
-        "Privat Balcony": "/listing/PrivatBalcony.png",
-        Swimming: "/listing/swimming.png",
-        Parking: "/listing/parking.png",
-        "Pet Friendly": "/listing/pet-friendly.png",
-        "Free WiFi": "/listing/wifi.png",
-        "Onsite Parking": "/listing/parking.png",
-        "Laundry Service": "/listing/guidanceLaundry.png",
-        "Hot Tub": "/listing/hot-tub.png",
-        "Towels Included": "/listing/towels.png",
-        Garden: "/listing/garden.png",
-        Pool: "/listing/swimming.png",
-        Dryer: "/listing/dryer.png",
-        "Beach Access": "/listing/beach.png",
-        "Smoking Allowed": "/listing/smoking.png",
-        Balcony: "/listing/PrivatBalcony.png",
-        Kitchen: "/listing/kitchen.png",
-        "Lift Access": "/listing/lift.png",
+    const amenitiesListingIcons: Record<string, number> = {
+        wifi: 1,
+        parking: 2,
+        "hot tub": 3,
+        "towels included": 4,
+        tv: 5,
+        garden: 6,
+        pool: 7,
+        "pet friendly": 8,
+        dryer: 9,
+        gym: 10,
+        "beach access": 11,
+        "smoking allowed": 12,
+        balcony: 13,
+        kitchen: 14,
+        "lift access": 15,
     };
 
     if (isLoading) {
@@ -195,7 +189,7 @@ export default function PropertyPage2() {
                         </div>
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">What this place offers</h1>
-                            <div className="grid grid-cols-2 gap-2">
+                            {/* <div className="grid grid-cols-2 gap-2">
                                 {property?.amenities?.map((item, idx) => (
                                     <div key={idx} className="flex items-center gap-3 md:p-4">
                                         <div className="relative w-8 h-8 shrink-0">
@@ -204,6 +198,21 @@ export default function PropertyPage2() {
                                         <span className="text-[#B6BAC3] text-lg">{item}</span>
                                     </div>
                                 ))}
+                            </div> */}
+                            <div className="grid grid-cols-2 gap-2">
+                                {property?.amenities?.map((item, idx) => {
+                                    const iconId = amenitiesListingIcons[item.toLowerCase()] || 0; // fallback id
+
+                                    return (
+                                        <div key={idx} className="flex items-center gap-3 md:p-4">
+                                            <div className="relative w-8 h-8 shrink-0">
+                                                {/* Use ListingIcon instead of Image */}
+                                                <ListingIcon id={iconId} size={24} className="w-full h-full object-contain" />
+                                            </div>
+                                            <span className="text-[#B6BAC3] text-lg">{item}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -268,7 +277,7 @@ export default function PropertyPage2() {
                                         </div>
                                     </div>
                                     <div>
-                                        <button onClick={handleChatWithHost} className="flex items-center gap-2 font-light text-white text-xl md:text-2xl bg-[#C9A94D] hover:bg-[#af8d28] rounded-xl h-auto py-4 px-6">
+                                        <button onClick={handleChatWithHost} className="flex items-center gap-2 font-light text-white text-xl md:text-2xl bg-[#C9A94D] hover:bg-[#af8d28] rounded-xl h-auto py-4 px-6 cursor-pointer">
                                             <MessagesSquare className="md:h-6 md:w-6  h-5 w-5" />
                                             Chat with Host
                                         </button>
