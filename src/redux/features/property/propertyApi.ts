@@ -22,6 +22,7 @@ interface GetPropertiesResponse {
 }
 
 export const propertyApi = baseApi.injectEndpoints({
+    overrideExisting: true,
     endpoints: (build) => ({
         // Get all properties with pagination & filters
         getAllProperties: build.query<GetPropertiesResponse, GetPropertiesQuery | void>({
@@ -173,6 +174,20 @@ export const propertyApi = baseApi.injectEndpoints({
             }),
             providesTags: ["Properties"],
         }),
+        searchMyPublishedProperties: build.query<any, { page?: number; limit?: number; search?: string }>({
+            query: (params = {}) => {
+                const searchParams = new URLSearchParams();
+                searchParams.append("page", (params.page || 1).toString());
+                searchParams.append("limit", (params.limit || 10).toString());
+                if (params?.search) searchParams.append("search", params.search);
+
+                return {
+                    url: `/property/host/search-published-properties?${searchParams.toString()}`,
+                    method: "GET",
+                };
+            },
+            providesTags: ["Properties"],
+        }),
     }),
 });
 
@@ -188,4 +203,5 @@ export const {
     useGetHostPropertiesQuery,
     useDeleteHostPropertyMutation,
     useGetMyPublishedPropertiesQuery,
+    useSearchMyPublishedPropertiesQuery,
 } = propertyApi;

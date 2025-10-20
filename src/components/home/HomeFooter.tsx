@@ -45,7 +45,7 @@ const HomeFooter = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/plans" className="hover:underline">
+                                <Link href="/dashboard/memberships" className="hover:underline">
                                     Subscription Plans
                                 </Link>
                             </li>

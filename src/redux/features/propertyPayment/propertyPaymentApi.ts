@@ -44,6 +44,11 @@ interface ApiResponse<T> {
     success: boolean;
     message: string;
     data: T | null;
+    mete?: {
+        page?: number;
+        limit?: number;
+        total?: number;
+    };
 }
 
 interface CreatePaymentResponse {
@@ -152,12 +157,18 @@ export const paymentApi = baseApi.injectEndpoints({
             invalidatesTags: ["propertyPayments", "Messages", "Conversations"],
         }),
 
-        getMyPayments: builder.query<ApiResponse<IPayment[]>, void>({
-            query: () => ({
-                url: "/property-payment/my-payments",
-                method: "GET",
-                credentials: "include",
-            }),
+        getMyPayments: builder.query<any, { page?: number; limit?: number }>({
+            query: (params = {}) => {
+                const searchParams = new URLSearchParams();
+                searchParams.append("page", (params.page || 1).toString());
+                searchParams.append("limit", (params.limit || 10).toString());
+
+                return {
+                    url: `/property-payment/my-payments?${searchParams.toString()}`,
+                    method: "GET",
+                    credentials: "include",
+                };
+            },
             providesTags: ["propertyPayments"],
         }),
 
@@ -211,7 +222,31 @@ export const paymentApi = baseApi.injectEndpoints({
             }),
             providesTags: ["propertyPayments"],
         }),
+        getHostPayments: builder.query<any, { page?: number; limit?: number }>({
+            query: (params = {}) => {
+                const searchParams = new URLSearchParams();
+                searchParams.append("page", (params.page || 1).toString());
+                searchParams.append("limit", (params.limit || 10).toString());
+
+                return {
+                    url: `/property-payment/host/my-payments?${searchParams.toString()}`,
+                    method: "GET",
+                    credentials: "include",
+                };
+            },
+            providesTags: ["propertyPayments"],
+        }),
     }),
 });
 
-export const { useCreatePaymentMutation, useConfirmPaymentMutation, useGetMyPaymentsQuery, useGetPaymentByIdQuery, useGetAllPaymentsQuery, useGetPaymentTotalsQuery, useGetPaymentStatisticsQuery } = paymentApi;
+export const {
+    useCreatePaymentMutation,
+    useConfirmPaymentMutation,
+    useGetMyPaymentsQuery,
+    useGetPaymentByIdQuery,
+    useGetAllPaymentsQuery,
+    useGetPaymentTotalsQuery,
+    useGetPaymentStatisticsQuery,
+    // For Host
+    useGetHostPaymentsQuery,
+} = paymentApi;
