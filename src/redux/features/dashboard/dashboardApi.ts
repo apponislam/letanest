@@ -1,3 +1,4 @@
+import { overwrite } from "zod";
 import { baseApi } from "../../api/baseApi";
 
 interface DashboardStatsResponse {
@@ -64,6 +65,7 @@ interface SiteStatsResponse {
 }
 
 export const dashboardApi = baseApi.injectEndpoints({
+    overrideExisting: true,
     endpoints: (builder) => ({
         getDashboardStats: builder.query<DashboardStatsResponse, void>({
             query: () => ({

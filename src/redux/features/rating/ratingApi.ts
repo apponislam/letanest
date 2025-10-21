@@ -265,7 +265,85 @@ export const ratingApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Rating"],
         }),
+
+        // === NEW: Get All Ratings for Admin ===
+        getAllRatingsForAdmin: builder.query<
+            {
+                data: Rating[];
+                message: string;
+                success: boolean;
+                meta?: {
+                    page: number;
+                    limit: number;
+                    total: number;
+                };
+            },
+            {
+                type?: RatingType;
+                page?: number;
+                limit?: number;
+                sortBy?: string;
+                sortOrder?: "asc" | "desc";
+                search?: string;
+            }
+        >({
+            query: ({ type, page = 1, limit = 10, sortBy = "createdAt", sortOrder = "desc", search } = {}) => {
+                const params = new URLSearchParams();
+                if (type) params.append("type", type);
+                params.append("page", page.toString());
+                params.append("limit", limit.toString());
+                params.append("sortBy", sortBy);
+                params.append("sortOrder", sortOrder);
+                if (search) params.append("search", search);
+
+                return {
+                    url: `/rating/admin/all-ratings?${params.toString()}`,
+                    method: "GET",
+                    credentials: "include",
+                };
+            },
+            providesTags: ["Rating"],
+        }),
+
+        // === NEW: Get Admin Rating Stats ===
+        getAdminRatingStats: builder.query<
+            {
+                data: {
+                    totalRatings: number;
+                    siteRatings: number;
+                    propertyRatings: number;
+                    averageSiteRating: number;
+                    averagePropertyRating: number;
+                    recentRatings: Rating[];
+                };
+                message: string;
+                success: boolean;
+            },
+            void
+        >({
+            query: () => ({
+                url: "/rating/admin/rating-stats",
+                method: "GET",
+                credentials: "include",
+            }),
+            providesTags: ["Rating"],
+        }),
     }),
 });
 
-export const { useCreateRatingMutation, useGetPropertyRatingsQuery, useGetPropertyRatingStatsQuery, useGetUserPropertyRatingQuery, useGetHostRatingsQuery, useGetHostRatingStatsQuery, useGetUserHostRatingsQuery, useGetSiteRatingsQuery, useGetSiteRatingStatsQuery, useGetUserSiteRatingQuery, useUpdateRatingMutation, useDeleteRatingMutation } = ratingApi;
+export const {
+    useCreateRatingMutation,
+    useGetPropertyRatingsQuery,
+    useGetPropertyRatingStatsQuery,
+    useGetUserPropertyRatingQuery,
+    useGetHostRatingsQuery,
+    useGetHostRatingStatsQuery,
+    useGetUserHostRatingsQuery,
+    useGetSiteRatingsQuery,
+    useGetSiteRatingStatsQuery,
+    useGetUserSiteRatingQuery,
+    useUpdateRatingMutation,
+    useDeleteRatingMutation,
+    useGetAllRatingsForAdminQuery,
+    useGetAdminRatingStatsQuery,
+} = ratingApi;

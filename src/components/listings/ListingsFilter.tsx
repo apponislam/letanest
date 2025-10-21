@@ -223,7 +223,7 @@ export default function ListingsFilter() {
 
                                 {/* Search */}
                                 <div className="mb-6 mt-4">
-                                    <Input placeholder="Search properties..." value={filters.search} onChange={handleSearch} className="border-[#C9A94D] text-[#14213D]" />
+                                    <Input placeholder="Search properties..." value={filters.search} onChange={handleSearch} className="border-[#C9A94D] text-white placeholder:text-white" />
                                 </div>
 
                                 {/* Price Range */}
