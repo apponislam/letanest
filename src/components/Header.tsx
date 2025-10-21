@@ -10,6 +10,7 @@ import Avatar from "@/utils/Avatar";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
+import { useGetTotalUnreadCountQuery } from "@/redux/features/messages/messageApi";
 
 const menuItems = [
     { name: "Home", href: "/" },
@@ -23,6 +24,8 @@ const Header = () => {
     const user = useSelector(currentUser);
     // console.log(user);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
+    const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
 
     const [scrolled, setScrolled] = useState(false);
 
@@ -122,8 +125,14 @@ const Header = () => {
                             </DropdownMenu>
                         )}
 
-                        <Link href="/messages">
+                        {/* <Link href="/messages">
                             <MessageSquare className="text-[#C9A94D]" />
+                        </Link> */}
+                        <Link href="/messages">
+                            <div className="relative">
+                                <MessageSquare className="text-[#C9A94D]" />
+                                {totalUnreadCount > 0 && <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{totalUnreadCount > 9 ? "9+" : totalUnreadCount}</span>}
+                            </div>
                         </Link>
 
                         {user?.role !== roles.GUEST && (
@@ -172,10 +181,17 @@ const Header = () => {
                         </DropdownMenu>
                     )}
 
-                    <Link href="/messages">
+                    {/* <Link href="/messages">
                         <div className="flex items-center gap-2">
                             <MessageSquare className="w-6 h-6 text-[#C9A94D]" />
                             <span className="text-[#C9A94D] font-medium">Message</span>
+                        </div>
+                    </Link> */}
+                    <Link href="/messages">
+                        <div className="flex items-center gap-2 relative">
+                            <MessageSquare className="w-6 h-6 text-[#C9A94D]" />
+                            <span className="text-[#C9A94D] font-medium">Message</span>
+                            {totalUnreadCount > 0 && <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{totalUnreadCount > 9 ? "9+" : totalUnreadCount}</span>}
                         </div>
                     </Link>
 

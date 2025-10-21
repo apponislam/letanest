@@ -8,7 +8,7 @@ import { Star, MessagesSquare, Loader2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSocket } from "@/redux/features/socket/socketHooks";
-import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useMarkConversationAsReadMutation, useRejectOfferMutation } from "@/redux/features/messages/messageApi";
+import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation } from "@/redux/features/messages/messageApi";
 import { useGetMyPublishedPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
@@ -42,7 +42,8 @@ const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: numb
 export default function MessagesLayout2() {
     const { user } = useSelector((state: RootState) => state.auth);
     const { isConnected, onlineUsers, connectSocket, disconnectSocket, joinConversation, leaveConversation, sendTyping, getTypingUsers, isUserOnline } = useSocket();
-    const [markConversationAsRead] = useMarkConversationAsReadMutation();
+    // const [markConversationAsRead] = useMarkConversationAsReadsMutation();
+    const [markConversationAsReads] = useMarkConversationAsReadsMutation();
 
     // Connect socket when component mounts
     useEffect(() => {
@@ -55,9 +56,9 @@ export default function MessagesLayout2() {
 
         return () => {
             console.log("🔌 [MessagesLayout2] Cleaning up - disconnecting socket");
-            disconnectSocket();
+            // disconnectSocket();
         };
-    }, [user?._id, connectSocket, disconnectSocket]);
+    }, [user?._id, connectSocket]);
 
     // Get conversations
     const { data: conversationsResponse, isLoading: loadingConversations, error: conversationsError, refetch: refetchConversations } = useGetUserConversationsQuery({});
@@ -65,7 +66,6 @@ export default function MessagesLayout2() {
     // console.log(conversations);
 
     const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
-
     const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
@@ -83,7 +83,7 @@ export default function MessagesLayout2() {
     const { data: response, isLoading: stripeLoading } = useGetStripeAccountStatusQuery();
     const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
     const stripeAccount = response?.data;
-    console.log(stripeAccount);
+    // console.log(stripeAccount);
     const isStripeConnected = stripeAccount?.status === "verified";
 
     const handleConnectStripe = async () => {
@@ -132,11 +132,11 @@ export default function MessagesLayout2() {
     useEffect(() => {
         if (selectedConversation && user?._id) {
             // Mark conversation as read when selected
-            markConversationAsRead(selectedConversation);
+            markConversationAsReads(selectedConversation);
             socketService.joinConversation(selectedConversation);
             console.log("✅ [MessagesLayout2] Marking conversation as read:", selectedConversation);
         }
-    }, [selectedConversation, user?._id, markConversationAsRead]);
+    }, [selectedConversation, user?._id, markConversationAsReads]);
 
     // Auto-scroll to bottom when new messages arrive
     useEffect(() => {
@@ -155,7 +155,7 @@ export default function MessagesLayout2() {
             return;
         }
 
-        console.log("📤 [MessagesLayout2] Sending message:", inputText);
+        // console.log("📤 [MessagesLayout2] Sending message:", inputText);
         try {
             await sendMessage({
                 conversationId: selectedConversation,
@@ -164,7 +164,7 @@ export default function MessagesLayout2() {
                 text: inputText,
             }).unwrap();
 
-            console.log("✅ [MessagesLayout2] Message sent successfully");
+            // console.log("✅ [MessagesLayout2] Message sent successfully");
             setInputText("");
             handleStopTyping();
 
@@ -301,6 +301,7 @@ export default function MessagesLayout2() {
     const getUnreadCount = (conversation: any) => {
         return conversation.unreadCount || 0;
     };
+    // console.log(conversations);
 
     // Helper function to format last message
     const formatLastMessage = (lastMessage: any) => {
@@ -327,10 +328,14 @@ export default function MessagesLayout2() {
 
         // Mark conversation as read when clicked
         try {
-            await markConversationAsRead(conversationId).unwrap();
+            const result = await markConversationAsReads(conversationId).unwrap();
+            console.log("mark all message read", result);
+            // const result2 = await markConversationAsRead(conversationId).unwrap();
+            // console.log(result2);
             console.log("✅ Conversation marked as read");
         } catch (error) {
-            console.error("❌ Failed to mark conversation as read:", error);
+            console.log(error);
+            // console.error("❌ Failed to mark conversation as read:", error);
         }
     };
 
@@ -419,7 +424,7 @@ export default function MessagesLayout2() {
                                             <div className="flex items-center justify-between">
                                                 <p className="text-[#14213D] truncate font-medium">{otherParticipant?.name || "Unknown User"}</p>
                                                 <div className="flex items-center gap-2">
-                                                    {unreadCount > 0 && <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+                                                    {/* {unreadCount > 0 && <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">{unreadCount > 9 ? "9+" : unreadCount}</span>} */}
                                                     {isOnline ? <span className="text-xs text-green-300 font-medium">Online</span> : <span className="text-xs text-gray-600 font-medium">Offline</span>}
                                                 </div>
                                             </div>
@@ -525,106 +530,6 @@ export default function MessagesLayout2() {
 
                             {/* Input Box */}
                             <div className="border-t border-[#C9A94D] p-4 bg-[#B6BAC3]">
-                                {/* {user?.role === "GUEST" ? null : <button className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">Make an Offer</button>} */}
-                                {/* {user?.role === "GUEST" ? null : (
-                                    <div className="relative">
-                                        <button onClick={() => setShowOfferModal(true)} className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">
-                                            Make an Offer
-                                        </button>
-
-                                        {showOfferModal && (
-                                            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]">
-                                                <div className="flex justify-between items-center mb-3">
-                                                    <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
-                                                    <button onClick={() => setShowOfferModal(false)} className="text-gray-500 hover:text-gray-700">
-                                                        ✕
-                                                    </button>
-                                                </div>
-
-                                                <div className="mb-4">
-                                                    <label className="block text-sm font-medium text-[#14213D] mb-2">Select Property</label>
-                                                    {isLoading ? (
-                                                        <div className="text-center py-2">
-                                                            <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                                                            <span className="text-xs text-gray-600">Loading properties...</span>
-                                                        </div>
-                                                    ) : publishedProperties?.data ? (
-                                                        <div className="space-y-2 max-h-20 overflow-y-auto">
-                                                            {publishedProperties.data.map((property: any) => (
-                                                                <label key={property._id} className="flex items-center space-x-2 cursor-pointer">
-                                                                    <input type="radio" name="property" value={property._id} checked={selectedProperty === property._id} onChange={(e) => setSelectedProperty(e.target.value)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
-                                                                    <span className="text-sm">
-                                                                        Property No: <span className="text-[#C9A94D] font-bold">{property.propertyNumber}</span> - Price: <span className="text-[#C9A94D] font-bold">£{property.price}</span>
-                                                                    </span>
-                                                                </label>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-sm text-gray-600">No published properties found</p>
-                                                    )}
-                                                </div>
-
-                                                <div className="space-y-3 mb-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex-1">
-                                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Check-in Date</label>
-                                                            <input
-                                                                id="checkInDate" // ← Add this
-                                                                type="date"
-                                                                className="w-full border border-[#C9A94D] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C9A94D] text-sm"
-                                                            />
-                                                        </div>
-
-                                                        <div className="flex-1">
-                                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Check-out Date</label>
-                                                            <input
-                                                                id="checkOutDate" // ← Add this
-                                                                type="date"
-                                                                className="w-full border border-[#C9A94D] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C9A94D] text-sm"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Fee Offered (£)</label>
-                                                        <input
-                                                            id="offerFee" // ← Add this
-                                                            type="number"
-                                                            placeholder="Enter amount"
-                                                            className="w-full border border-[#C9A94D] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C9A94D] text-sm"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
-                                                    <label htmlFor="agree" className="text-sm text-gray-700 cursor-pointer select-none">
-                                                        I agree to the{" "}
-                                                        <Link href="/terms-of-conditions" target="_blank" className="text-[#C9A94D] hover:underline">
-                                                            T&Cs
-                                                        </Link>
-                                                    </label>
-                                                </div>
-
-                                                <div className="flex gap-2">
-                                                    <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                                                        Send Offer
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setShowOfferModal(false);
-                                                            setSelectedProperty(null);
-                                                            setAgreed(false);
-                                                        }}
-                                                        className="px-4 py-2 border border-gray-300 rounded-lg text-[#14213D] text-sm"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )} */}
                                 {user?.role === "GUEST" ? null : (
                                     <div className="relative">
                                         {/* Stripe Connection Check */}
@@ -960,7 +865,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         );
     }
 
-    console.log(message);
+    // console.log(message);
 
     if (message.type === "accepted") {
         return (
@@ -1110,10 +1015,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         </div>
     );
 };
-
-// import React, { useEffect, useState } from "react";
-// import { useConnectStripeAccountMutation } from "@/redux/features/users/usersApi";
-// import { Loader2 } from "lucide-react";
 
 // Stripe Status Modal Component
 const StripeStatusModal = () => {

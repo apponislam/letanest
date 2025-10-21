@@ -5,6 +5,7 @@ export const menuItems = {
     [roles.ADMIN]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Messages", url: "/messages", icon: MessageSquare },
+        { title: "Contacts", url: "/dashboard/contacts", icon: Mail },
         { title: "User", url: "/dashboard/user", icon: User },
         { title: "Transaction", url: "/dashboard/transaction", icon: CreditCard },
         { title: "Review", url: "/dashboard/review", icon: Star },

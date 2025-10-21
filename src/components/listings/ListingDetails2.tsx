@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -13,17 +13,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { useGetSinglePropertyQuery } from "@/redux/features/property/propertyApi";
-import { useCreateConversationMutation } from "@/redux/features/messages/messageApi";
+import { useCreateConversationMutation, useSendMessageMutation } from "@/redux/features/messages/messageApi";
 import ListingIcon from "@/utils/ListingIcon";
+import { useDispatch, useSelector } from "react-redux";
+import { setRedirectPath, currentUser } from "@/redux/features/auth/authSlice";
 
 export default function PropertyPage2() {
     const params = useParams();
     const { id } = params;
+    const router = useRouter();
+    const dispatch = useDispatch();
 
     const { data: response, isLoading, error } = useGetSinglePropertyQuery(id as string);
-
-    const router = useRouter();
+    console.log(response);
     const [createConversation] = useCreateConversationMutation();
+    const [sendMessage] = useSendMessageMutation();
+
+    const user = useSelector(currentUser);
+
+    const [question, setQuestion] = useState("");
+    const [isChatLoading, setIsChatLoading] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const property = response?.data;
 
@@ -43,6 +53,159 @@ export default function PropertyPage2() {
         balcony: 13,
         kitchen: 14,
         "lift access": 15,
+    };
+
+    const handleBookNow = () => {
+        if (!user) {
+            // Save the current path for redirect after login
+            console.log("hit here");
+            dispatch(setRedirectPath(`/listings/${id}`));
+            setIsDialogOpen(true);
+        } else {
+            // User is logged in, proceed with booking chat
+            handleBookingChat();
+        }
+    };
+
+    const handleBookingChat = async () => {
+        if (!property?.createdBy?._id || !user) {
+            console.error("❌ Host information or user not available");
+            return;
+        }
+
+        setIsChatLoading(true);
+
+        try {
+            console.log("🚀 Creating booking conversation...");
+
+            // Step 1: Create the conversation
+            const conversationResult = await createConversation({
+                participants: [property.createdBy._id],
+                propertyId: property._id,
+            }).unwrap();
+
+            console.log("✅ Conversation created:", conversationResult);
+
+            // Check if conversation was created successfully
+            if (conversationResult.success && conversationResult.data?._id) {
+                const conversationId = conversationResult.data._id;
+
+                // Step 2: Send the booking message
+                console.log("📤 Sending booking message...");
+                await sendMessage({
+                    conversationId: conversationId,
+                    sender: user._id,
+                    type: "text",
+                    text: `I want to book ${property.propertyNumber}`,
+                }).unwrap();
+
+                console.log("✅ Booking message sent successfully");
+
+                // Navigate to messages page
+                console.log("🔀 Redirecting to messages...");
+                router.push("/messages");
+            } else {
+                console.error("❌ Conversation creation failed:", conversationResult.message);
+            }
+        } catch (error: any) {
+            console.error("❌ Failed to start booking chat:", error);
+
+            if (error?.data?.message) {
+                console.error("Error details:", error.data.message);
+            }
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
+    const handleChatWithHost = async () => {
+        if (!property?.createdBy?._id) {
+            console.error("❌ Host information not available");
+            return;
+        }
+
+        setIsChatLoading(true);
+
+        try {
+            const result = await createConversation({
+                participants: [property.createdBy._id],
+                propertyId: property._id,
+            }).unwrap();
+
+            console.log("✅ Conversation created:", result);
+
+            router.push("/messages");
+        } catch (error) {
+            console.error("❌ Failed to start chat:", error);
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
+    const handleAskQuestion = async () => {
+        if (!property?.createdBy?._id) {
+            console.error("❌ Host information not available");
+            return;
+        }
+
+        if (!question.trim()) {
+            console.warn("⚠️ No question provided");
+            return;
+        }
+
+        if (!user) {
+            // Save the current path for redirect after login
+            dispatch(setRedirectPath(`/listings/${id}`));
+            setIsDialogOpen(true);
+            return;
+        }
+
+        setIsChatLoading(true);
+
+        try {
+            console.log("🚀 Creating conversation with question...");
+
+            // Step 1: Create the conversation
+            const conversationResult = await createConversation({
+                participants: [property.createdBy._id],
+                propertyId: property._id,
+            }).unwrap();
+
+            console.log("✅ Conversation created:", conversationResult);
+
+            // Check if conversation was created successfully
+            if (conversationResult.success && conversationResult.data?._id) {
+                const conversationId = conversationResult.data._id;
+
+                // Step 2: Send the initial message with the question
+                console.log("📤 Sending question...");
+                await sendMessage({
+                    conversationId: conversationId,
+                    sender: user._id,
+                    type: "text",
+                    text: question.trim(),
+                }).unwrap();
+
+                console.log("✅ Question sent successfully");
+
+                // Clear the textarea
+                setQuestion("");
+
+                // Navigate to messages page
+                console.log("🔀 Redirecting to messages...");
+                router.push("/messages");
+            } else {
+                console.error("❌ Conversation creation failed:", conversationResult.message);
+            }
+        } catch (error: any) {
+            console.error("❌ Failed to send question:", error);
+
+            if (error?.data?.message) {
+                console.error("Error details:", error.data.message);
+            }
+        } finally {
+            setIsChatLoading(false);
+        }
     };
 
     if (isLoading) {
@@ -78,31 +241,6 @@ export default function PropertyPage2() {
         }
 
         return `${process.env.NEXT_PUBLIC_BASE_API || ""}${imagePath}`;
-    };
-
-    const handleChatWithHost = async () => {
-        // if (!user) {
-        //     // If user is not logged in, redirect to login
-        //     router.push("/auth/login");
-        //     return;
-        // }
-
-        if (!property?.createdBy?._id) {
-            console.error("Host information not available");
-            return;
-        }
-
-        try {
-            const result = await createConversation({
-                participants: [property.createdBy._id], // Only send host ID
-                propertyId: property._id,
-            }).unwrap();
-
-            // Navigate to messages page
-            router.push("/messages");
-        } catch (error) {
-            console.error("Failed to start chat:", error);
-        }
     };
 
     return (
@@ -189,16 +327,6 @@ export default function PropertyPage2() {
                         </div>
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">What this place offers</h1>
-                            {/* <div className="grid grid-cols-2 gap-2">
-                                {property?.amenities?.map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 md:p-4">
-                                        <div className="relative w-8 h-8 shrink-0">
-                                            <Image src={amenitiesIcons[item] || "/listing/PrivatBalcony.png"} alt={item} fill className="object-contain" />
-                                        </div>
-                                        <span className="text-[#B6BAC3] text-lg">{item}</span>
-                                    </div>
-                                ))}
-                            </div> */}
                             <div className="grid grid-cols-2 gap-2">
                                 {property?.amenities?.map((item, idx) => {
                                     const iconId = amenitiesListingIcons[item.toLowerCase()] || 0; // fallback id
@@ -277,9 +405,18 @@ export default function PropertyPage2() {
                                         </div>
                                     </div>
                                     <div>
-                                        <button onClick={handleChatWithHost} className="flex items-center gap-2 font-light text-white text-xl md:text-2xl bg-[#C9A94D] hover:bg-[#af8d28] rounded-xl h-auto py-4 px-6 cursor-pointer">
-                                            <MessagesSquare className="md:h-6 md:w-6  h-5 w-5" />
-                                            Chat with Host
+                                        <button onClick={handleChatWithHost} disabled={isChatLoading} className="flex items-center gap-2 font-light text-white text-xl md:text-2xl bg-[#C9A94D] hover:bg-[#af8d28] rounded-xl h-auto py-4 px-6 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                            {isChatLoading ? (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                                    Starting...
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <MessagesSquare className="md:h-6 md:w-6 h-5 w-5" />
+                                                    Chat with Host
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -314,7 +451,7 @@ export default function PropertyPage2() {
                         {/* Things to know section */}
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Things to know</h1>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                                 <div>
                                     <div className="flex items-center gap-4 mb-2">
                                         <Image src="/listing/ban.png" alt="House Rules" height={24} width={24}></Image>
@@ -336,7 +473,21 @@ export default function PropertyPage2() {
                                     <h1 className="text-2xl text-white font-bold">Cancellation Policy</h1>
                                 </div>
                                 <p className="text-[18px] text-[#B6BAC3]">Free cancellation up to 48 hours before check-in. After that, 50% refund up to 24 hours before check-in.</p>
-                            </div>
+                            </div> */}
+                            {property?.termsAndConditions?.content && (
+                                <div className="">
+                                    {/* <div className="flex items-center gap-4 mb-4">
+                                        <Image src="/listing/document.png" alt="Terms and Conditions" height={24} width={24} />
+                                        <h1 className="text-2xl text-white font-bold">Terms and Conditions</h1>
+                                    </div> */}
+                                    <div
+                                        className="text-[18px] text-[#B6BAC3] prose prose-invert max-w-none"
+                                        dangerouslySetInnerHTML={{
+                                            __html: property.termsAndConditions.content,
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -351,10 +502,18 @@ export default function PropertyPage2() {
                                     <p className="text-sm text-[#C9A94D]">(0 reviews)</p>
                                 </div>
 
-                                <Dialog>
-                                    <DialogTrigger asChild className="text-white">
-                                        <Button className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition">Book Now</Button>
-                                    </DialogTrigger>
+                                <Button onClick={handleBookNow} disabled={isChatLoading} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
+                                    {isChatLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            Processing...
+                                        </div>
+                                    ) : (
+                                        "Book Now"
+                                    )}
+                                </Button>
+
+                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                     <DialogContent className="sm:max-w-md rounded-none border border-[#D4BA71] bg-[#14213D]">
                                         <style jsx global>{`
                                             [data-slot="dialog-close"] {
@@ -389,12 +548,23 @@ export default function PropertyPage2() {
 
                                 <p className="text-[13px] mt-3 text-center">Awaiting host confirmation before payment.</p>
                             </div>
+
+                            {/* Ask a Question Section - Updated */}
                             <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
                                 <h1 className="text-[32px] font-bold mb-8">Ask a Question?</h1>
-                                <textarea className="border border-[#C9A94D] placeholder:text-[#14213D] text-[#14213D] p-3 w-full h-32 mb-8" placeholder="Contact the host - they'll be happy to help."></textarea>
-                                <button className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition flex items-center gap-3 justify-center">
-                                    <MessagesSquare className="h-6 w-6 " />
-                                    Chat with Host
+                                <textarea className="border border-[#C9A94D] placeholder:text-[#14213D] text-[#14213D] p-3 w-full h-32 mb-8 resize-none focus:outline-none focus:ring-2 focus:ring-[#C9A94D]" placeholder="Contact the host - they'll be happy to help." value={question} onChange={(e) => setQuestion(e.target.value)} disabled={isChatLoading} />
+                                <button onClick={handleAskQuestion} disabled={!question.trim() || isChatLoading || !property?.createdBy?._id} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition flex items-center gap-3 justify-center disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                    {isChatLoading ? (
+                                        <div className="flex items-center gap-3">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            Sending...
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <MessagesSquare className="h-6 w-6" />
+                                            Chat with Host
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>

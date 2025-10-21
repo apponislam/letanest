@@ -74,6 +74,7 @@ export interface IProperty extends IPropertyStep1, IPropertyStep2, IPropertyStep
     updatedAt?: string;
     status?: "pending" | "published" | "rejected" | "hidden";
     isDeleted?: boolean;
+    termsAndConditions?: any;
 }
 
 // Query parameters for listing

@@ -100,54 +100,54 @@ export const messageApi = baseApi.injectEndpoints({
             invalidatesTags: (_result, _error, arg) => [{ type: "Messages", id: arg }],
         }),
 
-        markConversationAsRead: builder.mutation({
-            queryFn: async (conversationId: string, { dispatch, getState }) => {
-                try {
-                    const state = getState() as any;
-                    const userId = state.auth.user?._id;
+        // markConversationAsRead: builder.mutation({
+        //     queryFn: async (conversationId: string, { dispatch, getState }) => {
+        //         try {
+        //             const state = getState() as any;
+        //             const userId = state.auth.user?._id;
 
-                    if (!userId) {
-                        throw new Error("User not authenticated");
-                    }
+        //             if (!userId) {
+        //                 throw new Error("User not authenticated");
+        //             }
 
-                    // Get current messages for this conversation
-                    const messagesResult = messageApi.endpoints.getConversationMessages.select({
-                        conversationId,
-                    })(state);
+        //             // Get current messages for this conversation
+        //             const messagesResult = messageApi.endpoints.getConversationMessages.select({
+        //                 conversationId,
+        //             })(state);
 
-                    const messages = messagesResult.data?.data || [];
+        //             const messages = messagesResult.data?.data || [];
 
-                    // Mark each unread message as read
-                    const markPromises = messages.filter((msg: any) => msg.sender?._id !== userId && (!msg.readBy || !msg.readBy.includes(userId))).map((msg: any) => dispatch(messageApi.endpoints.markAsRead.initiate(msg._id)));
+        //             // Mark each unread message as read
+        //             const markPromises = messages.filter((msg: any) => msg.sender?._id !== userId && (!msg.readBy || !msg.readBy.includes(userId))).map((msg: any) => dispatch(messageApi.endpoints.markAsRead.initiate(msg._id)));
 
-                    await Promise.all(markPromises);
+        //             await Promise.all(markPromises);
 
-                    // Update local unread count
-                    dispatch(
-                        messageApi.util.updateQueryData("getUserConversations", undefined, (draft: any) => {
-                            if (!draft || !draft.data || !Array.isArray(draft.data)) return;
+        //             // Update local unread count
+        //             dispatch(
+        //                 messageApi.util.updateQueryData("getUserConversations", undefined, (draft: any) => {
+        //                     if (!draft || !draft.data || !Array.isArray(draft.data)) return;
 
-                            const conversations = draft.data;
-                            const convIndex = conversations.findIndex((conv: any) => conv._id === conversationId);
+        //                     const conversations = draft.data;
+        //                     const convIndex = conversations.findIndex((conv: any) => conv._id === conversationId);
 
-                            if (convIndex !== -1) {
-                                conversations[convIndex].unreadCount = 0;
-                            }
-                        })
-                    );
+        //                     if (convIndex !== -1) {
+        //                         conversations[convIndex].unreadCount = 0;
+        //                     }
+        //                 })
+        //             );
 
-                    return { data: { success: true } };
-                } catch (error: any) {
-                    return {
-                        error: {
-                            status: "CUSTOM_ERROR",
-                            error: error.message,
-                        },
-                    };
-                }
-            },
-            invalidatesTags: ["Conversations"],
-        }),
+        //             return { data: { success: true } };
+        //         } catch (error: any) {
+        //             return {
+        //                 error: {
+        //                     status: "CUSTOM_ERROR",
+        //                     error: error.message,
+        //                 },
+        //             };
+        //         }
+        //     },
+        //     invalidatesTags: ["Conversations"],
+        // }),
         rejectOffer: builder.mutation({
             query: ({ messageId, conversationId }) => ({
                 url: `/messages/${messageId}/reject`,
@@ -172,7 +172,33 @@ export const messageApi = baseApi.injectEndpoints({
                 }
             },
         }),
+        // NEW: Mark conversation as read
+        markConversationAsReads: builder.mutation({
+            query: (conversationId) => ({
+                url: `/messages/conversations/${conversationId}/read`,
+                method: "PATCH",
+            }),
+            invalidatesTags: ["Conversations"],
+        }),
+        getTotalUnreadCount: builder.query<any, void>({
+            query: () => "/messages/unread-count",
+            providesTags: ["Conversations", "Messages"],
+        }),
     }),
 });
 
-export const { useCreateConversationMutation, useGetUserConversationsQuery, useGetConversationByIdQuery, useSendMessageMutation, useGetConversationMessagesQuery, useGetMessageByIdQuery, useMarkAsReadMutation, useMarkConversationAsReadMutation, useRejectOfferMutation } = messageApi;
+// useMarkConversationAsReadMutation;
+
+export const {
+    useCreateConversationMutation,
+    useGetUserConversationsQuery,
+    useGetConversationByIdQuery,
+    useSendMessageMutation,
+    useGetConversationMessagesQuery,
+    useGetMessageByIdQuery,
+    useMarkAsReadMutation,
+    useRejectOfferMutation,
+    useMarkConversationAsReadsMutation,
+    // my unread message count
+    useGetTotalUnreadCountQuery,
+} = messageApi;

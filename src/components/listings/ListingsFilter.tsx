@@ -362,7 +362,8 @@ export default function ListingsFilter() {
                             </div>
                         </div>
                         <div>
-                            <h1 className="text-[30px] text-[#C9A94D] font-bold mb-6">List of Properties {meta?.total && `(${meta.total} found)`}</h1>
+                            {/* <h1 className="text-[30px] text-[#C9A94D] font-bold mb-6">List of Properties {meta?.total && `(${meta.total} found)`}</h1> */}
+                            <h1 className="text-[30px] text-[#C9A94D] font-bold mb-6">List of Properties</h1>
 
                             {isLoading ? (
                                 <div className="text-center py-12">
