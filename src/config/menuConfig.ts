@@ -17,6 +17,7 @@ export const menuItems = {
     ],
     [roles.HOST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+        { title: "Messages", url: "/messages", icon: MessageSquare },
         { title: "Transaction", url: "/dashboard/transaction", icon: CreditCard },
         { title: "Memberships", url: "/dashboard/memberships", icon: Users },
         { title: "Property Listing", url: "/dashboard/property-listing", icon: Home },
@@ -24,6 +25,7 @@ export const menuItems = {
     ],
     [roles.GUEST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+        { title: "Messages", url: "/messages", icon: MessageSquare },
         // { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
         { title: "Contact Letanest", url: "/contact", icon: Mail },
         { title: "Memberships", url: "/dashboard/memberships", icon: Users },

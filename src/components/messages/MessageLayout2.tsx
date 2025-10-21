@@ -469,7 +469,7 @@ export default function MessagesLayout2() {
                                 <div className="flex-1 text-[#14213D]">
                                     <h1 className="text-xl font-bold">{otherParticipant?.name || "Unknown User"}</h1>
                                     <div className="flex items-center gap-6 text-sm">
-                                        <p>Host</p>
+                                        <p>{otherParticipant.role}</p>
                                         <div className="flex items-center gap-2">
                                             <Star className="h-4 w-4 fill-current text-yellow-500" />
                                             <p>4.5</p>

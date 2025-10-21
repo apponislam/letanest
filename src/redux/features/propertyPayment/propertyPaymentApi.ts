@@ -134,6 +134,12 @@ interface PaymentStatsResponse {
     } | null;
 }
 
+// PDF Download Interfaces
+interface DownloadPDFRequest {
+    fromDate: string;
+    toDate: string;
+}
+
 export const paymentApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
@@ -236,6 +242,38 @@ export const paymentApi = baseApi.injectEndpoints({
             },
             providesTags: ["propertyPayments"],
         }),
+        // PDF Download Mutation
+        downloadPaymentsPDF: builder.mutation<{ success: boolean }, DownloadPDFRequest>({
+            async queryFn(body, _queryApi, _extraOptions, fetchWithBQ) {
+                try {
+                    const response = await fetchWithBQ({
+                        url: "/property-payment/admin/download-pdf",
+                        method: "POST",
+                        body,
+                        responseHandler: (r) => r.blob(),
+                    });
+
+                    if ("error" in response) {
+                        return { error: response.error as any };
+                    }
+
+                    const blob = response.data as Blob;
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `transactions-${body.fromDate}-to-${body.toDate}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    // ✅ always return a valid object
+                    return { data: { success: true } };
+                } catch (err: any) {
+                    return { error: { message: err.message ?? "Unknown error" } };
+                }
+            },
+        }),
     }),
 });
 
@@ -249,4 +287,6 @@ export const {
     useGetPaymentStatisticsQuery,
     // For Host
     useGetHostPaymentsQuery,
+    // PDF Download
+    useDownloadPaymentsPDFMutation,
 } = paymentApi;

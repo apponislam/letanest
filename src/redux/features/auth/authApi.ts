@@ -70,7 +70,14 @@ const authApi = baseApi.injectEndpoints({
                 body,
             }),
         }),
+        verifyEmail: builder.query({
+            query: ({ userId, token }: { userId: string; token: string }) => ({
+                url: `/auth/verify-email`,
+                method: "GET",
+                params: { token, id: userId },
+            }),
+        }),
     }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useRefreshTokenMutation, useLogoutMutation, useRequestPasswordResetOtpMutation, useVerifyOtpMutation, useResendResetOtpMutation, useResetPasswordWithTokenMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation, useRefreshTokenMutation, useLogoutMutation, useRequestPasswordResetOtpMutation, useVerifyOtpMutation, useResendResetOtpMutation, useResetPasswordWithTokenMutation, useVerifyEmailQuery } = authApi;

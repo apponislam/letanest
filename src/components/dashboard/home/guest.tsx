@@ -56,44 +56,8 @@ const Guest = () => {
                             </div>
                         </div>
                     </Link>
-                    {/* <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <Image src="/dashboard/sidebar/star.png" alt="Total Booking" width={35} height={35}></Image>
-                        <div>
-                            <p>Your Rating</p>
-                            <h1 className="text-xl font-bold text-center md:text-left">4.8</h1>
-                        </div>
-                    </div> */}
                 </div>
-                {/* <div className="gap-5 border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                    <h1 className="text-[24px] mb-6">Your Bookings</h1>
-                    <div className="flex items-center justify-between flex-col md:flex-row gap-4 p-2 border border-[#C9A94D] rounded-[10px] mb-6">
-                        <div className="flex items-center gap-5 flex-col md:flex-row">
-                            <Image src="/dashboard/booking.png" alt="Booking Img" height={80} width={100}></Image>
-                            <div>
-                                <h1 className="font-bold text-xl">Modern Downtown Appartment</h1>
-                                <p>2024-01-01 - 2024-01-10</p>
-                                <p>2 Guest . £450</p>
-                            </div>
-                        </div>
-                        <div>
-                            <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">Confirmed</button>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between flex-col md:flex-row gap-4 p-2 border border-[#C9A94D] rounded-[10px] mb-6">
-                        <div className="flex items-center gap-5 flex-col md:flex-row">
-                            <Image src="/dashboard/booking.png" alt="Booking Img" height={80} width={100}></Image>
-                            <div>
-                                <h1 className="font-bold text-xl">Modern Downtown Appartment</h1>
-                                <p>2024-01-01 - 2024-01-10</p>
-                                <p>2 Guest . £450</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">Previously Bookeed</button>
-                            <button className="font-bold bg-white text-black px-2 rounded-[10px] w-full">Book Again</button>
-                        </div>
-                    </div>
-                </div> */}
+
                 <div className="gap-5 border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
                     <h1 className="text-[24px] mb-6">Your Bookings</h1>
 
@@ -114,7 +78,7 @@ const Guest = () => {
                     ) : (
                         <>
                             {mypayments.data.map((payment: any) => {
-                                const isExpired = new Date(payment.messageId?.checkOutDate) < new Date();
+                                const isExpired = new Date(payment.messageId?.checkOutDate) > new Date();
 
                                 return (
                                     <div key={payment._id} className="flex items-center justify-between flex-col md:flex-row gap-4 p-2 border border-[#C9A94D] rounded-[10px] mb-6">
@@ -128,13 +92,14 @@ const Guest = () => {
                                                 <p className="text-[#C9A94D]">£{payment.totalAmount}</p>
                                             </div>
                                         </div>
-                                        <div className={isExpired ? "flex flex-col gap-2" : ""}>
+                                        <div className={isExpired ? "flex flex-col gap-2" : "flex flex-col gap-2"}>
                                             <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">{isExpired ? "Previously Booked" : "Confirmed"}</button>
                                             {isExpired && (
                                                 <Link href={`/listings/${payment.propertyId?._id}`}>
                                                     <button className="font-bold bg-white text-black px-2 rounded-[10px] w-full">Book Again</button>
                                                 </Link>
                                             )}
+                                            <button className="w-full bg-[#C9A94D] text-white rounded-[10px]">Rate Now</button>
                                         </div>
                                     </div>
                                 );

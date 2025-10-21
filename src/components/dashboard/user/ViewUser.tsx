@@ -66,9 +66,16 @@ import { useState } from "react";
 import { Eye, MessageCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { IUser } from "@/redux/features/users/usersApi";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useCreateConversationMutation } from "@/redux/features/messages/messageApi";
 
 function UserAction({ user }: { user: IUser }) {
     const [open, setOpen] = useState(false);
+    const [isChatLoading, setIsChatLoading] = useState(false);
+    const router = useRouter();
+
+    const [createConversation] = useCreateConversationMutation();
 
     // Format date
     const formatDate = (dateString?: string) => {
@@ -92,6 +99,35 @@ function UserAction({ user }: { user: IUser }) {
         return <span className={`px-2 py-1 ${roleColors[role as keyof typeof roleColors] || "bg-gray-500"} text-white rounded-full text-xs`}>{role}</span>;
     };
 
+    const handleChatWithUser = async () => {
+        if (!user?._id) {
+            console.error("❌ User information not available");
+            toast.error("User information not available");
+            return;
+        }
+
+        setIsChatLoading(true);
+
+        try {
+            const result = await createConversation({
+                participants: [user._id],
+                // No propertyId needed for user-to-user chat
+            }).unwrap();
+
+            console.log("✅ Conversation created:", result);
+            toast.success("Conversation started successfully");
+
+            // Close the dialog and redirect to messages
+            setOpen(false);
+            router.push("/messages");
+        } catch (error: any) {
+            console.error("❌ Failed to start chat:", error);
+            toast.error(error?.data?.message || "Failed to start conversation");
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
     return (
         <>
             <button className="text-white hover:text-[#C9A94D]" onClick={() => setOpen(true)}>
@@ -105,7 +141,9 @@ function UserAction({ user }: { user: IUser }) {
                             <span>User Details</span>
                             <div className="flex items-center gap-2">
                                 {getRoleBadge(user.role)}
-                                <MessageCircle className="h-5 w-5" />
+                                <button onClick={handleChatWithUser} disabled={isChatLoading} className="text-[#C9A94D] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Send message to this user">
+                                    <MessageCircle className="h-5 w-5" />
+                                </button>
                             </div>
                         </DialogTitle>
                     </DialogHeader>
