@@ -155,7 +155,7 @@ export default function MessageConversationPage() {
         );
     }
 
-    const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
     return (
         <div className="h-screen flex flex-col bg-[#B6BAC3]">
@@ -269,7 +269,7 @@ export default function MessageConversationPage() {
 // Reuse the same MessageBubble component from your desktop version
 const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId?: string }) => {
     const isMe = message.sender?._id === currentUserId;
-    const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
     // Handle optimistic messages
     if (message.isOptimistic) {
