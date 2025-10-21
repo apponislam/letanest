@@ -8,6 +8,7 @@ import { useSearchMyPublishedPropertiesQuery } from "@/redux/features/property/p
 import { useGetHostPaymentsQuery } from "@/redux/features/propertyPayment/propertyPaymentApi";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
+import { useGetTotalUnreadCountQuery } from "@/redux/features/messages/messageApi";
 
 const HostDash = () => {
     const hostuser = useAppSelector(currentUser);
@@ -21,6 +22,9 @@ const HostDash = () => {
         limit,
         search: searchTerm,
     });
+
+    const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
+    const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
 
     const [paymentsPage, setPaymentsPage] = useState(1);
     const paymentsLimit = 2;
@@ -102,13 +106,24 @@ const HostDash = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-14 mb-8">
-                    <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
+                    {/* <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
                         <Image src="/dashboard/sidebar/message.png" alt="Total Booking" width={35} height={35}></Image>
                         <div>
                             <p className=" text-center md:text-left">Check Messages</p>
                             <h1 className="text-xl font-bold  text-center md:text-left">Unread 4+ massages</h1>
                         </div>
-                    </div>
+                    </div> */}
+                    <Link href="/messages">
+                        <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
+                            <Image src="/dashboard/sidebar/message.png" alt="Total Booking" width={35} height={35}></Image>
+                            <div>
+                                <p className="text-center md:text-left">Check Messages</p>
+                                <h1 className="text-xl font-bold text-center md:text-left">
+                                    Unread {totalUnreadCount}+ {totalUnreadCount === 1 ? "message" : "messages"}
+                                </h1>
+                            </div>
+                        </div>
+                    </Link>
                     <Link href="/dashboard/listing/add" className="h-full">
                         <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5 h-full">
                             <Image src="/dashboard/host/plus.png" alt="Total Booking" width={35} height={35}></Image>

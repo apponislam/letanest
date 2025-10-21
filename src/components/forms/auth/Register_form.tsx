@@ -7,7 +7,7 @@ import { ArrowLeft, CirclePlus, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/redux/features/auth/authApi";
-import { currentUser, setUser } from "@/redux/features/auth/authSlice";
+import { currentUser, redirectPath, setRedirectPath, setUser } from "@/redux/features/auth/authSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/redux/hooks";
 import { toast } from "sonner";
@@ -51,6 +51,8 @@ const SignUpForm = () => {
 
     const [registerUser, { isLoading }] = useRegisterMutation();
 
+    const path = useSelector(redirectPath);
+
     const onSubmit = async (data: SignUpFormInputs) => {
         const loadingToast = toast.loading("Registering...");
 
@@ -66,7 +68,12 @@ const SignUpForm = () => {
             const result = await registerUser(payload).unwrap();
 
             toast.success(result?.message || "Registered successfully!", { id: loadingToast });
-            router.push("/");
+            if (path) {
+                dispatch(setRedirectPath(null));
+                router.push(path);
+            } else {
+                router.push("/");
+            }
 
             dispatch(
                 setUser({

@@ -1,4 +1,3 @@
-// dashboardApi.ts
 import { baseApi } from "../../api/baseApi";
 
 interface DashboardStatsResponse {
@@ -54,6 +53,16 @@ interface PropertyStatusStatsResponse {
     } | null;
 }
 
+interface SiteStatsResponse {
+    success: boolean;
+    message: string;
+    data: {
+        publishedPropertiesCount: number;
+        propertiesWithGoodRatingsCount: number;
+        yearsSince2025: number;
+    } | null;
+}
+
 export const dashboardApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getDashboardStats: builder.query<DashboardStatsResponse, void>({
@@ -83,7 +92,15 @@ export const dashboardApi = baseApi.injectEndpoints({
             }),
             providesTags: ["Dashboard"],
         }),
+        getSiteStats: builder.query<SiteStatsResponse, void>({
+            query: () => ({
+                url: "/dashboard/site-stats",
+                method: "GET",
+                credentials: "include",
+            }),
+            providesTags: ["Dashboard"],
+        }),
     }),
 });
 
-export const { useGetDashboardStatsQuery, useGetRevenueChartDataQuery, useGetPropertyStatusStatsQuery } = dashboardApi;
+export const { useGetDashboardStatsQuery, useGetRevenueChartDataQuery, useGetPropertyStatusStatsQuery, useGetSiteStatsQuery } = dashboardApi;

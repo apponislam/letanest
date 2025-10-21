@@ -4,8 +4,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useCreateContactMutation } from "@/redux/features/contact/contactApi";
+import { useRouter } from "next/navigation";
 
-// ✅ Zod schema
 const contactSchema = z.object({
     firstName: z.string().min(2, "First name is required"),
     lastName: z.string().min(2, "Last name is required"),
@@ -16,16 +18,28 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const ContactUsForm: React.FC = () => {
+    const [createContact, { isLoading }] = useCreateContactMutation();
+    const router = useRouter();
+
     const {
         register,
         handleSubmit,
         formState: { errors },
+        reset,
     } = useForm<ContactFormData>({
         resolver: zodResolver(contactSchema),
     });
 
-    const onSubmit = (data: ContactFormData) => {
-        console.log("Form submitted:", data);
+    const onSubmit = async (data: ContactFormData) => {
+        try {
+            await createContact(data).unwrap();
+            toast.success("Message sent successfully!");
+            router.push("/");
+            reset();
+        } catch (error: any) {
+            console.error("Failed to send message:", error);
+            toast.error(error?.data?.message || "Failed to send message. Please try again.");
+        }
     };
 
     return (
@@ -62,8 +76,8 @@ const ContactUsForm: React.FC = () => {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="bg-[#C9A94D] text-white py-4 px-10 rounded-lg hover:bg-[#af8d28] transition-all">
-                Leave us a Message
+            <button type="submit" disabled={isLoading} className="bg-[#C9A94D] text-white py-4 px-10 rounded-lg hover:bg-[#af8d28] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                {isLoading ? "Sending..." : "Leave us a Message"}
             </button>
         </form>
     );

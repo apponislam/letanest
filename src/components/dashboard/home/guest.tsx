@@ -6,12 +6,15 @@ import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useGetMyPaymentsQuery } from "@/redux/features/propertyPayment/propertyPaymentApi";
 import Link from "next/link";
+import { useGetTotalUnreadCountQuery } from "@/redux/features/messages/messageApi";
 
 const Guest = () => {
     const mainuser = useAppSelector(currentUser);
     const [page, setPage] = useState(1);
     const limit = 3;
     const { data: mypayments, isLoading: paymentsLoading } = useGetMyPaymentsQuery({ page, limit });
+    const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
+    const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
 
     const handleNextPage = () => {
         if (mypayments?.meta) {
@@ -44,13 +47,15 @@ const Guest = () => {
                             <h1 className="text-xl font-bold text-center md:text-left">{mypayments?.meta?.total ?? 0}</h1>
                         </div>
                     </div>
-                    <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <Image src="/dashboard/sidebar/message.png" alt="Total Booking" width={35} height={35}></Image>
-                        <div>
-                            <p>Messages</p>
-                            <h1 className="text-xl font-bold text-center md:text-left">2</h1>
+                    <Link href="/messages">
+                        <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
+                            <Image src="/dashboard/sidebar/message.png" alt="Total Booking" width={35} height={35}></Image>
+                            <div>
+                                <p>Messages</p>
+                                <h1 className="text-xl font-bold text-center md:text-left">{totalUnreadCount}</h1>
+                            </div>
                         </div>
-                    </div>
+                    </Link>
                     {/* <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
                         <Image src="/dashboard/sidebar/star.png" alt="Total Booking" width={35} height={35}></Image>
                         <div>
