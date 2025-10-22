@@ -89,7 +89,7 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                         Starting From <span className="text-black">£{price?.toLocaleString() || "0"}</span>
                     </p>
                     <Link href={`/listings/${_id}`}>
-                        <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px]">Details</Button>
+                        <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px] cursor-pointer">Details</Button>
                     </Link>
                 </div>
             </CardContent>
