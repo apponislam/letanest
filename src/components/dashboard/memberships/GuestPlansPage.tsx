@@ -327,7 +327,6 @@ const GuestPlansPage = () => {
 
                     if (result.success) {
                         console.log("Free tier activated successfully:", result.data);
-                        // Redirect to the free tier success page
                         window.location.href = `/${plan.paymentLink}`;
                     } else {
                         alert(result.message || "Failed to activate free tier");

@@ -83,7 +83,7 @@ export const ratingApi = baseApi.injectEndpoints({
                 body,
                 credentials: "include",
             }),
-            invalidatesTags: ["Rating"],
+            invalidatesTags: ["Rating", "MyRatings"],
         }),
 
         // === Get Property Ratings ===
@@ -328,6 +328,21 @@ export const ratingApi = baseApi.injectEndpoints({
             }),
             providesTags: ["Rating"],
         }),
+        checkUserPropertiesRating: builder.mutation<
+            {
+                success: boolean;
+                message: string;
+                data: { propertyId: string; hasRated: boolean }[];
+            },
+            { propertyIds: string[] }
+        >({
+            query: ({ propertyIds }) => ({
+                url: `/rating/check-user-ratings`,
+                method: "POST",
+                body: { propertyIds },
+            }),
+            invalidatesTags: ["MyRatings"],
+        }),
     }),
 });
 
@@ -346,4 +361,6 @@ export const {
     useDeleteRatingMutation,
     useGetAllRatingsForAdminQuery,
     useGetAdminRatingStatsQuery,
+    // my ratings check
+    useCheckUserPropertiesRatingMutation,
 } = ratingApi;
