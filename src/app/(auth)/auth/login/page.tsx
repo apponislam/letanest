@@ -1,3 +1,4 @@
+import DynamicAuthContent from "@/components/auth/DynamicAuthContent";
 import LoginForm from "@/components/forms/auth/login_form";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +11,7 @@ const page = () => {
             <div className="absolute inset-0 bg-black/50"></div>
 
             <div className="relative z-10 flex h-full flex-col lg:flex-row justify-between">
-                <div className="w-full md:w-full lg:w-1/2 py-4 px-4 md:pt-[100px] md:pl-[100px] md:pb-[100px]">
+                {/* <div className="w-full md:w-full lg:w-1/2 py-4 px-4 md:pt-[100px] md:pl-[100px] md:pb-[100px]">
                     <Image src="/logo.svg" width={307} height={61} alt="Letanest Logo" className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"></Image>
                     <h1 className="text-white text-3xl md:text-[57px] mb-5">
                         Hosting made simple - <br className="hidden md:block" /> list your nest in minutes.
@@ -21,7 +22,8 @@ const page = () => {
                             Register here!
                         </Link>
                     </p>
-                </div>
+                </div> */}
+                <DynamicAuthContent pageType="signin" />
 
                 <div className="w-full md:w-full lg:w-1/2 bg-[#14213D] rounded-tl-[40px] rounded-tr-[40px] lg:rounded-tl-[40px] lg:rounded-bl-[40px] lg:rounded-tr-none lg:rounded-br-none lg:px-[90px]">
                     <LoginForm></LoginForm>

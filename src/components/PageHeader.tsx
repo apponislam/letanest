@@ -11,6 +11,7 @@ import Avatar from "@/utils/Avatar";
 import { useDispatch } from "react-redux";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
+import { useGetMyProfileQuery } from "@/redux/features/users/usersApi";
 
 interface PageHeaderProps {
     title?: string;
@@ -22,6 +23,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
     const user = useAppSelector(currentUser);
     const dispatch = useDispatch();
     const [logout] = useLogoutMutation();
+    const { data: myprofile } = useGetMyProfileQuery();
+    console.log(myprofile);
 
     const handleLogout = async () => {
         const loadingToast = toast.loading("Logging out...");
@@ -52,7 +55,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
                             <DropdownMenuTrigger asChild>
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     {user?.profileImg ? <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${user.profileImg}`} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover h-[30px] w-[30px]" /> : <Avatar name={user?.name || "User"} size={30} />}
-                                    <div className="text-[#C9A94D] text-[18px]">{user?.name || "User"}</div>
+                                    <div className="flex flex-col items-start">
+                                        <div className="text-[#C9A94D] text-[18px] leading-none">{user?.name || "User"}</div>
+                                        {myprofile?.data.subscriptions.activeSubscriptions[0]?.subscription?.subscription?.badge && <button className="bg-[#C9A94D] text-white px-2 rounded-[20px] text-[12px] w-auto">{myprofile.data.subscriptions.activeSubscriptions[0].subscription.subscription.badge}</button>}
+                                    </div>
                                 </div>
                             </DropdownMenuTrigger>
 

@@ -175,6 +175,12 @@ export interface DisconnectStripeResponse {
     };
 }
 
+export interface GetMyProfileResponse {
+    success: boolean;
+    message: string;
+    data: IUserWithSubscriptions;
+}
+
 export const userApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
@@ -263,6 +269,13 @@ export const userApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Users", "StripeAccount", "MySubscriptions"],
         }),
+        getMyProfile: build.query<any, void>({
+            query: () => ({
+                url: "/users/me/profile",
+                method: "GET",
+            }),
+            providesTags: ["MyProfile"],
+        }),
     }),
 });
 
@@ -277,4 +290,7 @@ export const {
     useGetStripeAccountStatusQuery,
     useGetStripeDashboardQuery,
     useDisconnectStripeAccountMutation,
+
+    // get my profile
+    useGetMyProfileQuery,
 } = userApi;
