@@ -20,6 +20,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
+        console.log(user);
         if (user === undefined) return; // wait for redux state
 
         if (!user) {
@@ -28,12 +29,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             return;
         }
 
-        const role = user.role;
-        const allowedRoutes = roleRoutes[role] || [];
-        if (!allowedRoutes.some((route) => pathname.startsWith(route))) {
-            router.replace("/dashboard");
-            return;
-        }
+        // const role = user.role;
+        // console.log(role);
+        // const allowedRoutes = roleRoutes[role] || [];
+        // console.log(allowedRoutes);
+        // if (!allowedRoutes.some((route) => pathname.startsWith(route))) {
+        //     router.replace("/dashboard");
+        //     return;
+        // }
 
         setReady(true); // user exists and route allowed
     }, [user, pathname, router, dispatch]);

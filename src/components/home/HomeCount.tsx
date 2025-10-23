@@ -146,7 +146,7 @@ const HomeCount = () => {
     }
 
     return (
-        <div className="container mx-auto mb-8 md:mb-20 xl:pt-40 2xl:pt-0">
+        <div className="container mx-auto mb-8 md:mb-12 xl:pt-40 2xl:pt-0">
             <div className="flex mx-5 md:mx-0 md:items-center justify-between flex-col md:flex-row gap-5">
                 {stats.map((stat, idx) => (
                     <div key={idx} className="flex items-center gap-3">

@@ -193,7 +193,7 @@ const HomeFooter = () => {
                                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                     <DialogTrigger asChild className="text-[#C9A94D]">
                                         <button onClick={handleRateSiteClick} className="hover:underline text-left" disabled={hasRatedSite}>
-                                            {hasRatedSite ? "✓ Already Rated" : "Leave Us a Review"}
+                                            {hasRatedSite ? "Review Submitted" : "Leave Us a Review"}
                                         </button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-md bg-[#14213D] text-[#C9A94D]">
@@ -203,8 +203,8 @@ const HomeFooter = () => {
 
                                         {hasRatedSite ? (
                                             <div className="text-center py-4">
-                                                <p className=" mb-4">✅ You have already rated our site!</p>
-                                                <p className="mb-4">Thank you for your feedback. You rated us {userSiteRating?.data?.overallExperience} stars.</p>
+                                                <p className="mb-4">You’ve already rated our site!</p>
+                                                <p className="mb-4">Thank you for your feedback — you gave us {userSiteRating?.data?.overallExperience} stars.</p>
                                                 <Button onClick={() => setIsDialogOpen(false)} className="bg-[#C9A94D] hover:bg-[#af8d28] text-white">
                                                     Close
                                                 </Button>

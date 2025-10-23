@@ -69,13 +69,13 @@ export const propertyApi = baseApi.injectEndpoints({
         }),
 
         // Update property
-        updateProperty: build.mutation<IProperty, { id: string; data: Partial<IProperty> }>({
+        updateProperty: build.mutation<IProperty, { id: string; data: FormData }>({
             query: ({ id, data }) => ({
                 url: `/property/${id}`,
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: (result, error, { id }) => [{ type: "Properties", id }],
+            invalidatesTags: ["Properties"],
         }),
 
         getPublishedPropertiesForAdmin: build.query<GetPropertiesResponse, GetPropertiesQuery | void>({
@@ -125,6 +125,7 @@ export const propertyApi = baseApi.injectEndpoints({
             },
             providesTags: ["Properties"],
         }),
+
         changePropertyStatus: build.mutation<IProperty, { id: string; status: string }>({
             query: ({ id, status }) => ({
                 url: `/property/${id}/status`,
