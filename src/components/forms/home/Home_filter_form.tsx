@@ -75,7 +75,7 @@ const HomeFilterForm = () => {
                 <div className="flex-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D]">
+                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
                                 <Home className="w-4 h-4" />
                                 {filters.propertyType || "Property Type"}
                                 <ChevronDown className="w-4 h-4" />
@@ -95,7 +95,7 @@ const HomeFilterForm = () => {
                 <div className="flex-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D]">
+                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
                                 <MapPin className="w-4 h-4" />
                                 {filters.location || "Location"}
                                 <ChevronDown className="w-4 h-4" />
@@ -113,16 +113,16 @@ const HomeFilterForm = () => {
 
                 {/* Bedrooms Number Input */}
                 <div className="flex-1">
-                    <div className="relative">
+                    <div className="relative group">
                         <Input
                             type="number"
                             value={filters.bedrooms}
                             onChange={handleBedroomsChange}
                             min={1}
-                            className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D] rounded-lg pl-10 pr-4 py-2 h-auto [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                            className="flex items-center justify-between w-full bg-white text-[#14213D] group-hover:bg-[#C9A94D]/20 group-hover:text-white border border-[#C9A94D] rounded-lg pl-10 pr-4 py-2 h-auto [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] transition-colors duration-200"
                             placeholder="Bedrooms"
                         />
-                        <Bed className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#14213D]" />
+                        <Bed className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#14213D] group-hover:text-white transition-colors duration-200" />
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@ const HomeFilterForm = () => {
             {/* Price Range Slider */}
             <div className="md:mx-20 mx-4">
                 <div className="w-auto relative mb-4">
-                    <h1 className="text-[#C9A94D] mb-4">Price Range</h1>
+                    <h1 className="text-[#C9A94D] mb-4 text-center">Your budget (per night)</h1>
                     <div className="relative w-full h-6 mb-2">
                         <span className="absolute text-[#C9A94D] font-medium" style={{ left: `${valueToPercent(filters.minPrice)}%`, transform: "translateX(-50%)" }}>
                             £{filters.minPrice}

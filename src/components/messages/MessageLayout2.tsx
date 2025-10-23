@@ -414,7 +414,7 @@ export default function MessagesLayout2() {
                                                     }}
                                                 />
                                             ) : null}
-                                            <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"}`} title={isOnline ? "Online" : "Offline"} />
+                                            {/* <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"}`} title={isOnline ? "Online" : "Offline"} /> */}
                                             {!otherParticipant?.profileImg && <Avatar name={otherParticipant?.name || "Unknown User"} size={48} />}
 
                                             {/* Unread count badge */}
@@ -425,7 +425,7 @@ export default function MessagesLayout2() {
                                                 <p className="text-[#14213D] truncate font-medium">{otherParticipant?.name || "Unknown User"}</p>
                                                 <div className="flex items-center gap-2">
                                                     {/* {unreadCount > 0 && <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">{unreadCount > 9 ? "9+" : unreadCount}</span>} */}
-                                                    {isOnline ? <span className="text-xs text-green-300 font-medium">Online</span> : <span className="text-xs text-gray-600 font-medium">Offline</span>}
+                                                    {/* {isOnline ? <span className="text-xs text-green-300 font-medium">Online</span> : <span className="text-xs text-gray-600 font-medium">Offline</span>} */}
                                                 </div>
                                             </div>
                                             <p className={`text-sm truncate ${unreadCount > 0 ? "text-white font-medium" : "text-white"}`}>{formatLastMessage(conversation.lastMessage) || "No messages yet"}</p>
@@ -474,10 +474,10 @@ export default function MessagesLayout2() {
                                             <Star className="h-4 w-4 fill-current text-yellow-500" />
                                             <p>4.5</p>
                                         </div>
-                                        <div className={`text-sm font-medium ${isUserOnline(otherParticipant?._id) ? "text-green-300" : "text-gray-600"}`}>{isUserOnline(otherParticipant?._id) ? "Online" : "Offline"}</div>
+                                        {/* <div className={`text-sm font-medium ${isUserOnline(otherParticipant?._id) ? "text-green-300" : "text-gray-600"}`}>{isUserOnline(otherParticipant?._id) ? "Online" : "Offline"}</div> */}
                                     </div>
                                 </div>
-                                <div className={`px-3 py-1 rounded-full text-xs font-medium ${isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{isConnected ? "Connected" : "Disconnected"}</div>
+                                {/* <div className={`px-3 py-1 rounded-full text-xs font-medium ${isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{isConnected ? "Connected" : "Disconnected"}</div> */}
                             </div>
                         </div>
 

@@ -839,7 +839,7 @@ const Guest = () => {
                                             {/* Conditionally show Rate Now button */}
                                             {!hasRated && (
                                                 <button onClick={() => handleRateNow(payment)} className="w-full bg-[#C9A94D] text-white rounded-[10px] px-2 hover:bg-[#b8973e] transition-colors">
-                                                    Rate Now
+                                                    Review Now
                                                 </button>
                                             )}
                                             {/* Show Already Rated if user has rated */}

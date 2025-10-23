@@ -228,7 +228,7 @@ export default function ListingsFilter() {
 
                                 {/* Price Range */}
                                 <div className="w-auto relative mb-8">
-                                    <h1 className="text-[#C9A94D] mb-4 text-center mt-4 md:mt-8">Price Range</h1>
+                                    <h1 className="text-[#C9A94D] mb-4 text-center mt-4 md:mt-8">Your budget (per night)</h1>
                                     <div className="relative w-full h-6 mb-2">
                                         <span className="absolute text-[#C9A94D] font-medium" style={{ left: `${valueToPercent(priceRange[0])}%`, transform: "translateX(-50%)" }}>
                                             £{priceRange[0]}
@@ -284,9 +284,10 @@ export default function ListingsFilter() {
                     <div className="md:w-3/4 p-2 md:p-5">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                             {/* Check In */}
+
                             <div>
-                                <label className="block text-[#C9A94D] font-medium mb-2">Check In</label>
-                                <DatePicker selected={checkIn} wrapperClassName="w-full" onChange={handleCheckInChange} placeholderText="Select date" customInput={<CustomDateInput label="Check In" />} calendarClassName="border border-[#C9A94D] rounded-lg" />
+                                <label className="block text-[#C9A94D] font-medium mb-2  transition-colors duration-200">Check In</label>
+                                <DatePicker selected={checkIn} wrapperClassName="w-full" onChange={handleCheckInChange} placeholderText="Select date" customInput={<CustomDateInput label="Check In" />} calendarClassName="border border-[#C9A94D] rounded-lg  transition-colors duration-200" />
                             </div>
 
                             {/* Check Out */}
@@ -303,7 +304,7 @@ export default function ListingsFilter() {
                                     value={filters.guests}
                                     onChange={handleGuestsChange}
                                     min={1}
-                                    className="flex items-center justify-between w-full h-auto bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D] rounded-lg px-4 p-[6px] md:py-[10px] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                                    className="flex items-center justify-between w-full h-auto bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D] rounded-lg px-4 p-[6px] md:py-[10px] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                                 />
                             </div>
 
@@ -312,7 +313,7 @@ export default function ListingsFilter() {
                                 <label className="block text-[#C9A94D] font-medium mb-2">Location</label>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D]">
+                                        <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
                                             <MapPin className="w-4 h-4" />
                                             {selectedLocation || "Location"}
                                             <ChevronDown className="w-4 h-4" />
@@ -336,7 +337,7 @@ export default function ListingsFilter() {
                                     value={filters.bedrooms}
                                     onChange={handleBedroomsChange}
                                     min={1}
-                                    className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D] rounded-lg px-4 py-3 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                                    className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D] rounded-lg px-4 py-3 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                                 />
                             </div>
 
@@ -345,7 +346,7 @@ export default function ListingsFilter() {
                                 <label className="block text-[#C9A94D] font-medium mb-2">Property Type</label>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 border border-[#C9A94D]">
+                                        <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
                                             <Home className="w-4 h-4" />
                                             {filters.propertyType || "Property Type"}
                                             <ChevronDown className="w-4 h-4" />

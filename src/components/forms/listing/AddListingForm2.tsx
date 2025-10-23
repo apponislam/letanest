@@ -407,7 +407,7 @@ const AddListingForm2: React.FC = () => {
 
                         {/* price */}
                         <div>
-                            <label className="block text-sm font-medium">Price (Starting From)</label>
+                            <label className="block text-sm font-medium">Price (Per night)</label>
                             <input type="number" {...step2Form.register("price", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
                             {step2Form.formState.errors.price && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.price?.message}</p>}
                         </div>

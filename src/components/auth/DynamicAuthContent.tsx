@@ -101,7 +101,7 @@ const DynamicAuthContent: React.FC<DynamicAuthContentProps> = ({ pageType }) => 
         logo: "/logo.svg",
         title: pageType === "signin" ? "Hosting made simple - list your nest in minutes." : "Your next stay starts here. Fill out the form, start chatting with hosts, and book the perfect nest for you.",
         showLink: pageType === "signin", // Only show link for signin page
-        description: pageType === "signin" ? "if you don't an account you can Register here!" : "",
+        description: pageType === "signin" ? "if you don't have an account you can Register here!" : "",
         linkText: "Register here!",
         linkHref: "/auth/register",
     };
@@ -152,7 +152,7 @@ const DynamicAuthContent: React.FC<DynamicAuthContentProps> = ({ pageType }) => 
                     e.currentTarget.src = defaultContent.logo;
                 }}
             />
-            <h1 className="text-white text-3xl md:text-[57px] mb-5">{content.title}</h1>
+            <h1 className="text-white text-3xl md:text-5xl mb-5">{content.title}</h1>
 
             {/* Only show the link paragraph for signin page */}
             {content.showLink && (

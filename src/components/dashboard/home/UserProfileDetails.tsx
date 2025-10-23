@@ -58,7 +58,7 @@ const UserProfileDetails = () => {
                                             </Link>
                                         ) : (
                                             <Link href="/dashboard/profile/verify">
-                                                <button className="bg-[#135E9A] text-white rounded-[20px] px-7 py-1 text-base">Add Verify</button>
+                                                <button className="bg-[#135E9A] text-white rounded-[20px] px-7 py-1 text-base cursor-pointer">Get Verified</button>
                                             </Link>
                                         )}
                                     </>
@@ -68,7 +68,7 @@ const UserProfileDetails = () => {
                     </div>
 
                     <Link href="/dashboard/profile/edit">
-                        <button className="bg-[#434D64] text-[#C9A94D] rounded-[10px] px-10 py-2 flex items-center gap-2 text-base">
+                        <button className="bg-[#434D64] text-[#C9A94D] rounded-[10px] px-10 py-2 flex items-center gap-2 text-base cursor-pointer">
                             <UserPen className="w-4 h-4" />
                             Edit Profile
                         </button>
