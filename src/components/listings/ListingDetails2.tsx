@@ -53,6 +53,8 @@ export default function PropertyPage2() {
         balcony: 13,
         kitchen: 14,
         "lift access": 15,
+        "disability access": 16,
+        "disability parking": 17,
     };
 
     const handleBookNow = () => {

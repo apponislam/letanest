@@ -83,7 +83,7 @@ const HomeFilterForm = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
                             {propertyTypeOptions.map((option, i) => (
-                                <DropdownMenuItem key={i} className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer" onClick={() => handlePropertyTypeChange(option)}>
+                                <DropdownMenuItem key={i} className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer text-center" onClick={() => handlePropertyTypeChange(option)}>
                                     {option}
                                 </DropdownMenuItem>
                             ))}
@@ -95,7 +95,7 @@ const HomeFilterForm = () => {
                 <div className="flex-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
+                            <Button className="flex items-center justify-between text-center w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
                                 <MapPin className="w-4 h-4" />
                                 {filters.location || "Location"}
                                 <ChevronDown className="w-4 h-4" />
@@ -103,7 +103,7 @@ const HomeFilterForm = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
                             {locationOptions.map((option, i) => (
-                                <DropdownMenuItem key={i} className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer" onClick={() => handleLocationChange(option)}>
+                                <DropdownMenuItem key={i} className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer text-center" onClick={() => handleLocationChange(option)}>
                                     {option}
                                 </DropdownMenuItem>
                             ))}

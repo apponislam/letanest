@@ -14,6 +14,7 @@ import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import ReportHostModal from "./RepostHost";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: number; className?: string }) => {
@@ -44,6 +45,7 @@ export default function MessagesLayout2() {
     const { isConnected, onlineUsers, connectSocket, disconnectSocket, joinConversation, leaveConversation, sendTyping, getTypingUsers, isUserOnline } = useSocket();
     // const [markConversationAsRead] = useMarkConversationAsReadsMutation();
     const [markConversationAsReads] = useMarkConversationAsReadsMutation();
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     // Connect socket when component mounts
     useEffect(() => {
@@ -164,7 +166,6 @@ export default function MessagesLayout2() {
                 text: inputText,
             }).unwrap();
 
-            // console.log("✅ [MessagesLayout2] Message sent successfully");
             setInputText("");
             handleStopTyping();
 
@@ -222,8 +223,8 @@ export default function MessagesLayout2() {
                 sender: user._id,
                 type: "offer",
                 propertyId: selectedProperty,
-                checkInDate: checkInDate.toISOString(), // Convert to ISO string
-                checkOutDate: checkOutDate.toISOString(), // Convert to ISO string
+                checkInDate: checkInDate.toISOString(),
+                checkOutDate: checkOutDate.toISOString(),
                 agreedFee: feeInput,
             }).unwrap();
 
@@ -471,12 +472,18 @@ export default function MessagesLayout2() {
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant.role}</p>
                                         <div className="flex items-center gap-2">
-                                            <Star className="h-4 w-4 fill-current text-yellow-500" />
+                                            <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
                                             <p>4.5</p>
                                         </div>
+                                        {otherParticipant.role === "HOST" && (
+                                            <button className="bg-[#C9A94D] px-2 text-white rounded-[10px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
+                                                Report Host
+                                            </button>
+                                        )}
                                         {/* <div className={`text-sm font-medium ${isUserOnline(otherParticipant?._id) ? "text-green-300" : "text-gray-600"}`}>{isUserOnline(otherParticipant?._id) ? "Online" : "Offline"}</div> */}
                                     </div>
                                 </div>
+                                {otherParticipant.role === "HOST" && <ReportHostModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} hostId={otherParticipant._id} hostName={otherParticipant.name} />}
                                 {/* <div className={`px-3 py-1 rounded-full text-xs font-medium ${isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{isConnected ? "Connected" : "Disconnected"}</div> */}
                             </div>
                         </div>

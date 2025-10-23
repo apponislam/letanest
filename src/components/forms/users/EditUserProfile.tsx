@@ -241,7 +241,7 @@ const userSchema = z.object({
     address: z.string().min(1, "Address is required"),
     country: z.string().min(1, "Country is required"),
     city: z.string().min(1, "City is required"),
-    zip: z.string().min(1, "Zip is required"),
+    // zip: z.string().min(1, "Zip is required"),
 });
 
 type UserFormType = z.infer<typeof userSchema>;
@@ -261,6 +261,8 @@ const EditUserProfileForm = () => {
     const {
         register,
         handleSubmit,
+        getValues,
+        setValue,
         formState: { errors },
         reset,
     } = useForm<UserFormType>({
@@ -282,7 +284,7 @@ const EditUserProfileForm = () => {
                 address: user.address?.street || "",
                 country: user.address?.country || "",
                 city: user.address?.city || "",
-                zip: user.address?.zip || "",
+                // zip: user.address?.zip || "",
             });
 
             // Set profile image
@@ -307,7 +309,7 @@ const EditUserProfileForm = () => {
             formData.append("address", data.address);
             formData.append("country", data.country);
             formData.append("city", data.city);
-            formData.append("zip", data.zip);
+            // formData.append("zip", data.zip);
 
             // If new image is selected, append it
             if (selectedImageFile) {
@@ -332,7 +334,7 @@ const EditUserProfileForm = () => {
                     // Update user and token in Redux store
                     dispatch(setUser({ user, token: accessToken }));
 
-                    toast.success("Profile and session updated successfully!");
+                    // toast.success("Profile and session updated successfully!");
                 }
             } catch (refreshError) {
                 console.warn("Token refresh failed, but profile was updated:", refreshError);
@@ -442,9 +444,41 @@ const EditUserProfileForm = () => {
                     </div>
 
                     {/* Phone */}
-                    <div className="flex flex-col md:gap-1">
+                    {/* <div className="flex flex-col md:gap-1">
                         <label className="text-[#C9A94D]">Phone</label>
                         <input type="text" {...register("phone")} placeholder="Enter phone number" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
+                        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                    </div> */}
+                    <div className="flex flex-col md:gap-1">
+                        <label className="text-[#C9A94D]">Phone</label>
+                        <div className="flex gap-2">
+                            {/* Country Code Dropdown */}
+                            <select
+                                onChange={(e) => {
+                                    const countryCode = e.target.value;
+                                    const currentPhone = getValues("phone") || "";
+                                    const phoneWithoutCode = currentPhone.replace(/^\+\d+\s?/, "");
+                                    const formattedPhone = phoneWithoutCode.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3");
+                                    setValue("phone", countryCode + " " + formattedPhone);
+                                }}
+                                className="bg-white border rounded px-3 py-2 text-[#9399A6] w-28"
+                                defaultValue="+1"
+                            >
+                                <option value="+1">+1 US</option>
+                                <option value="+44">+44 UK</option>
+                                <option value="+91">+91 IN</option>
+                                <option value="+61">+61 AU</option>
+                                <option value="+49">+49 DE</option>
+                                <option value="+33">+33 FR</option>
+                                <option value="+81">+81 JP</option>
+                                <option value="+86">+86 CN</option>
+                                <option value="+7">+7 RU</option>
+                                <option value="+55">+55 BR</option>
+                            </select>
+
+                            {/* Phone Number Input */}
+                            <input type="text" {...register("phone")} placeholder="Enter phone number" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6] flex-1" />
+                        </div>
                         {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
                     </div>
 
@@ -470,11 +504,11 @@ const EditUserProfileForm = () => {
                     </div>
 
                     {/* Zip */}
-                    <div className="flex flex-col md:gap-1">
+                    {/* <div className="flex flex-col md:gap-1">
                         <label className="text-[#C9A94D]">Zip/Postal Code</label>
                         <input type="text" {...register("zip")} placeholder="Enter zip code" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
                         {errors.zip && <p className="text-red-500 text-sm mt-1">{errors.zip.message}</p>}
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Submit Button */}

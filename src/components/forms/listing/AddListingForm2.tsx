@@ -14,11 +14,11 @@ import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi
 import { toast } from "sonner";
 import Link from "next/link";
 import { useGetMyDefaultHostTermsQuery } from "@/redux/features/public/publicApi";
-// import { de, sl } from "zod/v4/locales";
 import TermsSelection from "./TermsSelection";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
+import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -60,7 +60,7 @@ type Step2Data = z.infer<typeof step2Schema>;
 type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
 
-const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access"];
+const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access", "Disability Access", "Disability Parking"];
 const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
 const AddListingForm2: React.FC = () => {
@@ -72,6 +72,26 @@ const AddListingForm2: React.FC = () => {
     const [photosPreview, setPhotosPreview] = useState<string[]>([]);
     const [showRules, setShowRules] = useState(false);
     const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+
+    const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
+    const { data: response, isLoading: stripeLoading } = useGetStripeAccountStatusQuery();
+    const accountStatus = response?.data?.status;
+    const { data: myProfile } = useGetMyProfileQuery();
+    const verificationStatus = myProfile?.data?.profile?.verificationStatus;
+    console.log(myProfile);
+
+    const handleConnectStripe = async () => {
+        try {
+            const result = await connectStripeAccount().unwrap();
+            if (result.data?.onboardingUrl) {
+                window.open(result.data.onboardingUrl, "_blank");
+            }
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || "Failed to connect to Stripe. Please try again.";
+            toast.error(errorMessage);
+            console.log("Failed to connect Stripe:", error);
+        }
+    };
 
     const step1Form = useForm<Step1Data>({
         resolver: zodResolver(step1Schema),
@@ -647,9 +667,14 @@ const AddListingForm2: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <Image src="/listing/add/plus-circle.png" alt="Attachment" width={24} height={24} />
-                        <p>Add To Bank Details (Optional)</p>
+                    {/* <div onClick={handleConnectStripe} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
+                        <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
+                        <p>{isConnectingStripe ? "Connecting to Stripe..." : "Add Bank Details (Optional)"}</p>
+                    </div> */}
+                    <div onClick={!accountStatus || accountStatus !== "verified" ? handleConnectStripe : undefined} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe || accountStatus === "verified" ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
+                        <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
+
+                        {stripeLoading ? <p>Checking Bank Details...</p> : isConnectingStripe ? <p>Connecting Bank Details...</p> : accountStatus === "verified" ? <p>Bank Details Verified</p> : <p>Add Bank Details (Optional)</p>}
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -693,15 +718,15 @@ const AddListingForm2: React.FC = () => {
                                 </form>
                             </DialogContent>
                         </Dialog> */}
-                        <Link href="/dashboard/profile/verify" target="_blank">
+                        {/* <Link href="/dashboard/profile/verify" target="_blank">
                             <div className="flex items-center gap-1 cursor-pointer">
                                 <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
                                 <p>Verify Address (Optional)</p>
                             </div>
-                        </Link>
+                        </Link> */}
 
                         {/* Tooltip */}
-                        <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
+                        {/* <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
                             <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
 
                             {showRules && (
@@ -728,6 +753,52 @@ const AddListingForm2: React.FC = () => {
                                     </ol>
                                 </div>
                             )}
+                        </div> */}
+
+                        <div className="flex items-center gap-2">
+                            {verificationStatus !== "approved" ? (
+                                <Link href="/dashboard/profile/verify" target="_blank">
+                                    <div className="flex items-center gap-1 cursor-pointer">
+                                        <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
+                                        <p>Verify Address (Optional)</p>
+                                    </div>
+                                </Link>
+                            ) : (
+                                <div className="flex items-center gap-1 opacity-60">
+                                    <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
+                                    <p>Address Verified</p>
+                                </div>
+                            )}
+
+                            {/* Tooltip */}
+                            <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
+                                <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
+
+                                {showRules && (
+                                    <div className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg md:-translate-x-1/2 border border-[#C9A94D] z-50" style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                                        <h2 className="font-bold mb-2 text-[14px]">Common Proof of Address Documents</h2>
+                                        <p className="mb-2">Please provide one of the following recent documents showing your full name and address:</p>
+
+                                        <ol className="list-decimal list-outside ml-4 mb-2 text-[13px] space-y-1">
+                                            <li>
+                                                <span className="font-semibold">Utility Bill (gas, electricity, water, landline, broadband):</span> Must be recent (usually within the last 3 months). Must show your full name and address.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Bank or Building Society Statement:</span> Printed or digital copy is usually acceptable. Must be recent and include your name and address.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Council Tax Bill or Local Authority Letter:</span> Shows your address and is usually considered official.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Government-Issued Letter:</span> HMRC tax document, benefit letter, or other government correspondence. Must be recent and show your name and address.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Tenancy Agreement or Mortgage Statement:</span> Must be current and officially issued.
+                                            </li>
+                                        </ol>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="flex items-center justify-end gap-2 flex-col md:flex-row relative">

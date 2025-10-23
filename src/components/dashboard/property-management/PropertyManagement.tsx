@@ -10,11 +10,13 @@ import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import { useChangePropertyStatusMutation, useGetAllPropertiesForAdminQuery, useGetPublishedPropertiesForAdminQuery } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const PropertyManagement = () => {
     const [open, setOpen] = useState(false);
     const [selectedHost, setSelectedHost] = useState<any>(null);
     const [activeTab, setActiveTab] = useState("non-published");
+    const router = useRouter();
 
     const [filters, setFilters] = useState({
         page: 1,
@@ -231,18 +233,18 @@ const PropertyManagement = () => {
                                                     </DropdownMenuTrigger>
 
                                                     <DropdownMenuContent className="bg-[#14213D] text-white rounded-[10px] w-48 flex flex-col gap-3 p-4 border border-[#C9A94D]">
-                                                        <DropdownMenuItem className="bg-[#D00000] text-white hover:bg-[#b30000] focus:bg-[#b30000] justify-center rounded-[20px] cursor-pointer focus:text-white" onSelect={() => handlePropertyStatusChange(property._id, "rejected")}>
-                                                            <span className="w-full text-center">Reject</span>
-                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem className="bg-[#C9A94D] text-white hover:bg-[#b8973e] focus:bg-[#b8973e] justify-center rounded-[20px] cursor-pointer focus:text-white" onSelect={() => handlePropertyStatusChange(property._id, "published")}>
                                                             <span className="w-full text-center">Publish</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="bg-[#D00000] text-white hover:bg-[#b30000] focus:bg-[#b30000] justify-center rounded-[20px] cursor-pointer focus:text-white" onSelect={() => handlePropertyStatusChange(property._id, "rejected")}>
+                                                            <span className="w-full text-center">Reject</span>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem className="bg-[#135E9A] text-white hover:bg-[#0f4a7a] focus:bg-[#0f4a7a] justify-center rounded-[20px] cursor-pointer focus:text-white" onSelect={() => handlePropertyStatusChange(property._id, "hidden")}>
                                                             <span className="w-full text-center">Hide</span>
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem className="bg-[#C9A94D] text-white hover:bg-[#b8973e] focus:bg-[#b8973e] justify-center rounded-[20px] cursor-pointer focus:text-white" onSelect={() => handlePropertyStatusChange(property._id, "pending")}>
+                                                        {/* <DropdownMenuItem className="bg-[#C9A94D] text-white hover:bg-[#b8973e] focus:bg-[#b8973e] justify-center rounded-[20px] cursor-pointer focus:text-white" onSelect={() => handlePropertyStatusChange(property._id, "pending")}>
                                                             <span className="w-full text-center">Set to Pending</span>
-                                                        </DropdownMenuItem>
+                                                        </DropdownMenuItem> */}
                                                         <DropdownMenuItem
                                                             className="bg-[#C9A94D] text-white hover:bg-[#b8973e] focus:bg-[#b8973e] justify-center rounded-[20px] cursor-pointer focus:text-white"
                                                             onSelect={(event) => {
@@ -251,6 +253,9 @@ const PropertyManagement = () => {
                                                             }}
                                                         >
                                                             <span className="w-full text-center">Host Details</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="bg-[#135E9A] text-white hover:bg-[#0f4a7a] focus:bg-[#0f4a7a] justify-center rounded-[20px] cursor-pointer focus:text-white" onClick={() => router.push(`/dashboard/property-management/edit/${property._id}`)}>
+                                                            <span className="w-full text-center">Edit Property</span>
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
@@ -390,6 +395,9 @@ const PropertyManagement = () => {
                                                             }}
                                                         >
                                                             <span className="w-full text-center">Host Details</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="bg-[#135E9A] text-white hover:bg-[#0f4a7a] focus:bg-[#0f4a7a] justify-center rounded-[20px] cursor-pointer focus:text-white" onClick={() => router.push(`/dashboard/property-management/edit/${property._id}`)}>
+                                                            <span className="w-full text-center">Edit Property</span>
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>

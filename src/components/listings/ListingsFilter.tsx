@@ -13,8 +13,7 @@ import { Input } from "../ui/input";
 import { useGetAllPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export const amenitiesList = ["Wifi", "Parking", "Hot Tub", "Towels Included", "TV", "Garden", "Pool", "Pet Friendly", "Dryer", "Gym", "Beach Access", "Smoking Allowed", "Balcony", "Kitchen", "Lift Access"];
-
+const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access", "Disability Access", "Disability Parking"];
 const guestRatings = ["Good", "Above Good", "Excellent"];
 
 export default function ListingsFilter() {

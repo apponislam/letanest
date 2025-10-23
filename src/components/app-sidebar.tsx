@@ -7,22 +7,6 @@ import { useSelector } from "react-redux";
 import { currentUser, roles } from "@/redux/features/auth/authSlice";
 import { menuItems } from "@/config/menuConfig";
 
-// Menu items
-// const items = [
-//     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-//     { title: "Messages", url: "/messages", icon: MessageSquare },
-//     { title: "User", url: "/dashboard/user", icon: User },
-//     { title: "Plans", url: "/dashboard/plans", icon: Layers },
-//     { title: "Transaction", url: "/dashboard/transaction", icon: CreditCard },
-//     { title: "Review", url: "/dashboard/review", icon: Star },
-//     { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
-//     { title: "Property Management", url: "/dashboard/property-management", icon: Home },
-//     { title: "Contact Letanest", url: "/contact", icon: Mail },
-//     { title: "Memberships", url: "/dashboard/memberships", icon: Users },
-//     { title: "Host Verify", url: "/dashboard/host-verify", icon: BadgeCheck },
-//     { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
-// ];
-
 export function AppSidebar() {
     const pathname = usePathname();
     const user = useSelector(currentUser);

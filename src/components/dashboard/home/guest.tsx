@@ -437,6 +437,7 @@ const Guest = () => {
     const { data: mypayments, isLoading: paymentsLoading } = useGetMyPaymentsQuery({ page, limit });
     const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
     const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
+    console.log(mypayments);
 
     // Rating modal state
     const [showRatingModal, setShowRatingModal] = useState(false);
@@ -831,23 +832,45 @@ const Guest = () => {
                                         </div>
                                         <div className={isExpired ? "flex flex-col gap-2" : "flex flex-col gap-2"}>
                                             <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">{isExpired ? "Previously Booked" : "Confirmed"}</button>
-                                            {isExpired && (
-                                                <Link href={`/listings/${payment.propertyId?._id}`}>
-                                                    <button className="font-bold bg-white text-black px-2 rounded-[10px] w-full">Book Again</button>
-                                                </Link>
-                                            )}
+                                            <Link href={`/listings/${payment.propertyId?._id}`}>
+                                                <button className="font-bold bg-white text-black px-2 rounded-[10px] w-full">{isExpired ? "Book Again" : "View Property"}</button>
+                                            </Link>
                                             {/* Conditionally show Rate Now button */}
-                                            {!hasRated && (
+                                            {/* {!hasRated && (
                                                 <button onClick={() => handleRateNow(payment)} className="w-full bg-[#C9A94D] text-white rounded-[10px] px-2 hover:bg-[#b8973e] transition-colors">
                                                     Review Now
                                                 </button>
                                             )}
-                                            {/* Show Already Rated if user has rated */}
                                             {hasRated && (
                                                 <button disabled className="w-full bg-gray-600 text-gray-400 rounded-[10px] px-2 cursor-not-allowed">
                                                     Already Rated
                                                 </button>
-                                            )}
+                                            )} */}
+                                            {(() => {
+                                                // Check if payment was created within the last 28 days
+                                                const paymentDate = new Date(payment.createdAt);
+                                                const currentDate = new Date();
+                                                const daysDifference = Math.floor((currentDate.getTime() - paymentDate.getTime()) / (1000 * 60 * 60 * 24));
+                                                const canReview = daysDifference <= 28;
+
+                                                if (hasRated) {
+                                                    return (
+                                                        <button disabled className="w-full bg-gray-600 text-gray-400 rounded-[10px] px-2 cursor-not-allowed">
+                                                            Already Rated
+                                                        </button>
+                                                    );
+                                                } else if (canReview) {
+                                                    const daysLeft = 28 - daysDifference;
+                                                    return (
+                                                        <button onClick={() => handleRateNow(payment)} className="w-full bg-[#C9A94D] text-white rounded-[10px] px-2 hover:bg-[#b8973e] transition-colors" title={daysLeft > 0 ? `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left to review` : "Last day to review"}>
+                                                            Review Now {daysLeft > 0 && `(${daysLeft}d)`}
+                                                        </button>
+                                                    );
+                                                } else {
+                                                    // After 28 days - return null to hide the button completely
+                                                    return null;
+                                                }
+                                            })()}
                                         </div>
                                     </div>
                                 );
