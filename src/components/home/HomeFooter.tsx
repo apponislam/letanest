@@ -193,7 +193,7 @@ const HomeFooter = () => {
                                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                     <DialogTrigger asChild className="text-[#C9A94D]">
                                         <button onClick={handleRateSiteClick} className="hover:underline text-left" disabled={hasRatedSite}>
-                                            {hasRatedSite ? "✓ Already Rated" : "⭐ Leave a review"}
+                                            {hasRatedSite ? "✓ Already Rated" : "Leave Us a Review"}
                                         </button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-md bg-[#14213D] text-[#C9A94D]">

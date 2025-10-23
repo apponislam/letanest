@@ -7,7 +7,7 @@ import { ArrowLeft, CirclePlus, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/redux/features/auth/authApi";
-import { currentUser, redirectPath, setRedirectPath, setUser } from "@/redux/features/auth/authSlice";
+import { redirectPath, setRedirectPath, setUser } from "@/redux/features/auth/authSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/redux/hooks";
 import { toast } from "sonner";
@@ -45,10 +45,6 @@ const SignUpForm = () => {
         resolver: zodResolver(signupSchema),
         defaultValues: { role: "GUEST" },
     });
-
-    const user = useSelector(currentUser); // pass selector to useSelector
-    console.log(user); // this is the actual user object
-
     const [registerUser, { isLoading }] = useRegisterMutation();
 
     const path = useSelector(redirectPath);
@@ -99,10 +95,25 @@ const SignUpForm = () => {
                     <form className="flex flex-col gap-3 w-full" onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex justify-center mb-6">
                             <div className="flex border border-[#C9A94D] rounded-lg overflow-hidden bg-white">
-                                <button type="button" onClick={() => setValue("role", "GUEST")} className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "GUEST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setValue("role", "GUEST");
+                                        toast.success("Role changed to Guest!"); // show toast
+                                    }}
+                                    className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "GUEST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}
+                                >
                                     Guest
                                 </button>
-                                <button type="button" onClick={() => setValue("role", "HOST")} className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "HOST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}>
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setValue("role", "HOST");
+                                        toast.success("Role changed to Host!"); // show toast
+                                    }}
+                                    className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "HOST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}
+                                >
                                     Host
                                 </button>
                             </div>
