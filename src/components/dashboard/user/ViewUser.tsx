@@ -172,12 +172,12 @@ function UserAction({ user }: { user: IUser }) {
                             <div className="text-[#C9A94D] font-medium">Created At:</div>
                             <div className="text-white">{formatDate(user.createdAt)}</div>
 
-                            <div className="text-[#C9A94D] font-medium">Last Login:</div>
-                            <div className="text-white">{formatDate(user.lastLogin)}</div>
+                            {/* <div className="text-[#C9A94D] font-medium">Last Login:</div>
+                            <div className="text-white">{formatDate(user.lastLogin)}</div> */}
                         </div>
 
                         {/* Additional Stats (if needed) */}
-                        <div className="border-t border-[#C9A94D] pt-3 mt-3">
+                        {/* <div className="border-t border-[#C9A94D] pt-3 mt-3">
                             <h4 className="text-[#C9A94D] font-medium mb-2">Statistics</h4>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div className="text-[#C9A94D]">Total Bookings:</div>
@@ -192,7 +192,7 @@ function UserAction({ user }: { user: IUser }) {
                                 <div className="text-[#C9A94D]">Fees Spent:</div>
                                 <div className="text-white">N/A</div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Bottom custom close button */}

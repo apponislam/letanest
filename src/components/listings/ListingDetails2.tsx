@@ -121,7 +121,8 @@ export default function PropertyPage2() {
                     conversationId: conversationId,
                     sender: user._id,
                     type: "text",
-                    text: `I want to book ${property.propertyNumber}`,
+                    text: `I would like to make a booking request for property ${property.propertyNumber}. Is it currently available?`,
+                    skip: true,
                 }).unwrap();
 
                 console.log("✅ Booking message sent successfully");

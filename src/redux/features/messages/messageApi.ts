@@ -34,12 +34,51 @@ export const messageApi = baseApi.injectEndpoints({
                 body: messageData,
             }),
             invalidatesTags: (_result, _error, arg) => [{ type: "Conversations", id: arg.conversationId }, "Messages"],
-            // Optimistic update for better UX
             onQueryStarted: async (messageData, { dispatch, queryFulfilled }) => {
-                // Generate a temporary ID for optimistic update
                 const tempId = `optimistic-${Date.now()}`;
+                const patchResult = dispatch(
+                    messageApi.util.updateQueryData("getConversationMessages", { conversationId: messageData.conversationId }, (draft: any) => {
+                        // Handle both response formats (data array or direct array)
+                        const messagesArray = draft?.data || draft || [];
 
-                // Optimistically update the cache
+                        const optimisticMessage = {
+                            _id: tempId,
+                            ...messageData,
+                            sender: {
+                                _id: messageData.sender,
+                                name: "You", // Will be updated when real message comes
+                                profileImg: "",
+                            },
+                            createdAt: new Date().toISOString(),
+                            isOptimistic: true,
+                        };
+
+                        if (Array.isArray(messagesArray)) {
+                            messagesArray.push(optimisticMessage);
+                        } else if (draft?.data) {
+                            draft.data.push(optimisticMessage);
+                        }
+                    })
+                );
+
+                try {
+                    await queryFulfilled;
+                    // The real message will come via socket and replace the optimistic one
+                } catch (error) {
+                    patchResult.undo();
+                }
+            },
+        }),
+        // Send message
+        sendMessageAuto: builder.mutation({
+            query: (messageData) => ({
+                url: "/messages/messages/auto",
+                method: "POST",
+                body: messageData,
+            }),
+            invalidatesTags: (_result, _error, arg) => [{ type: "Conversations", id: arg.conversationId }, "Messages"],
+            onQueryStarted: async (messageData, { dispatch, queryFulfilled }) => {
+                const tempId = `optimistic-${Date.now()}`;
                 const patchResult = dispatch(
                     messageApi.util.updateQueryData("getConversationMessages", { conversationId: messageData.conversationId }, (draft: any) => {
                         // Handle both response formats (data array or direct array)
@@ -194,6 +233,7 @@ export const {
     useGetUserConversationsQuery,
     useGetConversationByIdQuery,
     useSendMessageMutation,
+    useSendMessageAutoMutation,
     useGetConversationMessagesQuery,
     useGetMessageByIdQuery,
     useMarkAsReadMutation,

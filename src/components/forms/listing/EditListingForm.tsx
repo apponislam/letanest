@@ -380,7 +380,7 @@ const EditPropertyPage = () => {
                             </div>
                         ))}
 
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-medium">Property Type</label>
                             <DropdownMenu open={open} onOpenChange={setOpen}>
                                 <DropdownMenuTrigger asChild>
@@ -404,6 +404,25 @@ const EditPropertyPage = () => {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                             {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
+                        </div> */}
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Property Type</label>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg ">
+                                {propertyTypeOptions.map((type) => (
+                                    <label key={type} className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            value={type}
+                                            {...step1Form.register("propertyType", { required: "Property type is required" })}
+                                            className="hidden" // hide default radio
+                                        />
+                                        {/* Custom radio button */}
+                                        <div className={`w-5 h-5 border rounded-full border-[#C9A94D] flex items-center justify-center transition-all ${step1Form.watch("propertyType") === type ? "bg-[#14213D]" : "bg-transparent"}`}>{step1Form.watch("propertyType") === type && <div className="w-3 h-3 bg-[#C9A94D] rounded-full" />}</div>
+                                        <span>{type}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            {step1Form.formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.propertyType?.message as string}</p>}
                         </div>
 
                         <div className="flex justify-between mt-4">
