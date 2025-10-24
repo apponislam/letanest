@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Host } from "@/types/host";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,11 +8,14 @@ import { useSearchMyPublishedPropertiesQuery } from "@/redux/features/property/p
 import { useGetHostPaymentsQuery } from "@/redux/features/propertyPayment/propertyPaymentApi";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
-import { useGetTotalUnreadCountQuery } from "@/redux/features/messages/messageApi";
+import { useCreateConversationMutation, useGetTotalUnreadCountQuery, useSendMessageAutoMutation, useSendMessageMutation } from "@/redux/features/messages/messageApi";
 import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+import { useGetRandomAdminQuery } from "@/redux/features/users/usersApi";
+import { useRouter } from "next/navigation";
 
 const HostDash = () => {
     const hostuser = useAppSelector(currentUser);
+    const router = useRouter();
 
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
@@ -36,7 +39,45 @@ const HostDash = () => {
     });
 
     const { data: ratingStats } = useGetHostRatingStatsQuery(hostuser?._id || "");
-    console.log(ratingStats);
+    // console.log(ratingStats);
+    const { data: randomAdminData, refetch: refetchRandomAdmin } = useGetRandomAdminQuery();
+    console.log(randomAdminData);
+    const [createConversation] = useCreateConversationMutation();
+    const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
+    const [sendMessageAuto] = useSendMessageAutoMutation();
+
+    const handleSupport = async () => {
+        console.log(randomAdminData);
+
+        const conversationResult = await createConversation({
+            participants: [randomAdminData?.data?._id!],
+        }).unwrap();
+        if (conversationResult.success && conversationResult.data?._id) {
+            const conversationId = conversationResult.data._id;
+
+            // Step 2: Send the booking message
+            console.log("📤 Sending booking message...");
+            await sendMessage({
+                conversationId: conversationId,
+                sender: hostuser?._id,
+                type: "text",
+                text: `I need support`,
+                skip: true,
+            }).unwrap();
+            // setSelectedConversation(conversationId);
+
+            await sendMessageAuto({
+                conversationId: conversationId,
+                sender: randomAdminData?.data?._id!,
+                type: "text",
+                text: `our team will respond to you within 48 hours`,
+                skip: true,
+            }).unwrap();
+            router.push("/messages");
+        } else {
+            console.error("❌ Conversation creation failed:", conversationResult.message);
+        }
+    };
 
     const handlePaymentsNextPage = () => {
         if (mypayments?.meta) {
@@ -54,20 +95,6 @@ const HostDash = () => {
     };
 
     const [host, setHost] = useState<Host | null>(null);
-
-    useEffect(() => {
-        const fetchHost = async () => {
-            try {
-                const res = await fetch("/data/host.json");
-                const data: Host[] = await res.json();
-                setHost(data[0]);
-            } catch (error) {
-                console.error("Failed to fetch host:", error);
-            }
-        };
-
-        fetchHost();
-    }, []);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -89,8 +116,6 @@ const HostDash = () => {
         }
     };
 
-    if (!host) return <p>Loading...</p>;
-
     return (
         <div>
             <PageHeader title={"Host Dashboard"}></PageHeader>
@@ -100,12 +125,20 @@ const HostDash = () => {
                         <h1 className="font-bold text-[30px] mb-4">Host Dashboard</h1>
                         <p>Welcome back, {hostuser?.name} ! Here's what's happening with your account.</p>
                     </div>
-                    <div className="flex items-center justify-center flex-col gap-2">
+                    {/* <div className="flex items-center justify-center flex-col gap-2">
                         <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
                         <p>contact Letanest</p>
                         <button className="bg-[#C9A94D] rounded-[10px] px-4 py-1 text-white flex items-center gap-2">
                             <Image src="/dashboard/host/message-activity.png" alt="Message Icon" width={24} height={24} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
                             Message
+                        </button>
+                    </div> */}
+                    <div className="flex items-center justify-center flex-col gap-2">
+                        <Image src={randomAdminData?.data?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${randomAdminData.data.profileImg}` : "/default-avatar.png"} alt={randomAdminData?.data?.name || "Admin"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
+                        <p>Contact {randomAdminData?.data?.name || "Admin"}</p>
+                        <button onClick={handleSupport} disabled={isSending} className="bg-[#C9A94D] rounded-[10px] px-4 py-1 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <Image src="/dashboard/host/message-activity.png" alt="Message Icon" width={24} height={24} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
+                            {isSending ? "Creating..." : "Message"}
                         </button>
                     </div>
                 </div>
