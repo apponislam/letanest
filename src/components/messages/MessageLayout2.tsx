@@ -4,14 +4,14 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Star, MessagesSquare, Loader2 } from "lucide-react";
+import { Star, MessagesSquare, Loader2, MessageCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSocket } from "@/redux/features/socket/socketHooks";
-import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation } from "@/redux/features/messages/messageApi";
+import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation } from "@/redux/features/messages/messageApi";
 import { useGetMyPublishedPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { socketService } from "@/redux/features/socket/socketService";
-import { useConnectStripeAccountMutation, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
+import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import ReportHostModal from "./RepostHost";
@@ -146,6 +146,44 @@ export default function MessagesLayout2() {
         console.log("📜 [MessagesLayout2] Messages updated, scrolling to bottom. Messages count:", messagesData.length);
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messagesData, typingUsers]);
+    const { data: randomAdminData, refetch: refetchRandomAdmin } = useGetRandomAdminQuery();
+    const [createConversation] = useCreateConversationMutation();
+    const [sendMessageAuto] = useSendMessageAutoMutation();
+    // useSendMessageAutoMutation;
+
+    const handleSupport = async () => {
+        console.log(randomAdminData);
+
+        const conversationResult = await createConversation({
+            participants: [randomAdminData?.data?._id!],
+            propertyId: user?._id!,
+        }).unwrap();
+        if (conversationResult.success && conversationResult.data?._id) {
+            const conversationId = conversationResult.data._id;
+
+            // Step 2: Send the booking message
+            console.log("📤 Sending booking message...");
+            await sendMessage({
+                conversationId: conversationId,
+                sender: user?._id,
+                type: "text",
+                text: `I need support`,
+                skip: true,
+            }).unwrap();
+            setSelectedConversation(conversationId);
+
+            await sendMessageAuto({
+                conversationId: conversationId,
+                sender: randomAdminData?.data?._id!,
+                type: "text",
+                text: `our team will respond to you within 48 hours`,
+                skip: true,
+            }).unwrap();
+            // console.log(sendMessageAuto);
+        } else {
+            console.error("❌ Conversation creation failed:", conversationResult.message);
+        }
+    };
 
     const handleSend = async () => {
         if (!inputText.trim() || !selectedConversation || !user || isSending) {
@@ -394,6 +432,14 @@ export default function MessagesLayout2() {
                 <div className="py-8 px-5 border-b border-[#C9A94D]">
                     <div className="flex items-center justify-between mb-5">
                         <h1 className="font-bold text-[28px] text-[#14213D]">Messages</h1>
+                        {user?.role === "HOST" && (
+                            <div>
+                                <button className="flex items-center gap-2 bg-[#14213D] text-white px-3 py-1 rounded-xl" onClick={handleSupport}>
+                                    <MessageCircle className="w-5 h-5" />
+                                    Support
+                                </button>
+                            </div>
+                        )}
                         {/* <div className="flex items-center gap-2">
                             <div className={`w-3 h-3 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`} title={isConnected ? "Connected" : "Disconnected"} />
                             <span className="text-xs text-[#14213D]">{onlineUsers.length} online</span>

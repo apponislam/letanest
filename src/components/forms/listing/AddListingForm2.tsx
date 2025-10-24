@@ -359,7 +359,7 @@ const AddListingForm2: React.FC = () => {
                             {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
                         </div>
                     ))}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium">Property Type</label>
                         <DropdownMenu open={open} onOpenChange={setOpen}>
                             <DropdownMenuTrigger asChild>
@@ -385,7 +385,27 @@ const AddListingForm2: React.FC = () => {
                         </DropdownMenu>
 
                         {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
+                    </div> */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Property Type</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg ">
+                            {propertyTypeOptions.map((type) => (
+                                <label key={type} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value={type}
+                                        {...step1Form.register("propertyType", { required: "Property type is required" })}
+                                        className="hidden" // hide default radio
+                                    />
+                                    {/* Custom radio button */}
+                                    <div className={`w-5 h-5 border rounded-full border-[#C9A94D] flex items-center justify-center transition-all ${step1Form.watch("propertyType") === type ? "bg-[#14213D]" : "bg-transparent"}`}>{step1Form.watch("propertyType") === type && <div className="w-3 h-3 bg-[#C9A94D] rounded-full" />}</div> {/* FIXED: step2Form → step1Form */}
+                                    <span>{type}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {step1Form.formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.propertyType?.message as string}</p>} {/* FIXED: step2Form → step1Form */}
                     </div>
+
                     <div className="flex justify-between mt-4">
                         <button type="button" className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition opacity-50 cursor-not-allowed" disabled>
                             Previous
@@ -463,18 +483,6 @@ const AddListingForm2: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* <div>
-                        <label className="block text-sm font-medium mb-2">Amenities</label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">
-                            {amenitiesList.map((amenity) => (
-                                <label key={amenity} className="flex items-center gap-2">
-                                    <input type="checkbox" value={amenity} {...step2Form.register("amenities")} className="accent-[#C9A94D]" />
-                                    <span>{amenity}</span>
-                                </label>
-                            ))}
-                        </div>
-                        {step2Form.formState.errors.amenities && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.amenities.message}</p>}
-                    </div> */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Amenities</label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">

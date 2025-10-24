@@ -276,6 +276,20 @@ export const userApi = baseApi.injectEndpoints({
             }),
             providesTags: ["MyProfile"],
         }),
+        getRandomAdmin: build.query<
+            {
+                success: boolean;
+                message: string;
+                data: IUser | null;
+            },
+            void
+        >({
+            query: () => ({
+                url: "/users/random/admin",
+                method: "GET",
+            }),
+            providesTags: ["RandomAdmin"],
+        }),
     }),
 });
 
@@ -293,4 +307,6 @@ export const {
 
     // get my profile
     useGetMyProfileQuery,
+    // get random admin
+    useGetRandomAdminQuery,
 } = userApi;
