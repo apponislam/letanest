@@ -1,3 +1,4 @@
+import { IUser } from "@/types/property";
 import { baseApi } from "../../api/baseApi";
 
 export enum RatingType {
@@ -22,8 +23,8 @@ interface Rating {
     _id: string;
     type: RatingType;
     propertyId?: string;
-    hostId?: string;
-    userId: string;
+    hostId?: string | IUser;
+    userId: string | IUser;
     communication?: number;
     accuracy?: number;
     cleanliness?: number;
@@ -92,11 +93,16 @@ export const ratingApi = baseApi.injectEndpoints({
                 data: Rating[];
                 message: string;
                 success: boolean;
+                meta?: {
+                    page: number;
+                    limit: number;
+                    total: number;
+                }; // Remove totalPages from here
             },
-            string
+            { propertyId: string; page?: number; limit?: number }
         >({
-            query: (propertyId) => ({
-                url: `/rating/properties/${propertyId}/ratings`,
+            query: ({ propertyId, page = 1, limit = 10 }) => ({
+                url: `/rating/properties/${propertyId}/ratings?page=${page}&limit=${limit}`,
                 method: "GET",
             }),
             providesTags: ["Rating"],

@@ -9,6 +9,7 @@ import { useGetHostPaymentsQuery } from "@/redux/features/propertyPayment/proper
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useGetTotalUnreadCountQuery } from "@/redux/features/messages/messageApi";
+import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 const HostDash = () => {
     const hostuser = useAppSelector(currentUser);
@@ -33,6 +34,9 @@ const HostDash = () => {
         page: paymentsPage,
         limit: paymentsLimit,
     });
+
+    const { data: ratingStats } = useGetHostRatingStatsQuery(hostuser?._id || "");
+    console.log(ratingStats);
 
     const handlePaymentsNextPage = () => {
         if (mypayments?.meta) {
@@ -157,7 +161,7 @@ const HostDash = () => {
                         <Image src="/dashboard/host/star.png" alt="Total Booking" width={35} height={35}></Image>
                         <div>
                             <p>Rating</p>
-                            <h1 className="text-xl font-bold text-center md:text-left">4.8</h1>
+                            <h1 className="text-xl font-bold text-center md:text-left">{ratingStats?.data.averageRating || 0}</h1>
                         </div>
                     </div>
                 </div>

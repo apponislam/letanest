@@ -189,6 +189,21 @@ export const propertyApi = baseApi.injectEndpoints({
             },
             providesTags: ["Properties"],
         }),
+        getMaxRoundedPrice: build.query<
+            {
+                success: boolean;
+                message: string;
+                data: {
+                    maxRoundedPrice: number;
+                };
+            },
+            void
+        >({
+            query: () => ({
+                url: `/property/property/max-price`,
+                method: "GET",
+            }),
+        }),
     }),
 });
 
@@ -205,4 +220,7 @@ export const {
     useDeleteHostPropertyMutation,
     useGetMyPublishedPropertiesQuery,
     useSearchMyPublishedPropertiesQuery,
+
+    // max price
+    useGetMaxRoundedPriceQuery,
 } = propertyApi;

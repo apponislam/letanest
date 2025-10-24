@@ -1,19 +1,23 @@
 "use client";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { Button } from "@/components/ui/button";
 import { Home, ChevronDown, MapPin, Bed } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { useGetMaxRoundedPriceQuery } from "@/redux/features/property/propertyApi";
 
 const HomeFilterForm = () => {
     const router = useRouter();
     const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
     const locationOptions = ["London", "New York", "Paris", "Tokyo", "Sydney"];
+    const { data: maxPriceData } = useGetMaxRoundedPriceQuery();
+    // console.log(maxPriceData);
 
     const [filters, setFilters] = useState({
-        propertyType: "",
+        // propertyType: "",
+        propertyTypes: [] as string[],
         location: "",
         bedrooms: 1,
         minPrice: 0,
@@ -21,7 +25,17 @@ const HomeFilterForm = () => {
     });
 
     const min = 0;
-    const max = 3000;
+    const max = maxPriceData?.data?.maxRoundedPrice || 3000;
+
+    // Update maxPrice when API data loads
+    useEffect(() => {
+        if (maxPriceData?.data?.maxRoundedPrice) {
+            setFilters((prev) => ({
+                ...prev,
+                maxPrice: maxPriceData.data.maxRoundedPrice,
+            }));
+        }
+    }, [maxPriceData?.data?.maxRoundedPrice]);
 
     // Helper to convert value to % position
     const valueToPercent = (val: number) => ((val - min) / (max - min)) * 100;
@@ -36,8 +50,17 @@ const HomeFilterForm = () => {
     };
 
     // Handle property type change
+    // const handlePropertyTypeChange = (type: string) => {
+    //     setFilters((prev) => ({ ...prev, propertyType: type }));
+    // };
+
     const handlePropertyTypeChange = (type: string) => {
-        setFilters((prev) => ({ ...prev, propertyType: type }));
+        setFilters((prev) => ({
+            ...prev,
+            propertyTypes: prev.propertyTypes.includes(type)
+                ? prev.propertyTypes.filter((t) => t !== type) // Remove if exists
+                : [...prev.propertyTypes, type], // Add if not exists
+        }));
     };
 
     // Handle location change
@@ -60,7 +83,8 @@ const HomeFilterForm = () => {
 
         if (filters.minPrice > 0) params.set("minPrice", filters.minPrice.toString());
         if (filters.maxPrice < 3000) params.set("maxPrice", filters.maxPrice.toString());
-        if (filters.propertyType) params.set("propertyType", filters.propertyType);
+        // if (filters.propertyType) params.set("propertyType", filters.propertyType);
+        if (filters.propertyTypes.length > 0) params.set("propertyType", filters.propertyTypes.join(","));
         if (filters.location) params.set("location", filters.location);
         if (filters.bedrooms > 1) params.set("bedrooms", filters.bedrooms.toString());
 
@@ -72,7 +96,7 @@ const HomeFilterForm = () => {
         <div>
             <div className="flex flex-col md:flex-row gap-4 md:w-full mb-10">
                 {/* Property Type Dropdown */}
-                <div className="flex-1">
+                {/* <div className="flex-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
@@ -86,6 +110,32 @@ const HomeFilterForm = () => {
                                 <DropdownMenuItem key={i} className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer text-center" onClick={() => handlePropertyTypeChange(option)}>
                                     {option}
                                 </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div> */}
+                <div className="flex-1">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
+                                <Home className="w-4 h-4" />
+                                {filters.propertyTypes.length === 0 ? "Property Type" : filters.propertyTypes.length === 1 ? filters.propertyTypes[0] : `${filters.propertyTypes.length} Selected`}
+                                <ChevronDown className="w-4 h-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
+                            {propertyTypeOptions.map((option, i) => (
+                                <label key={i} className="flex rounded-[6px] items-center gap-2 p-2 border-b border-[#C9A94D] last:border-b-0 cursor-pointer hover:bg-gray-100">
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.propertyTypes.includes(option)}
+                                        onChange={() => handlePropertyTypeChange(option)}
+                                        className="hidden" // Hide the default checkbox
+                                    />
+                                    {/* Custom checkbox */}
+                                    <div className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${filters.propertyTypes.includes(option) ? "" : "bg-transparent"}`}>{filters.propertyTypes.includes(option) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}</div>
+                                    <span>{option}</span>
+                                </label>
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>

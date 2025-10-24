@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { IProperty } from "@/types/property";
+import { useGetPropertyRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 interface PropertyCardProps {
     property: IProperty;
@@ -12,6 +13,12 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property, status = "For rent" }: PropertyCardProps) {
     const { _id, title, location, price, coverPhoto, propertyType, maxGuests, bedrooms, bathrooms } = property;
+
+    const { data: ratingStats, isLoading } = useGetPropertyRatingStatsQuery(_id);
+
+    const stats = ratingStats?.data;
+    // const averageRating = stats?.averageRating || 0;
+    // const totalRatings = stats?.totalRatings || 0;
 
     // Fix image URL handling
     const getImageUrl = () => {
@@ -46,7 +53,7 @@ export default function PropertyCard({ property, status = "For rent" }: Property
 
             <CardContent className="bg-[#FAF6ED] p-5">
                 {/* Rating - Removed since your API might not have rating/reviews */}
-                <div className="flex items-center mb-2 gap-1">
+                {/* <div className="flex items-center mb-2 gap-1">
                     {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                             key={i}
@@ -59,7 +66,30 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                     ))}
                     <span className="ml-2 text-sm font-medium">4.0</span>
                     <span className="ml-1 text-xs text-gray-500">(0 reviews)</span>
-                </div>
+                </div> */}
+                {isLoading ? (
+                    <div className="flex items-center mb-2 gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-4 w-4 bg-gray-200 rounded-full animate-pulse" />
+                        ))}
+                        <div className="ml-2 h-4 w-10 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                ) : ratingStats?.data && ratingStats.data.totalRatings > 0 ? (
+                    <div className="flex items-center mb-2 gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`h-4 w-4 ${i < Math.round(ratingStats.data.averageRating) ? "fill-[#C9A94D] text-[#C9A94D]" : "text-gray-300"}`} />
+                        ))}
+                        <span className="ml-2 text-sm font-medium">{ratingStats.data.averageRating.toFixed(1)}</span>
+                        <span className="ml-1 text-xs text-gray-500">({ratingStats.data.totalRatings} reviews)</span>
+                    </div>
+                ) : (
+                    <div className="flex items-center mb-2 gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className="h-4 w-4 text-gray-300" />
+                        ))}
+                        <span className="ml-2 text-sm text-gray-500">No reviews yet</span>
+                    </div>
+                )}
 
                 <h2 className="text-lg font-bold text-[#14213D] line-clamp-1">{title}</h2>
                 <p className="text-sm text-gray-600 line-clamp-1">{location}</p>

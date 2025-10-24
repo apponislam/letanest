@@ -17,6 +17,8 @@ import { useCreateConversationMutation, useSendMessageMutation } from "@/redux/f
 import ListingIcon from "@/utils/ListingIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { setRedirectPath, currentUser } from "@/redux/features/auth/authSlice";
+import { useGetHostRatingStatsQuery, useGetPropertyRatingsQuery, useGetPropertyRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+import { IUser } from "@/types/property";
 
 export default function PropertyPage2() {
     const params = useParams();
@@ -25,7 +27,6 @@ export default function PropertyPage2() {
     const dispatch = useDispatch();
 
     const { data: response, isLoading, error } = useGetSinglePropertyQuery(id as string);
-    console.log(response);
     const [createConversation] = useCreateConversationMutation();
     const [sendMessage] = useSendMessageMutation();
 
@@ -36,6 +37,28 @@ export default function PropertyPage2() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const property = response?.data;
+
+    const { data: ratingStats, isLoading: ratingLoading } = useGetPropertyRatingStatsQuery(id as string);
+    const stats = ratingStats?.data;
+    const averageRating = stats?.averageRating || 0;
+    const totalRatings = stats?.totalRatings || 0;
+
+    const { data: hostRatingStats, isLoading: hostRatingLoading } = useGetHostRatingStatsQuery(property?.createdBy?._id || "");
+    const hostStats = hostRatingStats?.data;
+    const hostAverageRating = hostStats?.averageRating || 0;
+    const hostTotalRatings = hostStats?.totalRatings || 0;
+
+    const { data: propertyRatingsData, isLoading: propertyRatingsLoading } = useGetPropertyRatingsQuery({
+        propertyId: id as string,
+        page: 1,
+        limit: 10,
+    });
+
+    // Array of ratings
+    const propertyRatingsArray = propertyRatingsData?.data || [];
+
+    // Average rating calculation
+    // const propertyAverageRating = propertyRatingsArray.length > 0 ? propertyRatingsArray.reduce((sum, r) => sum + r.overallExperience, 0) / propertyRatingsArray.length : 0;
 
     const amenitiesListingIcons: Record<string, number> = {
         wifi: 1,
@@ -303,10 +326,37 @@ export default function PropertyPage2() {
                                 <h2 className="text-xl md:text-[40px] font-bold md:mb-4">{property.title}</h2>
                                 <p className="text-[16px] md:text-2xl font-bold">#{property.propertyNumber}</p>
                             </div>
-                            <div className="flex items-center gap-3 w-56">
-                                <SingleStarRating rating={4} /> {/* Default rating since API might not have */}
+                            {/* <div className="flex items-center gap-3 w-56">
+                                <SingleStarRating rating={4} />
                                 <p className="text-2xl font-bold text-[#C9A94D]">4.0</p>
                                 <p className="text-xl text-[#C9A94D]">(0 reviews)</p>
+                            </div> */}
+                            <div className="flex items-center gap-3 w-56">
+                                {ratingLoading ? (
+                                    <>
+                                        <div className="flex gap-1">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <div key={i} className="h-5 w-5 bg-gray-200 rounded-full animate-pulse" />
+                                            ))}
+                                        </div>
+                                        <div className="h-6 w-10 bg-gray-200 rounded animate-pulse" />
+                                        <div className="h-5 w-14 bg-gray-200 rounded animate-pulse" />
+                                    </>
+                                ) : totalRatings > 0 ? (
+                                    <>
+                                        <SingleStarRating rating={averageRating} />
+                                        <p className="text-2xl font-bold text-[#C9A94D]">{averageRating.toFixed(1)}</p>
+                                        <p className="text-xl text-[#C9A94D]">
+                                            ({totalRatings} {totalRatings === 1 ? "review" : "reviews"})
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <SingleStarRating rating={0} />
+                                        <p className="text-2xl font-bold text-gray-400">–</p>
+                                        <p className="text-xl text-gray-400">(No reviews)</p>
+                                    </>
+                                )}
                             </div>
                         </div>
                         <div className="flex items-center gap-4 mb-7 flex-col md:flex-row">
@@ -396,13 +446,50 @@ export default function PropertyPage2() {
                                                 (e.target as HTMLImageElement).src = "/listing/avatar.jpg";
                                             }}
                                         />
-                                        <div>
+                                        {/* <div>
                                             <p className="text-2xl text-white">{property.createdBy.name || "Host"}</p>
                                             <p className="text-white">{property.createdBy.email}</p>
                                             <div className="flex items-center gap-3">
                                                 <SingleStarRating rating={4} size={20} />
                                                 <p className="text-[14px] font-bold text-[#C9A94D]">4.0</p>
                                                 <p className="text-[13px] text-[#C9A94D]">Host Rating</p>
+                                            </div>
+                                        </div> */}
+                                        <div>
+                                            {/* Host Info */}
+                                            <p className="text-2xl text-white">{property.createdBy.name || "Host"}</p>
+                                            <p className="text-white">{property.createdBy.email}</p>
+
+                                            {/* Host Rating */}
+                                            <div className="flex items-center gap-3 mt-2">
+                                                {hostRatingLoading ? (
+                                                    // Loading skeleton
+                                                    <>
+                                                        <div className="flex gap-1">
+                                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                                <div key={i} className="h-5 w-5 bg-gray-200 rounded-full animate-pulse" />
+                                                            ))}
+                                                        </div>
+                                                        <div className="h-5 w-10 bg-gray-200 rounded animate-pulse" />
+                                                        <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
+                                                    </>
+                                                ) : hostTotalRatings > 0 ? (
+                                                    // Display real rating
+                                                    <>
+                                                        <SingleStarRating rating={hostAverageRating} size={20} />
+                                                        <p className="text-[14px] font-bold text-[#C9A94D]">{hostAverageRating.toFixed(1)}</p>
+                                                        <p className="text-[13px] text-[#C9A94D]">
+                                                            ({hostTotalRatings} {hostTotalRatings === 1 ? "review" : "reviews"})
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    // No ratings
+                                                    <>
+                                                        <SingleStarRating rating={0} size={20} />
+                                                        <p className="text-[14px] font-bold text-gray-400">–</p>
+                                                        <p className="text-[13px] text-gray-400">No Ratings Yet</p>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -424,6 +511,57 @@ export default function PropertyPage2() {
                                 </div>
                             </div>
                         )}
+
+                        <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
+                            <h1 className="text-[32px] text-white mb-4 font-bold">Ratings</h1>
+
+                            {propertyRatingsLoading ? (
+                                <div className="space-y-4">
+                                    {[...Array(3)].map((_, i) => (
+                                        <div key={i} className="flex items-start gap-4 animate-pulse">
+                                            <div className="h-12 w-12 rounded-full bg-gray-400" />
+                                            <div className="flex-1 space-y-1">
+                                                <div className="h-4 w-24 bg-gray-400 rounded" />
+                                                <div className="h-3 w-full bg-gray-400 rounded" />
+                                                <div className="h-3 w-3/4 bg-gray-400 rounded" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : propertyRatingsArray.length === 0 ? (
+                                <p className="text-gray-300">No ratings yet</p>
+                            ) : (
+                                <div className="space-y-6">
+                                    {/* Average rating */}
+
+                                    {/* Individual ratings */}
+                                    {propertyRatingsArray.map((r) => {
+                                        // Type guard to check if userId is an object
+                                        const isUserObject = typeof r.userId === "object" && r.userId !== null;
+                                        const userName = isUserObject ? (r.userId as IUser).name : "Unknown User";
+                                        const userProfileImg = isUserObject ? (r.userId as IUser).profileImg : undefined;
+                                        const userInitial = isUserObject ? (r.userId as IUser).name?.[0] : "U";
+
+                                        return (
+                                            <div key={r._id} className="flex items-start gap-4">
+                                                {/* Profile image or avatar */}
+                                                {userProfileImg ? <img src={userProfileImg} alt={userName} className="h-12 w-12 rounded-full object-cover" /> : <div className="h-12 w-12 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">{userInitial}</div>}
+
+                                                {/* Rating info */}
+                                                <div className="flex-1">
+                                                    <p className="text-white font-semibold">{userName}</p>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <SingleStarRating rating={r.overallExperience} size={16} />
+                                                        <p className="text-sm text-[#C9A94D]">{r.overallExperience.toFixed(1)}</p>
+                                                    </div>
+                                                    <p className="text-gray-300 text-sm">{r.description}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Location section */}
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
@@ -499,9 +637,31 @@ export default function PropertyPage2() {
                             <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
                                 <h1 className="text-[32px] mb-2 font-bold">£{property.price}</h1>
                                 <div className="flex items-center gap-2 mb-6">
-                                    <SingleStarRating rating={4} size={20} />
-                                    <p className="text-sm font-bold text-[#C9A94D]">4.0</p>
-                                    <p className="text-sm text-[#C9A94D]">(0 reviews)</p>
+                                    {ratingLoading ? (
+                                        <>
+                                            <div className="flex gap-1">
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                    <div key={i} className="h-5 w-5 bg-gray-200 rounded-full animate-pulse" />
+                                                ))}
+                                            </div>
+                                            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse" />
+                                            <div className="h-4 w-14 bg-gray-200 rounded animate-pulse" />
+                                        </>
+                                    ) : totalRatings > 0 ? (
+                                        <>
+                                            <SingleStarRating rating={averageRating} size={20} />
+                                            <p className="text-sm font-bold text-[#C9A94D]">{averageRating.toFixed(1)}</p>
+                                            <p className="text-sm text-[#C9A94D]">
+                                                ({totalRatings} {totalRatings === 1 ? "review" : "reviews"})
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <SingleStarRating rating={0} size={20} />
+                                            <p className="text-sm font-bold text-gray-400">–</p>
+                                            <p className="text-sm text-gray-400">(No reviews)</p>
+                                        </>
+                                    )}
                                 </div>
 
                                 <Button onClick={handleBookNow} disabled={isChatLoading} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">

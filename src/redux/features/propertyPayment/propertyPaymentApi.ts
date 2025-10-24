@@ -267,7 +267,66 @@ export const paymentApi = baseApi.injectEndpoints({
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
 
-                    // ✅ always return a valid object
+                    return { data: { success: true } };
+                } catch (err: any) {
+                    return { error: { message: err.message ?? "Unknown error" } };
+                }
+            },
+        }),
+        getHostSingleInvoicePDF: builder.mutation<{ success: boolean }, string>({
+            async queryFn(paymentId, _queryApi, _extraOptions, fetchWithBQ) {
+                try {
+                    const response = await fetchWithBQ({
+                        url: `/property-payment/host/my-payments/invoice/${paymentId}`,
+                        method: "GET",
+                        responseHandler: (r) => r.blob(),
+                    });
+
+                    if ("error" in response) {
+                        return { error: response.error as any };
+                    }
+
+                    const blob = response.data as Blob;
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `invoice-${paymentId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    // Return a simple serializable object
+                    return { data: { success: true } };
+                } catch (err: any) {
+                    return { error: { message: err.message ?? "Unknown error" } };
+                }
+            },
+        }),
+        downloadHostPaymentsPDF: builder.mutation<{ success: boolean }, { fromDate: string; toDate: string }>({
+            async queryFn(body, _queryApi, _extraOptions, fetchWithBQ) {
+                try {
+                    const response = await fetchWithBQ({
+                        url: "/property-payment/host/my-payments/payments-report",
+                        method: "POST",
+                        body,
+                        responseHandler: (r) => r.blob(),
+                    });
+
+                    if ("error" in response) {
+                        return { error: response.error as any };
+                    }
+
+                    const blob = response.data as Blob;
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `payments-report-${body.fromDate}-to-${body.toDate}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
                     return { data: { success: true } };
                 } catch (err: any) {
                     return { error: { message: err.message ?? "Unknown error" } };
@@ -287,6 +346,8 @@ export const {
     useGetPaymentStatisticsQuery,
     // For Host
     useGetHostPaymentsQuery,
+    useGetHostSingleInvoicePDFMutation,
+    useDownloadHostPaymentsPDFMutation,
     // PDF Download
     useDownloadPaymentsPDFMutation,
 } = paymentApi;
