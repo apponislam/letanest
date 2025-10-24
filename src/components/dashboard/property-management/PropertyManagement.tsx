@@ -11,12 +11,23 @@ import Link from "next/link";
 import { useChangePropertyStatusMutation, useGetAllPropertiesForAdminQuery, useGetPublishedPropertiesForAdminQuery } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useCreateConversationMutation } from "@/redux/features/messages/messageApi";
 
 const PropertyManagement = () => {
     const [open, setOpen] = useState(false);
     const [selectedHost, setSelectedHost] = useState<any>(null);
     const [activeTab, setActiveTab] = useState("non-published");
     const router = useRouter();
+    const [createConversation] = useCreateConversationMutation();
+    const createConversion = async (hostId: string) => {
+        try {
+            await createConversation({
+                participants: [hostId!],
+            }).unwrap();
+        } catch (error) {
+            console.log("Error creating conversation:", error);
+        }
+    };
 
     const [filters, setFilters] = useState({
         page: 1,
@@ -459,7 +470,10 @@ const PropertyManagement = () => {
                                         }}
                                     />
                                 </div>
-                                <Image src="/listing/messages-dots.png" alt="Message" height={24} width={24}></Image>
+                                <button onClick={() => createConversion(selectedHost._id)} className="flex items-center gap-2 mt-2 text-white hover:opacity-80 transition-opacity">
+                                    <Image src="/listing/messages-dots.png" alt="Message" height={24} width={24} />
+                                    Message Host
+                                </button>
                             </div>
                             <p className="font-bold text-xl md:text-[28px] text-white text-center">{selectedHost.name}</p>
 
