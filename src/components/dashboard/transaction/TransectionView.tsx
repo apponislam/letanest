@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useDownloadPaymentsPDFMutation, useGetAllPaymentsQuery, useGetPaymentTotalsQuery } from "@/redux/features/propertyPayment/propertyPaymentApi";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ const TransectionView = () => {
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
 
-    const [downloadPaymentsPDF] = useDownloadPaymentsPDFMutation();
+    const [downloadPaymentsPDF, { isLoading: isDownloading }] = useDownloadPaymentsPDFMutation();
 
     const handleDownload = async () => {
         if (!fromDate || !toDate) {
@@ -170,9 +170,18 @@ const TransectionView = () => {
                     </Popover>
 
                     {/* Download Button */}
-                    <Button onClick={handleDownload} disabled={!fromDate || !toDate} className="bg-[#C9A94D] text-white hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
+                    <Button onClick={handleDownload} disabled={!fromDate || !toDate || isDownloading} className="bg-[#C9A94D] text-white hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed">
+                        {isDownloading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Downloading...
+                            </>
+                        ) : (
+                            <>
+                                <Download className="w-4 h-4 mr-2" />
+                                Download
+                            </>
+                        )}
                     </Button>
                 </div>
 

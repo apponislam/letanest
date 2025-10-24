@@ -15,6 +15,7 @@ import { useConnectStripeAccountMutation, useGetStripeAccountStatusQuery } from 
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import ReportHostModal from "./RepostHost";
+import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: number; className?: string }) => {
@@ -298,6 +299,11 @@ export default function MessagesLayout2() {
     // Filter out current user from typing indicators
     const otherUserTyping = typingUsers.filter((userId) => userId !== user?._id);
 
+    const { data: ratingStats } = useGetHostRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
+        skip: !otherParticipant || otherParticipant.role !== "HOST",
+    });
+    console.log(ratingStats);
+
     // Helper function to get unread count
     const getUnreadCount = (conversation: any) => {
         return conversation.unreadCount || 0;
@@ -362,6 +368,20 @@ export default function MessagesLayout2() {
             </div>
         );
     }
+
+    const getDisplayName = (name: string, role: string) => {
+        if (!name) return "Unknown User";
+
+        const parts = name.trim().split(" ");
+
+        if (role === "HOST") {
+            if (parts.length === 1) return parts[0];
+            if (parts.length === 2) return parts[0];
+            if (parts.length >= 3) return parts.slice(0, 2).join(" ");
+        }
+
+        return name;
+    };
 
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
@@ -468,13 +488,20 @@ export default function MessagesLayout2() {
                                     <Avatar name={otherParticipant?.name || "Unknown User"} size={64} />
                                 )}
                                 <div className="flex-1 text-[#14213D]">
-                                    <h1 className="text-xl font-bold">{otherParticipant?.name || "Unknown User"}</h1>
+                                    {/* <h1 className="text-xl font-bold">{otherParticipant?.name || "Unknown User"}</h1> */}
+                                    <h1 className="text-xl font-bold"> {getDisplayName(otherParticipant?.name, otherParticipant?.role)}</h1>
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant.role}</p>
-                                        <div className="flex items-center gap-2">
+                                        {/* <div className="flex items-center gap-2">
                                             <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
                                             <p>4.5</p>
-                                        </div>
+                                        </div> */}
+                                        {otherParticipant?.role === "HOST" && (
+                                            <div className="flex items-center gap-2">
+                                                <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
+                                                <p>{ratingStats?.data?.averageRating?.toFixed(1) || "0.0"}</p>
+                                            </div>
+                                        )}
                                         {otherParticipant.role === "HOST" && (
                                             <button className="bg-[#C9A94D] px-2 text-white rounded-[10px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
                                                 Report Host

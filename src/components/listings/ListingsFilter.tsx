@@ -10,7 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import CustomDateInput from "@/utils/CustomDateInput";
 import PropertyCard2 from "../PropertyCard2";
 import { Input } from "../ui/input";
-import { useGetAllPropertiesQuery } from "@/redux/features/property/propertyApi";
+import { useGetAllPropertiesQuery, useGetMaxRoundedPriceQuery } from "@/redux/features/property/propertyApi";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access", "Disability Access", "Disability Parking"];
@@ -22,6 +22,21 @@ export default function ListingsFilter() {
 
     const locationOptions = ["New York", "London", "Paris"];
     const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
+
+    const { data: maxPriceData } = useGetMaxRoundedPriceQuery();
+    console.log(maxPriceData);
+
+    // Get dynamic max price from API or use fallback
+    const dynamicMaxPrice = maxPriceData?.data?.maxRoundedPrice || 3000;
+    useEffect(() => {
+        if (maxPriceData?.data?.maxRoundedPrice) {
+            setFilters((prev) => ({
+                ...prev,
+                maxPrice: maxPriceData.data.maxRoundedPrice,
+            }));
+            setPriceRange([priceRange[0], maxPriceData.data.maxRoundedPrice]); // ADD THIS LINE
+        }
+    }, [maxPriceData?.data?.maxRoundedPrice]);
 
     // Get initial values from URL params
     const getInitialCheckIn = () => {
@@ -39,22 +54,29 @@ export default function ListingsFilter() {
         return amenitiesParam ? decodeURIComponent(amenitiesParam).split(",") : [];
     };
 
+    const getInitialPropertyTypes = () => {
+        const propertyTypesParam = searchParams.get("propertyTypes");
+        return propertyTypesParam ? decodeURIComponent(propertyTypesParam).split(",") : [];
+    };
+
     const getInitialPriceRange = (): [number, number] => {
         const minPrice = searchParams.get("minPrice");
         const maxPrice = searchParams.get("maxPrice");
-        return [minPrice ? parseInt(minPrice) : 0, maxPrice ? parseInt(maxPrice) : 3000];
+        return [minPrice ? parseInt(minPrice) : 0, maxPrice ? parseInt(maxPrice) : dynamicMaxPrice];
     };
 
     const [checkIn, setCheckIn] = useState<Date | null>(getInitialCheckIn());
     const [checkOut, setCheckOut] = useState<Date | null>(getInitialCheckOut());
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>(getInitialAmenities());
+    const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>(getInitialPropertyTypes());
     const [selectedRating, setSelectedRating] = useState<string | null>(searchParams.get("rating"));
     const [priceRange, setPriceRange] = useState<[number, number]>(getInitialPriceRange());
     const [selectedLocation, setSelectedLocation] = useState<string | null>(searchParams.get("location"));
     const min = 0;
-    const max = 3000;
+    const max = dynamicMaxPrice;
 
     console.log("Selected Amenities:", selectedAmenities);
+    console.log("Selected Property Types:", selectedPropertyTypes);
 
     const [filters, setFilters] = useState({
         page: parseInt(searchParams.get("page") || "1"),
@@ -63,10 +85,10 @@ export default function ListingsFilter() {
         status: "published",
         minPrice: getInitialPriceRange()[0],
         maxPrice: getInitialPriceRange()[1],
-        propertyType: searchParams.get("propertyType") || "",
+        propertyTypes: getInitialPropertyTypes(),
         guests: parseInt(searchParams.get("guests") || "1"),
         bedrooms: parseInt(searchParams.get("bedrooms") || "1"),
-        amenities: getInitialAmenities(), // Include amenities in filters
+        amenities: getInitialAmenities(),
     });
 
     const { data, isLoading, error } = useGetAllPropertiesQuery(filters);
@@ -77,14 +99,39 @@ export default function ListingsFilter() {
     console.log("API Response:", data);
 
     // Update URL when filters change
+    // useEffect(() => {
+    //     const params = new URLSearchParams();
+
+    //     if (filters.search) params.set("search", filters.search);
+    //     if (filters.page > 1) params.set("page", filters.page.toString());
+    //     if (filters.minPrice > 0) params.set("minPrice", filters.minPrice.toString());
+    //     if (filters.maxPrice < dynamicMaxPrice) params.set("maxPrice", filters.maxPrice.toString());
+    //     if (filters.propertyTypes.length > 0) params.set("propertyTypes", filters.propertyTypes.join(","));
+    //     if (filters.guests > 1) params.set("guests", filters.guests.toString());
+    //     if (filters.bedrooms > 1) params.set("bedrooms", filters.bedrooms.toString());
+    //     if (checkIn) params.set("checkIn", checkIn.toISOString().split("T")[0]);
+    //     if (checkOut) params.set("checkOut", checkOut.toISOString().split("T")[0]);
+    //     if (selectedAmenities.length > 0) params.set("amenities", selectedAmenities.join(","));
+    //     if (selectedRating) params.set("rating", selectedRating);
+    //     if (selectedLocation) params.set("location", selectedLocation);
+
+    //     const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+    //     router.replace(newUrl, { scroll: false });
+    // }, [filters, checkIn, checkOut, selectedAmenities, selectedRating, selectedLocation, router, dynamicMaxPrice]);
+
     useEffect(() => {
         const params = new URLSearchParams();
 
         if (filters.search) params.set("search", filters.search);
         if (filters.page > 1) params.set("page", filters.page.toString());
         if (filters.minPrice > 0) params.set("minPrice", filters.minPrice.toString());
-        if (filters.maxPrice < 3000) params.set("maxPrice", filters.maxPrice.toString());
-        if (filters.propertyType) params.set("propertyType", filters.propertyType);
+
+        // Only set maxPrice if user has actively changed it from the API max
+        if (filters.maxPrice < dynamicMaxPrice) {
+            params.set("maxPrice", filters.maxPrice.toString());
+        }
+
+        if (filters.propertyTypes.length > 0) params.set("propertyTypes", filters.propertyTypes.join(","));
         if (filters.guests > 1) params.set("guests", filters.guests.toString());
         if (filters.bedrooms > 1) params.set("bedrooms", filters.bedrooms.toString());
         if (checkIn) params.set("checkIn", checkIn.toISOString().split("T")[0]);
@@ -95,7 +142,7 @@ export default function ListingsFilter() {
 
         const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
         router.replace(newUrl, { scroll: false });
-    }, [filters, checkIn, checkOut, selectedAmenities, selectedRating, selectedLocation, router]);
+    }, [filters, checkIn, checkOut, selectedAmenities, selectedRating, selectedLocation, router, dynamicMaxPrice]);
 
     const valueToPercent = (val: number) => {
         const percent = ((val - min) / (max - min)) * 100;
@@ -106,10 +153,21 @@ export default function ListingsFilter() {
         const newAmenities = selectedAmenities.includes(amenity) ? selectedAmenities.filter((a) => a !== amenity) : [...selectedAmenities, amenity];
 
         setSelectedAmenities(newAmenities);
-        // Update filters with new amenities
         setFilters((prev) => ({
             ...prev,
             amenities: newAmenities,
+            page: 1,
+        }));
+    };
+
+    // Handle property type change (multiple selection)
+    const handlePropertyTypeChange = (type: string) => {
+        const newPropertyTypes = selectedPropertyTypes.includes(type) ? selectedPropertyTypes.filter((t) => t !== type) : [...selectedPropertyTypes, type];
+
+        setSelectedPropertyTypes(newPropertyTypes);
+        setFilters((prev) => ({
+            ...prev,
+            propertyTypes: newPropertyTypes,
             page: 1,
         }));
     };
@@ -134,12 +192,6 @@ export default function ListingsFilter() {
     // Handle search
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilters((prev) => ({ ...prev, search: e.target.value, page: 1 }));
-    };
-
-    // Handle property type filter
-    const handlePropertyTypeChange = (type: string) => {
-        const newType = filters.propertyType === type ? "" : type;
-        setFilters((prev) => ({ ...prev, propertyType: newType, page: 1 }));
     };
 
     // Handle guest count change
@@ -237,7 +289,7 @@ export default function ListingsFilter() {
                                         </span>
                                     </div>
 
-                                    <SliderPrimitive.Root className="relative flex items-center select-none touch-none w-full h-2" value={priceRange} min={0} max={3000} step={10} onValueChange={handlePriceChange}>
+                                    <SliderPrimitive.Root className="relative flex items-center select-none touch-none w-full h-2" value={priceRange} min={0} max={dynamicMaxPrice} step={10} onValueChange={handlePriceChange}>
                                         <SliderPrimitive.Track className="bg-white relative flex-1 rounded-full h-2">
                                             <SliderPrimitive.Range className="absolute bg-[#C9A94D] rounded-full h-2" />
                                         </SliderPrimitive.Track>
@@ -283,10 +335,9 @@ export default function ListingsFilter() {
                     <div className="md:w-3/4 p-2 md:p-5">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                             {/* Check In */}
-
                             <div>
-                                <label className="block text-[#C9A94D] font-medium mb-2  transition-colors duration-200">Check In</label>
-                                <DatePicker selected={checkIn} wrapperClassName="w-full" onChange={handleCheckInChange} placeholderText="Select date" customInput={<CustomDateInput label="Check In" />} calendarClassName="border border-[#C9A94D] rounded-lg  transition-colors duration-200" />
+                                <label className="block text-[#C9A94D] font-medium mb-2 transition-colors duration-200">Check In</label>
+                                <DatePicker selected={checkIn} wrapperClassName="w-full" onChange={handleCheckInChange} placeholderText="Select date" customInput={<CustomDateInput label="Check In" />} calendarClassName="border border-[#C9A94D] rounded-lg transition-colors duration-200" />
                             </div>
 
                             {/* Check Out */}
@@ -340,29 +391,30 @@ export default function ListingsFilter() {
                                 />
                             </div>
 
-                            {/* Property Type */}
+                            {/* Property Type - Multiple Selection */}
                             <div>
                                 <label className="block text-[#C9A94D] font-medium mb-2">Property Type</label>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
                                             <Home className="w-4 h-4" />
-                                            {filters.propertyType || "Property Type"}
+                                            {selectedPropertyTypes.length === 0 ? "Property Type" : selectedPropertyTypes.length === 1 ? selectedPropertyTypes[0] : `${selectedPropertyTypes.length} Selected`}
                                             <ChevronDown className="w-4 h-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
                                         {propertyTypeOptions.map((option, i) => (
-                                            <DropdownMenuItem className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer" key={i} onClick={() => handlePropertyTypeChange(option)}>
-                                                {option}
-                                            </DropdownMenuItem>
+                                            <label key={i} className="flex rounded-[6px] items-center gap-2 p-2 border-b border-[#C9A94D] last:border-b-0 cursor-pointer hover:bg-gray-100">
+                                                <input type="checkbox" checked={selectedPropertyTypes.includes(option)} onChange={() => handlePropertyTypeChange(option)} className="hidden" />
+                                                <div className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${selectedPropertyTypes.includes(option) ? "" : "bg-transparent"}`}>{selectedPropertyTypes.includes(option) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}</div>
+                                                <span>{option}</span>
+                                            </label>
                                         ))}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
                         </div>
                         <div>
-                            {/* <h1 className="text-[30px] text-[#C9A94D] font-bold mb-6">List of Properties {meta?.total && `(${meta.total} found)`}</h1> */}
                             <h1 className="text-[30px] text-[#C9A94D] font-bold mb-6">List of Properties</h1>
 
                             {isLoading ? (
