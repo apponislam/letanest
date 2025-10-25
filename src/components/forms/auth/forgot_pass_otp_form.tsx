@@ -52,8 +52,8 @@ const OtpForm = () => {
         }
     };
 
-    const [verifyOtp] = useVerifyOtpMutation();
-    const [resendResetOtp] = useResendResetOtpMutation();
+    const [verifyOtp, { isLoading: isVerifying }] = useVerifyOtpMutation();
+    const [resendResetOtp, { isLoading: isResending }] = useResendResetOtpMutation();
 
     const handleSubmit = async () => {
         const enteredOtp = otp.join(""); // join 6 digits
@@ -82,6 +82,23 @@ const OtpForm = () => {
             toast.success("OTP resent to your email", { id: loadingToast });
         } catch (err: any) {
             toast.error(err?.data?.message || "Failed to resend OTP", { id: loadingToast });
+        }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData("text");
+        const pastedOtp = pastedData.replace(/\D/g, "").slice(0, 6); // Only take numbers and limit to 6 digits
+
+        if (pastedOtp.length === 6) {
+            const newOtp = pastedOtp.split("");
+            setOtp(newOtp);
+            clearErrors("otp");
+
+            // Focus on the last input after paste
+            setTimeout(() => {
+                inputsRef.current[5]?.focus();
+            }, 0);
         }
     };
 
@@ -121,6 +138,7 @@ const OtpForm = () => {
                                     }}
                                     onChange={(e) => handleChange(index, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(index, e)}
+                                    onPaste={index === 0 ? handlePaste : undefined}
                                     className="w-14 h-14 text-center border-2 border-[#C9A94D] rounded-[10px] bg-white text-[#D4BA71] placeholder:text-[#D4BA71] focus:outline-none text-xl"
                                 />
                             ))}
@@ -128,14 +146,14 @@ const OtpForm = () => {
 
                         {errors.otp && <p className="text-red-500 text-sm mt-1 text-center">{errors.otp.message}</p>}
 
-                        <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors">
-                            Verify Email
+                        <button type="submit" disabled={isVerifying} className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            {isVerifying ? "Verifying..." : "Verify Email"}
                         </button>
 
                         <p className="text-center text-[#C9A94D] mt-4">
                             Don’t receive any code?{" "}
-                            <button type="button" onClick={handleResend} className="font-semibold">
-                                RESEND
+                            <button type="button" onClick={handleResend} disabled={isResending} className="font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                                {isResending ? "Sending..." : "RESEND"}
                             </button>
                         </p>
                     </form>

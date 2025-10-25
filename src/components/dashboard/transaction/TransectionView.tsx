@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Download } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import StripeAccountManager from "../payments/StripeAccountManager";
 
 const TransectionView = () => {
     const { data: transectionData, error, isLoading } = useGetAllPaymentsQuery({});
@@ -64,9 +65,12 @@ const TransectionView = () => {
             <PageHeader title={"Transactions"}></PageHeader>
 
             {/* Welcome Text */}
-            <div className="text-[#C9A94D] mb-8">
-                <h1 className="font-bold text-[30px] mb-4">Transactions</h1>
-                <p>Here's the latest transaction data for your account.</p>
+            <div className="flex items-center justify-between gap-4 mb-8 flex-col md:flex-row">
+                <div className="text-[#C9A94D] ">
+                    <h1 className="font-bold text-[30px] mb-4">Transactions</h1>
+                    <p>Here's the latest transaction data for your account.</p>
+                </div>
+                <StripeAccountManager></StripeAccountManager>
             </div>
 
             <div className="bg-[#2D3546] p-5 rounded-[4px] mb-4">
@@ -142,7 +146,7 @@ const TransectionView = () => {
                 </div>
 
                 {/* All 3 items in one line */}
-                <div className="flex items-center gap-3 justify-end mt-4">
+                <div className="flex items-center gap-3 justify-end mt-4 flex-wrap">
                     {/* From Date Popover */}
                     <Popover>
                         <PopoverTrigger asChild>
