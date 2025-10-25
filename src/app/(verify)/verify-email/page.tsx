@@ -100,9 +100,14 @@ const VerifyEmailPage = () => {
                         {/* Action Buttons */}
                         <div className="space-y-4">
                             {(status === "success" || status === "already_verified") && (
-                                <Link href="/auth/login" className="w-full bg-[#C9A94D] text-white py-3 px-6 rounded-lg hover:bg-[#b8973e] transition-colors font-medium block text-center">
-                                    Continue to Login
-                                </Link>
+                                <div className="space-y-3">
+                                    <Link href="/auth/login" className="w-full bg-[#C9A94D] text-white py-3 px-6 rounded-lg hover:bg-[#b8973e] transition-colors font-medium block text-center shadow-md hover:shadow-lg">
+                                        Continue to Login
+                                    </Link>
+                                    <Link href="/" className="w-full bg-transparent border-2 border-[#C9A94D] text-[#C9A94D] py-3 px-6 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-colors font-medium block text-center">
+                                        Back to Home
+                                    </Link>
+                                </div>
                             )}
 
                             {status === "error" && (

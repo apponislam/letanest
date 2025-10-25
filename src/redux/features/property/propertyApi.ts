@@ -8,6 +8,7 @@ interface GetPropertiesQuery {
     status?: string;
     createdBy?: string;
     propertyType?: string;
+    type?: "featured" | "trending";
 }
 
 interface GetPropertiesResponse {
@@ -204,6 +205,21 @@ export const propertyApi = baseApi.injectEndpoints({
                 method: "GET",
             }),
         }),
+        togglePropertyFeatured: build.mutation<IProperty, string>({
+            query: (id) => ({
+                url: `/property/${id}/toggle-featured`,
+                method: "PATCH",
+            }),
+            invalidatesTags: ["Properties"],
+        }),
+
+        togglePropertyTrending: build.mutation<IProperty, string>({
+            query: (id) => ({
+                url: `/property/${id}/toggle-trending`,
+                method: "PATCH",
+            }),
+            invalidatesTags: ["Properties"],
+        }),
     }),
 });
 
@@ -223,4 +239,8 @@ export const {
 
     // max price
     useGetMaxRoundedPriceQuery,
+
+    // Toggles
+    useTogglePropertyFeaturedMutation,
+    useTogglePropertyTrendingMutation,
 } = propertyApi;
