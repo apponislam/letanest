@@ -1,4 +1,3 @@
-// paymentMethod.api.ts
 import { baseApi } from "@/redux/api/baseApi";
 
 export interface IPaymentMethod {
