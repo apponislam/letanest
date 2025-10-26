@@ -1,5 +1,5 @@
 import { roles } from "@/redux/features/auth/authSlice";
-import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck, Flag } from "lucide-react";
+import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck, Flag, Bookmark } from "lucide-react";
 
 export const menuItems = {
     [roles.ADMIN]: [
@@ -23,11 +23,13 @@ export const menuItems = {
         { title: "Memberships", url: "/dashboard/memberships", icon: Users },
         { title: "Property Listing", url: "/dashboard/property-listing", icon: Home },
         { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
+        { title: "Saved Cards", url: "/dashboard/payment-methods", icon: Bookmark },
     ],
     [roles.GUEST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Messages", url: "/messages", icon: MessageSquare },
         { title: "Contact Letanest", url: "/contact", icon: Mail },
         { title: "Memberships", url: "/dashboard/memberships", icon: Users },
+        { title: "Saved Cards", url: "/dashboard/payment-methods", icon: Bookmark },
     ],
 };

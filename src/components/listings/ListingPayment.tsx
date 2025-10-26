@@ -236,65 +236,7 @@ const ListingPayment = () => {
                                 </p>
                             </div>
                         </div>
-                        {/* {selected && (
-                            <div className="flex items-center gap-4 flex-col md:flex-row">
-                                <div className="max-w-[540px] w-full bg-[#2D3546] mb-6 p-5 mx-auto">
-                                    {hasCards && !showAddForm ? (
-                                        <div className="space-y-4">
-                                            <div className="space-y-3">
-                                                {data.data.map((card: any) => (
-                                                    <div key={card._id} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedCardId === card._id ? "border-[#C9A94D] bg-[#C9A94D]/20 border-2" : card.isDefault ? "border-[#C9A94D] bg-[#C9A94D]/10" : "border-[#E6D7AD] hover:border-[#C9A94D]"}`} onClick={() => setSelectedCardId(card._id)}>
-                                                        <div className="flex justify-between items-center">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className="flex items-center">
-                                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedCardId === card._id ? "border-[#C9A94D]" : "border-[#E6D7AD]"}`}>{selectedCardId === card._id && <div className="w-2.5 h-2.5 rounded-full bg-[#C9A94D]"></div>}</div>
-                                                                </div>
 
-                                                                <div className="w-10 h-7 bg-white rounded flex items-center justify-center">
-                                                                    {card.brand.toLowerCase() === "visa" && <span className="text-blue-600 font-bold text-xs">VISA</span>}
-                                                                    {card.brand.toLowerCase() === "mastercard" && <span className="text-red-600 font-bold text-xs">MC</span>}
-                                                                    {!["visa", "mastercard"].includes(card.brand.toLowerCase()) && <span className="text-gray-600 font-bold text-xs">{card.brand}</span>}
-                                                                </div>
-                                                                <div>
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <span className="text-[#E6D7AD] font-medium">
-                                                                            {card.brand} •••• {card.last4}
-                                                                        </span>
-                                                                        {card.isDefault && <span className="bg-[#C9A94D] text-white text-xs px-2 py-1 rounded">Default</span>}
-                                                                    </div>
-                                                                    <p className="text-[#E6D7AD] text-sm">
-                                                                        Expires: {card.exp_month.toString().padStart(2, "0")}/{card.exp_year}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            <div className="flex gap-3">
-                                                <button onClick={() => setShowAddForm(true)} className="flex-1 bg-transparent border border-[#C9A94D] text-[#C9A94D] py-2 px-4 rounded-lg hover:bg-[#C9A94D] hover:text-white transition-all font-medium">
-                                                    Add New Card
-                                                </button>
-                                                <button onClick={handleCheckout} disabled={!selectedCardId || isLoading} className="flex-1 bg-[#C9A94D] text-white py-2 px-4 rounded-lg hover:bg-[#af8d28] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-                                                    {isLoading ? "Processing..." : "Check Out"}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <PaymentMethodForm
-                                                onSuccess={() => {
-                                                    setShowAddForm(false);
-                                                }}
-                                                onCancel={hasCards ? () => setShowAddForm(false) : undefined}
-                                                showCheckout={!hasCards && !showAddForm}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )} */}
                         {selected && (
                             <div className="flex items-center gap-4 flex-col md:flex-row">
                                 <div className="max-w-[540px] w-full bg-[#2D3546] mb-6 p-5 mx-auto">

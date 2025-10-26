@@ -1,4 +1,5 @@
 "use client";
+// import EditTermsCondition from "@/components/dashboard/terms-conditions/EditTerms&Condition2";
 import EditTermsCondition from "@/components/dashboard/terms-conditions/EditTerms&Condition";
 import EditTermsConditionForHost from "@/components/dashboard/terms-conditions/EditTerms&ConditionForHost";
 import { currentUser } from "@/redux/features/auth/authSlice";
@@ -13,7 +14,7 @@ const Page = () => {
     } else if (user?.role === "HOST") {
         return <EditTermsConditionForHost />;
     } else {
-        return <EditTermsCondition />;
+        return null;
     }
 };
 
