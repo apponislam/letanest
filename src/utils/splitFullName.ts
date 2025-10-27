@@ -1,17 +1,16 @@
-export function splitFullName(fullName?: string) {
-    const name = fullName?.trim() || "";
-    let firstName = "N/A";
-    let lastName = "N/A";
+export const splitFullName = (fullName: string) => {
+    if (!fullName) return { firstName: "", lastName: "" };
 
-    if (name) {
-        const parts = name.split(" ").filter(Boolean);
-        if (parts.length === 1) {
-            firstName = parts[0];
-        } else if (parts.length > 1) {
-            lastName = parts[parts.length - 1];
-            firstName = parts.slice(0, parts.length - 1).join(" ");
-        }
-    }
+    const parts = fullName.trim().split(" ");
 
-    return { firstName, lastName };
-}
+    // If name contains "N/A", remove it
+    const filteredParts = parts.filter((part) => part !== "N/A" && part !== "undefined");
+
+    if (filteredParts.length === 0) return { firstName: "", lastName: "" };
+    if (filteredParts.length === 1) return { firstName: filteredParts[0], lastName: "" };
+
+    return {
+        firstName: filteredParts[0],
+        lastName: filteredParts.slice(1).join(" "),
+    };
+};

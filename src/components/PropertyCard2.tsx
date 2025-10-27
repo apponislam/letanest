@@ -12,24 +12,17 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property, status = "For rent" }: PropertyCardProps) {
-    const { _id, title, location, price, coverPhoto, propertyType, maxGuests, bedrooms, bathrooms } = property;
+    const { _id, title, location, price, coverPhoto, propertyType, maxGuests, bedrooms, bathrooms, amenities } = property;
+    console.log(property);
 
     const { data: ratingStats, isLoading } = useGetPropertyRatingStatsQuery(_id);
-
-    const stats = ratingStats?.data;
-    // const averageRating = stats?.averageRating || 0;
-    // const totalRatings = stats?.totalRatings || 0;
 
     // Fix image URL handling
     const getImageUrl = () => {
         if (!coverPhoto) return "/proparties/default.png";
-
-        // If coverPhoto is already a full URL, use it directly
         if (coverPhoto.startsWith("http")) {
             return coverPhoto;
         }
-
-        // If it's a relative path, prepend the base API URL
         return `${process.env.NEXT_PUBLIC_BASE_API || ""}${coverPhoto}`;
     };
 
@@ -48,25 +41,10 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                         (e.target as HTMLImageElement).src = "/proparties/default.png";
                     }}
                 />
-                <span className="absolute top-3 left-3 bg-[#C9A94D] text-white text-sm font-medium px-3 py-1 rounded-[6px]">{status}</span>
+                {property.createdBy.verificationStatus === "approved" && <span className="absolute top-3 left-3 bg-[#C9A94D] text-white text-sm font-medium px-6 py-2 rounded-[6px]">{status}</span>}
             </div>
 
             <CardContent className="bg-[#FAF6ED] p-5">
-                {/* Rating - Removed since your API might not have rating/reviews */}
-                {/* <div className="flex items-center mb-2 gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                                i < 4 // Default 4 stars since rating might not be in API
-                                    ? "fill-[#C9A94D] text-[#C9A94D]"
-                                    : "text-gray-300"
-                            }`}
-                        />
-                    ))}
-                    <span className="ml-2 text-sm font-medium">4.0</span>
-                    <span className="ml-1 text-xs text-gray-500">(0 reviews)</span>
-                </div> */}
                 {isLoading ? (
                     <div className="flex items-center mb-2 gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -79,15 +57,15 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                         {Array.from({ length: 5 }).map((_, i) => (
                             <Star key={i} className={`h-4 w-4 ${i < Math.round(ratingStats.data.averageRating) ? "fill-[#C9A94D] text-[#C9A94D]" : "text-gray-300"}`} />
                         ))}
-                        <span className="ml-2 text-sm font-medium">{ratingStats.data.averageRating.toFixed(1)}</span>
-                        <span className="ml-1 text-xs text-gray-500">({ratingStats.data.totalRatings} reviews)</span>
+                        <span className="ml-2 text-sm font-medium text-[#C9A94D]">{ratingStats.data.averageRating.toFixed(1)}</span>
+                        <span className="ml-1 text-xs text-[#C9A94D]">({ratingStats.data.totalRatings} reviews)</span>
                     </div>
                 ) : (
                     <div className="flex items-center mb-2 gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className="h-4 w-4 text-gray-300" />
+                            <Star key={i} className="h-4 w-4 text-[#C9A94D]" />
                         ))}
-                        <span className="ml-2 text-sm text-gray-500">No reviews yet</span>
+                        <span className="ml-2 text-sm text-[#C9A94D]">No reviews yet</span>
                     </div>
                 )}
 
@@ -96,30 +74,45 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                 <p className="text-sm text-[#C9A94D] font-medium mt-1">{propertyType}</p>
 
                 {/* Icons */}
-                <div className="flex gap-8 my-4 text-[#C9A94D] text-sm">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <Image src="/proparties/bed.png" alt="Bedrooms" width={20} height={20} />
-                            <span>{bedrooms || 1} </span>
-                        </div>
-                        <p>Bedrooms</p>
+                <div className="flex items-center gap-3 my-4 text-[#C9A94D] text-sm">
+                    {/* Max Guests */}
+                    <div className="flex items-center gap-2">
+                        <Image src="/listing/cardicon/1.svg" alt="Max Guests" width={20} height={20} />
+                        <span>{maxGuests || 1}</span>
                     </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <Image src="/proparties/bathroom.png" alt="Bathrooms" width={20} height={20} />
-                            <span>{bathrooms || 1}</span>
-                        </div>
-                        <p>Bathrooms</p>
+
+                    {/* Separator */}
+                    <span className="text-[#C9A94D]">|</span>
+
+                    {/* Bedrooms */}
+                    <div className="flex items-center gap-2">
+                        <Image src="/listing/cardicon/5.svg" alt="Bedrooms" width={20} height={20} />
+                        <span>{bedrooms || 1}</span>
                     </div>
+
+                    {/* Separator */}
+                    <span className="text-[#C9A94D]">|</span>
+
+                    {/* Bathrooms */}
+                    <div className="flex items-center gap-2">
+                        <Image src="/listing/cardicon/4.svg" alt="Bathrooms" width={20} height={20} />
+                        <span>{bathrooms || 1}</span>
+                    </div>
+
+                    {/* Separator */}
+                    <span className="text-[#C9A94D]">|</span>
+
+                    {/* Pet Friendly */}
+                    <div className="flex items-center gap-2">{amenities?.includes("Pet Friendly") ? <Image src="/listing/cardicon/2.svg" alt="Pet Allowed" width={20} height={20} /> : <Image src="/listing/cardicon/3.svg" alt="No Pets" width={20} height={20} />}</div>
                 </div>
 
                 {/* Price + Button */}
                 <div className="flex items-center justify-between">
                     <p className="text-base font-semibold text-[#14213D]">
-                        Starting From <span className="text-black">£{price?.toLocaleString() || "0"}</span>
+                        From <span className="text-black">£{price?.toLocaleString() || "0"}</span>/night
                     </p>
                     <Link href={`/listings/${_id}`}>
-                        <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px] cursor-pointer">Details</Button>
+                        <Button className="bg-[#C9A94D] hover:bg-[#af8d28] text-white px-8 py-2 rounded-[6px] cursor-pointer">View Nest</Button>
                     </Link>
                 </div>
             </CardContent>

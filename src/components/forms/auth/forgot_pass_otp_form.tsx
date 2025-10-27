@@ -151,7 +151,7 @@ const OtpForm = () => {
                         </button>
 
                         <p className="text-center text-[#C9A94D] mt-4">
-                            Don’t receive any code?{" "}
+                            Did not receive a code
                             <button type="button" onClick={handleResend} disabled={isResending} className="font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isResending ? "Sending..." : "RESEND"}
                             </button>

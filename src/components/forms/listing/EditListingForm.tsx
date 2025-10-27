@@ -23,7 +23,7 @@ import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAcco
 // Step 1 schema
 const step1Schema = z.object({
     title: z.string().min(2, { message: "Property title is required" }),
-    description: z.string().min(10, { message: "Description must be at least 10 characters" }),
+    description: z.string().min(30, { message: "Description must be at least 30 characters" }),
     location: z.string().min(2, { message: "Location is required" }),
     postCode: z.string().min(2, { message: "Post code is required" }),
     propertyType: z.string().min(1, { message: "Please select a property type" }),

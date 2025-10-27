@@ -13,10 +13,8 @@ const HomeFilterForm = () => {
     const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
     const locationOptions = ["London", "New York", "Paris", "Tokyo", "Sydney"];
     const { data: maxPriceData } = useGetMaxRoundedPriceQuery();
-    // console.log(maxPriceData);
 
     const [filters, setFilters] = useState({
-        // propertyType: "",
         propertyTypes: [] as string[],
         location: "",
         bedrooms: 1,
@@ -50,16 +48,10 @@ const HomeFilterForm = () => {
     };
 
     // Handle property type change
-    // const handlePropertyTypeChange = (type: string) => {
-    //     setFilters((prev) => ({ ...prev, propertyType: type }));
-    // };
-
     const handlePropertyTypeChange = (type: string) => {
         setFilters((prev) => ({
             ...prev,
-            propertyTypes: prev.propertyTypes.includes(type)
-                ? prev.propertyTypes.filter((t) => t !== type) // Remove if exists
-                : [...prev.propertyTypes, type], // Add if not exists
+            propertyTypes: prev.propertyTypes.includes(type) ? prev.propertyTypes.filter((t) => t !== type) : [...prev.propertyTypes, type],
         }));
     };
 
@@ -70,11 +62,34 @@ const HomeFilterForm = () => {
 
     // Handle bedrooms change
     const handleBedroomsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseInt(e.target.value) || 1;
-        setFilters((prev) => ({
-            ...prev,
-            bedrooms: Math.max(1, value), // Ensure minimum value is 1
-        }));
+        const value = e.target.value;
+
+        // Allow empty string for clearing the input
+        if (value === "") {
+            setFilters((prev) => ({
+                ...prev,
+                bedrooms: 0, // Set to 0 temporarily to allow typing
+            }));
+            return;
+        }
+
+        const numValue = parseInt(value);
+        if (!isNaN(numValue) && numValue >= 0) {
+            setFilters((prev) => ({
+                ...prev,
+                bedrooms: numValue,
+            }));
+        }
+    };
+
+    // Handle blur to enforce minimum value when user leaves the field
+    const handleBedroomsBlur = () => {
+        if (filters.bedrooms < 1) {
+            setFilters((prev) => ({
+                ...prev,
+                bedrooms: 1, // Set to minimum when field loses focus
+            }));
+        }
     };
 
     // Handle search
@@ -83,7 +98,6 @@ const HomeFilterForm = () => {
 
         if (filters.minPrice > 0) params.set("minPrice", filters.minPrice.toString());
         if (filters.maxPrice < 3000) params.set("maxPrice", filters.maxPrice.toString());
-        // if (filters.propertyType) params.set("propertyType", filters.propertyType);
         if (filters.propertyTypes.length > 0) params.set("propertyType", filters.propertyTypes.join(","));
         if (filters.location) params.set("location", filters.location);
         if (filters.bedrooms > 1) params.set("bedrooms", filters.bedrooms.toString());
@@ -95,25 +109,6 @@ const HomeFilterForm = () => {
     return (
         <div>
             <div className="flex flex-col md:flex-row gap-4 md:w-full mb-10">
-                {/* Property Type Dropdown */}
-                {/* <div className="flex-1">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center justify-between w-full bg-white text-[#14213D] hover:backdrop-blur-md hover:bg-[#C9A94D]/20 hover:text-white border border-[#C9A94D]">
-                                <Home className="w-4 h-4" />
-                                {filters.propertyType || "Property Type"}
-                                <ChevronDown className="w-4 h-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
-                            {propertyTypeOptions.map((option, i) => (
-                                <DropdownMenuItem key={i} className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer text-center" onClick={() => handlePropertyTypeChange(option)}>
-                                    {option}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div> */}
                 <div className="flex-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -123,16 +118,10 @@ const HomeFilterForm = () => {
                                 <ChevronDown className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
+                        <DropdownMenuContent className="w-64 bg-white border border-[#C9A94D] z-50 p-0">
                             {propertyTypeOptions.map((option, i) => (
                                 <label key={i} className="flex rounded-[6px] items-center gap-2 p-2 border-b border-[#C9A94D] last:border-b-0 cursor-pointer hover:bg-gray-100">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.propertyTypes.includes(option)}
-                                        onChange={() => handlePropertyTypeChange(option)}
-                                        className="hidden" // Hide the default checkbox
-                                    />
-                                    {/* Custom checkbox */}
+                                    <input type="checkbox" checked={filters.propertyTypes.includes(option)} onChange={() => handlePropertyTypeChange(option)} className="hidden" />
                                     <div className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${filters.propertyTypes.includes(option) ? "" : "bg-transparent"}`}>{filters.propertyTypes.includes(option) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}</div>
                                     <span>{option}</span>
                                 </label>
@@ -166,8 +155,9 @@ const HomeFilterForm = () => {
                     <div className="relative group">
                         <Input
                             type="number"
-                            value={filters.bedrooms}
+                            value={filters.bedrooms === 0 ? "" : filters.bedrooms} // Show empty when 0
                             onChange={handleBedroomsChange}
+                            onBlur={handleBedroomsBlur} // Add blur handler
                             min={1}
                             className="flex items-center justify-between w-full bg-white text-[#14213D] group-hover:bg-[#C9A94D]/20 group-hover:text-white border border-[#C9A94D] rounded-lg pl-10 pr-4 py-2 h-auto [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] transition-colors duration-200"
                             placeholder="Bedrooms"

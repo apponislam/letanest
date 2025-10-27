@@ -176,7 +176,7 @@ const HomeFooter = () => {
     return (
         <div className="container mx-auto">
             <div className="mx-4 md:mx-0">
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-4 py-6 md:py-10">
+                <div className={`grid gap-4 py-6 md:py-10 ${!user || user?.role !== "GUEST" ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"}`}>
                     <div>
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">LETANEST</h1>
                         <p className="text-[14px] md:text-[18px] text-[#C9A94D]">Your trusted platform for unique accommodations worldwide.</p>
@@ -295,26 +295,28 @@ const HomeFooter = () => {
                     </div>
 
                     {/* Rest of your footer code remains the same */}
-                    <div>
-                        <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">For Hosts</h1>
-                        <ul className="list-disc list-inside text-[#C9A94D] text-[14px] md:text-[18px] space-y-1">
-                            <li>
-                                <Link href="/dashboard/property-management" className="hover:underline">
-                                    List Property
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/dashboard" className="hover:underline">
-                                    Manage Bookings
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/dashboard/memberships" className="hover:underline">
-                                    Subscription Plans
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
+                    {(!user || user?.role !== "GUEST") && (
+                        <div>
+                            <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">For Hosts</h1>
+                            <ul className="list-disc list-inside text-[#C9A94D] text-[14px] md:text-[18px] space-y-1">
+                                <li>
+                                    <Link href="/dashboard/property-management" className="hover:underline">
+                                        List Property
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/dashboard" className="hover:underline">
+                                        Manage Bookings
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/dashboard/memberships" className="hover:underline">
+                                        Subscription Plans
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
 
                     <div>
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">Company</h1>

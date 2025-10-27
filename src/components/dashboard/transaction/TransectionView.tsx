@@ -4,18 +4,29 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useDownloadPaymentsPDFMutation, useGetAllPaymentsQuery, useGetPaymentTotalsQuery } from "@/redux/features/propertyPayment/propertyPaymentApi";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Download } from "lucide-react";
+import { CalendarIcon, Download, Search } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import StripeAccountManager from "../payments/StripeAccountManager";
 
 const TransectionView = () => {
-    const { data: transectionData, error, isLoading } = useGetAllPaymentsQuery({});
-    const { data: totalsData } = useGetPaymentTotalsQuery();
-    console.log(totalsData);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Include search term and pagination in API call
+    const {
+        data: transectionData,
+        error,
+        isLoading,
+    } = useGetAllPaymentsQuery({
+        page: currentPage,
+        search: searchTerm || undefined,
+    });
+
+    const { data: totalsData } = useGetPaymentTotalsQuery();
 
     // Use real API data instead of mock data
     const transactions = transectionData?.data || [];
@@ -56,6 +67,16 @@ const TransectionView = () => {
         }
     };
 
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to first page when searching
+    };
+
+    const clearSearch = () => {
+        setSearchTerm("");
+        setCurrentPage(1);
+    };
+
     if (isLoading) return <div className="text-white text-center py-8">Loading transactions...</div>;
     if (error) return <div className="text-red-500 text-center py-8">Error loading transactions</div>;
 
@@ -74,8 +95,33 @@ const TransectionView = () => {
             </div>
 
             <div className="bg-[#2D3546] p-5 rounded-[4px] mb-4">
+                {/* Table Header with Search */}
+                <div className="flex md:items-center md:justify-between mb-4 gap-3 flex-col md:flex-row">
+                    <h1 className="text-2xl font-bold text-white">Property Payments</h1>
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#C9A94D]" />
+                        <Input type="text" placeholder="Search by Payment ID, Host, or Guest..." value={searchTerm} onChange={handleSearch} className="pl-10 pr-10 bg-transparent border-[#C9A94D] text-white placeholder:text-gray-300 focus:ring-[#C9A94D] focus:border-[#C9A94D]" />
+                        {searchTerm && (
+                            <button onClick={clearSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
+                                ×
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Search Results Info */}
+                {searchTerm && (
+                    <div className="mb-4 text-sm text-gray-300 flex items-center gap-2">
+                        <span>
+                            Showing {meta.total} results for "{searchTerm}"
+                        </span>
+                        <button onClick={clearSearch} className="text-[#C9A94D] hover:underline text-xs">
+                            Clear search
+                        </button>
+                    </div>
+                )}
+
                 {/* Table */}
-                <h1 className="text-2xl font-bold mb-4 text-white">Property Payments</h1>
                 <div className="overflow-x-auto rounded-[4px] border border-[#B6BAC3]">
                     <table className="min-w-full text-white">
                         <thead className="bg-[#14213D] text-white">
@@ -100,7 +146,7 @@ const TransectionView = () => {
                                             <span
                                                 className="cursor-help truncate max-w-[120px] inline-block border-b border-dashed border-gray-400 select-all"
                                                 onDoubleClick={(e) => {
-                                                    const el = e.currentTarget; // ✅ store reference
+                                                    const el = e.currentTarget;
                                                     const originalText = el.textContent;
                                                     navigator.clipboard.writeText(tx.stripePaymentIntentId);
                                                     el.textContent = "Copied!";
@@ -137,7 +183,7 @@ const TransectionView = () => {
                             {displayedTransactions.length === 0 && (
                                 <tr>
                                     <td colSpan={10} className="py-3 px-6 text-center text-gray-300">
-                                        No transactions found
+                                        {searchTerm ? "No transactions found matching your search" : "No transactions found"}
                                     </td>
                                 </tr>
                             )}
@@ -145,12 +191,12 @@ const TransectionView = () => {
                     </table>
                 </div>
 
-                {/* All 3 items in one line */}
+                {/* Calendar and Download Section */}
                 <div className="flex items-center gap-3 justify-end mt-4 flex-wrap">
                     {/* From Date Popover */}
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className={cn(" justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64]", !fromDate && "text-muted-foreground")}>
+                            <Button variant="outline" className={cn("justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64]", !fromDate && "text-muted-foreground")}>
                                 <CalendarIcon className="mr-2 h-4 w-4 text-[#C9A94D]" />
                                 {fromDate ? format(fromDate, "PPP") : "From date"}
                             </Button>
@@ -163,7 +209,7 @@ const TransectionView = () => {
                     {/* To Date Popover */}
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className={cn(" justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64]", !toDate && "text-muted-foreground")}>
+                            <Button variant="outline" className={cn("justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64]", !toDate && "text-muted-foreground")}>
                                 <CalendarIcon className="mr-2 h-4 w-4 text-[#C9A94D]" />
                                 {toDate ? format(toDate, "PPP") : "To date"}
                             </Button>
@@ -193,7 +239,7 @@ const TransectionView = () => {
                 {totalPages > 1 && (
                     <div className="flex justify-end items-center mt-6 gap-2">
                         {/* Left Arrow */}
-                        <button onClick={() => handlePageChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 text-[#C9A94D] disabled:opacity-50">
+                        <button onClick={() => handlePageChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 text-[#C9A94D] disabled:opacity-50 hover:bg-[#C9A94D]/20 rounded">
                             <ChevronLeft className="w-8 h-8" />
                         </button>
 
@@ -217,7 +263,7 @@ const TransectionView = () => {
                         })}
 
                         {/* Right Arrow */}
-                        <button onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2 text-[#C9A94D] disabled:opacity-50">
+                        <button onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2 text-[#C9A94D] disabled:opacity-50 hover:bg-[#C9A94D]/20 rounded">
                             <ChevronRight className="w-8 h-8" />
                         </button>
                     </div>

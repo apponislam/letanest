@@ -4,8 +4,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUser, setRedirectPath } from "@/redux/features/auth/authSlice";
-import { roleRoutes } from "@/config/routeConfig";
-
 interface AuthProviderProps {
     children: ReactNode;
 }
@@ -16,12 +14,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     const user = useSelector(currentUser);
     const dispatch = useDispatch();
 
-    // Track if we are ready to render children
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
         console.log(user);
-        if (user === undefined) return; // wait for redux state
+        if (user === undefined) return;
 
         if (!user) {
             dispatch(setRedirectPath(pathname));
@@ -29,19 +26,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             return;
         }
 
-        // const role = user.role;
-        // console.log(role);
-        // const allowedRoutes = roleRoutes[role] || [];
-        // console.log(allowedRoutes);
-        // if (!allowedRoutes.some((route) => pathname.startsWith(route))) {
-        //     router.replace("/dashboard");
-        //     return;
-        // }
-
-        setReady(true); // user exists and route allowed
+        setReady(true);
     }, [user, pathname, router, dispatch]);
 
-    // don’t render anything until ready
     if (!ready) return null;
 
     return <>{children}</>;
