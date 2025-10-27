@@ -16,7 +16,6 @@ const menuItems = [
     { name: "Home", href: "/" },
     { name: "Listings", href: "/listings" },
     { name: "Dashboard", href: "/dashboard" },
-    // { name: "Login", href: "/auth/login" },
 ];
 
 const Header = () => {

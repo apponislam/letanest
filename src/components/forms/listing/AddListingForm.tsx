@@ -8,15 +8,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import { Home, X } from "lucide-react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { X, Check } from "lucide-react";
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
+import { toast } from "sonner";
+import Link from "next/link";
+import { useGetMyDefaultHostTermsQuery } from "@/redux/features/public/publicApi";
+import TermsSelection from "./TermsSelection";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
+import { useRouter } from "next/navigation";
+import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 
 // Step 1 schema
 const step1Schema = z.object({
     title: z.string().min(2, { message: "Property title is required" }),
-    description: z.string().min(10, { message: "Description must be at least 10 characters" }),
+    description: z.string().min(30, { message: "Description must be at least 30 characters" }),
     location: z.string().min(2, { message: "Location is required" }),
     postCode: z.string().min(2, { message: "Post code is required" }),
     propertyType: z.string().min(1, { message: "Please select a property type" }),
@@ -53,17 +60,38 @@ type Step2Data = z.infer<typeof step2Schema>;
 type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
 
-const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access"];
+const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access", "Disability Access", "Disability Parking"];
 const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
 const AddListingForm: React.FC = () => {
     const [activeTab, setActiveTab] = useState("step1");
     const [step1Data, setStep1Data] = useState<Step1Data | null>(null);
     const [step2Data, setStep2Data] = useState<Step2Data | null>(null);
+    const [step3Data, setStep3Data] = useState<Step3Data | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [photosPreview, setPhotosPreview] = useState<string[]>([]);
     const [showRules, setShowRules] = useState(false);
-    const [currentStep, setCurrentStep] = useState(1);
+    const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+
+    const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
+    const { data: response, isLoading: stripeLoading } = useGetStripeAccountStatusQuery();
+    const accountStatus = response?.data?.status;
+    const { data: myProfile } = useGetMyProfileQuery();
+    const verificationStatus = myProfile?.data?.profile?.verificationStatus;
+    console.log(myProfile);
+
+    const handleConnectStripe = async () => {
+        try {
+            const result = await connectStripeAccount().unwrap();
+            if (result.data?.onboardingUrl) {
+                window.open(result.data.onboardingUrl, "_blank");
+            }
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || "Failed to connect to Stripe. Please try again.";
+            toast.error(errorMessage);
+            console.log("Failed to connect Stripe:", error);
+        }
+    };
 
     const step1Form = useForm<Step1Data>({
         resolver: zodResolver(step1Schema),
@@ -89,19 +117,18 @@ const AddListingForm: React.FC = () => {
 
     const onSubmitStep1 = (data: Step1Data) => {
         setStep1Data(data);
+        setCompletedSteps((prev) => [...prev, "step1"]);
         console.log("Step 1 Data:", data);
         setActiveTab("step2");
     };
 
     const onSubmitStep2 = (data: Step2Data) => {
         setStep2Data(data);
-        console.log("Final Data:", { ...step1Data, ...data });
+        setCompletedSteps((prev) => [...prev, "step2"]);
+        console.log("Step 2 Data:", data);
         setActiveTab("step3");
     };
 
-    // React state for previews
-
-    // useForm
     const step3Form = useForm<Step3Data>({
         resolver: zodResolver(step3Schema),
         defaultValues: {
@@ -110,17 +137,15 @@ const AddListingForm: React.FC = () => {
         },
     });
 
-    // Step 3 submit handler
     const onSubmitStep3 = (data: Step3Data) => {
-        // Merge all step data
+        setStep3Data(data);
+        setCompletedSteps((prev) => [...prev, "step3"]);
         const finalData = {
             ...step1Data,
             ...step2Data,
-            ...data, // step3 data
+            ...data,
         };
-
         console.log("Final combined data:", finalData);
-
         setActiveTab("step4");
     };
 
@@ -129,83 +154,153 @@ const AddListingForm: React.FC = () => {
         defaultValues: { agreeTerms: false },
     });
 
-    // Submit handler
-    const onSubmitStep4 = (data: Step4Data) => {
-        console.log(data);
-        console.log("Final submit data:", {
-            ...step1Data,
-            ...step2Data,
-            coverPhoto: step3Form.getValues("coverPhoto"),
-            photos: step3Form.getValues("photos"),
-        });
+    const [showOptions, setShowOptions] = useState(false);
+    const [selectedTermsId, setSelectedTermsId] = useState<string | null>(null);
+    const [selectedCustomTermsId, setSelectedCustomTermsId] = useState<string | null>(null);
+    const [createProperty, { isLoading, error }] = useCreatePropertyMutation();
+    const { data: defaultTermsResponse, isLoading: termsLoading } = useGetMyDefaultHostTermsQuery();
+
+    const handleUseDefault = () => {
+        console.log("clicked use default");
+        if (defaultTermsResponse?.data?._id) {
+            setSelectedTermsId(defaultTermsResponse.data._id);
+            setSelectedCustomTermsId(null); // Clear custom if default is selected
+            console.log("Using default T&C ID:", defaultTermsResponse.data._id);
+            toast.success("Default terms and conditions applied!");
+        } else {
+            console.log("No T&C ID available");
+            toast.error("No default terms found!");
+        }
+        setShowOptions(false);
     };
 
-    const [verifyAttOpen, setVerifyAttOpen] = useState(false);
-    const [verifyAttFile, setVerifyAttFile] = useState<File | null>(null);
-    const [verifyAttPreview, setVerifyAttPreview] = useState<string | null>(null);
+    const handleRemoveDefault = () => {
+        setSelectedTermsId(null);
+        setShowOptions(false);
+        console.log("Removed default T&C");
+        toast.info("Default terms and conditions removed!");
+    };
 
-    // console.log(verifyAttFile);
+    const handleTermsChange = (termsId: string | null) => {
+        setSelectedCustomTermsId(termsId);
+        setSelectedTermsId(null); // Clear default if custom is selected
+        console.log("Selected Custom Terms ID:", termsId);
+    };
 
-    const handleVerifyAttDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            setVerifyAttFile(file);
-            setVerifyAttPreview(URL.createObjectURL(file));
+    // Get the final selected terms ID (custom has priority over default)
+    const getFinalTermsId = () => {
+        return selectedCustomTermsId || selectedTermsId;
+    };
+
+    const mainuser = useAppSelector(currentUser);
+    const router = useRouter();
+
+    const onSubmitStep4 = async (step4Data: Step4Data) => {
+        if (!step1Data || !step2Data || !step3Data) return;
+
+        setCompletedSteps((prev) => [...prev, "step4"]);
+
+        const coverPhotoFile: File = step3Data.coverPhoto;
+        const photosFiles: File[] = step3Data.photos;
+
+        const formData = new FormData();
+
+        // Append Step1 & Step2 fields
+        Object.entries({
+            ...step1Data,
+            ...step2Data,
+        }).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (value instanceof Date) {
+                    formData.append(key, value.toISOString());
+                } else if (Array.isArray(value)) {
+                    value.forEach((v) => formData.append(key, v.toString()));
+                } else {
+                    formData.append(key, value.toString());
+                }
+            }
+        });
+
+        // Append Step3 files
+        formData.append("coverPhoto", coverPhotoFile);
+        photosFiles.forEach((file) => formData.append("photos", file));
+
+        // Step4 agreement
+        formData.append("agreeTerms", step4Data.agreeTerms.toString());
+        const finalTermsId = getFinalTermsId();
+        if (finalTermsId) {
+            formData.append("termsAndConditions", finalTermsId);
+        }
+
+        try {
+            // Send FormData via RTK Query mutation
+            const result = await createProperty(formData).unwrap();
+            console.log("Property created successfully:", result);
+            // Redirect based on user role
+            if (mainuser?.role === "ADMIN") {
+                router.push("/dashboard/property-management");
+            } else if (mainuser?.role === "HOST") {
+                router.push("/dashboard/property-listing");
+            } else {
+                // Fallback redirect
+                router.push("/dashboard");
+            }
+            toast.success("Property created successfully!");
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Failed to create property");
+            console.error("Error creating property:", err);
         }
     };
 
-    const handleVerifyAttClickUpload = () => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "*/*";
-        input.onchange = () => {
-            const file = input.files?.[0];
-            if (file) {
-                setVerifyAttFile(file);
-                setVerifyAttPreview(URL.createObjectURL(file));
-            }
-        };
-        input.click();
+    // Function to check if a step is completed
+    const isStepCompleted = (step: string) => completedSteps.includes(step);
+
+    // Function to handle tab change with validation
+    const handleTabChange = (tab: string) => {
+        const stepNumber = parseInt(tab.replace("step", ""));
+        const currentStepNumber = parseInt(activeTab.replace("step", ""));
+
+        // Allow going back to previous steps
+        if (stepNumber < currentStepNumber) {
+            setActiveTab(tab);
+            return;
+        }
+
+        // Only allow going to next step if current step is completed
+        if (stepNumber === currentStepNumber + 1 && isStepCompleted(activeTab)) {
+            setActiveTab(tab);
+        }
     };
 
-    const handleVerifyAttRemove = () => {
-        setVerifyAttFile(null);
-        setVerifyAttPreview(null);
-    };
+    // Step indicator component
+    const StepIndicator = ({ step, label }: { step: string; label: string }) => {
+        const isCompleted = isStepCompleted(step);
+        const isActive = activeTab === step;
+        const stepNumber = parseInt(step.replace("step", ""));
 
-    const handleVerifyAttSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        e.stopPropagation(); // stop parent form submit
+        return (
+            <TabsTrigger value={step} className={`flex flex-col items-center justify-center data-[state=active]:bg-transparent relative ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"}`} onClick={() => handleTabChange(step)}>
+                <div className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-200 ${isActive ? "bg-[#C9A94D] text-white" : isCompleted ? "bg-[#C9A94D] text-white" : "bg-[#9399A6] text-[#B6BAC3]"}`}>{isCompleted ? <Check className="w-6 h-6" /> : stepNumber}</div>
+                <p className={`mt-2 text-center transition-colors duration-200 ${isActive ? "text-[#C9A94D] font-semibold" : isCompleted ? "text-[#C9A94D] font-semibold" : "text-[#B6BAC3]"}`}>{label}</p>
 
-        console.log(e);
-
-        if (!verifyAttFile) return;
-
-        console.log("Submitting file:", verifyAttFile);
-
-        // example API call
-        const formData = new FormData();
-        formData.append("attachment", verifyAttFile);
-
-        setVerifyAttOpen(false);
+                {/* Progress line between steps */}
+                {/* {stepNumber < 4 && <div className={`absolute top-6 left-full w-8 h-0.5 -translate-y-1/2 ${isCompleted ? "bg-green-500" : "bg-[#9399A6]"}`} />} */}
+            </TabsTrigger>
+        );
     };
 
     return (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-8 grid gap-3 md:grid-cols-4 grid-cols-2 bg-transparent w-full h-auto">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="mb-8 grid gap-3 md:grid-cols-4 grid-cols-2 bg-transparent w-full h-auto relative">
                 {["Basic info", "Details", "Photos", "Review"].map((label, i) => (
-                    <TabsTrigger key={i} value={`step${i + 1}`} className="flex flex-col items-center justify-center data-[state=active]:bg-transparent [&[data-state=active]>div]:bg-[#C9A94D] [&[data-state=active]>div]:text-white [&[data-state=active]>p]:text-[#C9A94D]">
-                        <div className="flex items-center justify-center bg-[#9399A6] rounded-full w-12 h-12 text-[#B6BAC3]">{i + 1}</div>
-                        <p className="text-[#B6BAC3] mt-2 text-center">{label}</p>
-                    </TabsTrigger>
+                    <StepIndicator key={i} step={`step${i + 1}`} label={label} />
                 ))}
             </TabsList>
 
             {/* Step 1 */}
-            <TabsContent value="step1" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            <TabsContent value="step1" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Basic Information</h1>
-                <p className="mb-8">Let’s start with the basics about your property</p>
+                <p className="mb-8">Let's start with the basics about your property</p>
 
                 <form onSubmit={step1Form.handleSubmit(onSubmitStep1)} className="space-y-5">
                     {["title", "description", "location", "postCode"].map((field) => (
@@ -219,7 +314,7 @@ const AddListingForm: React.FC = () => {
                             {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
                         </div>
                     ))}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium">Property Type</label>
                         <DropdownMenu open={open} onOpenChange={setOpen}>
                             <DropdownMenuTrigger asChild>
@@ -245,9 +340,28 @@ const AddListingForm: React.FC = () => {
                         </DropdownMenu>
 
                         {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
+                    </div> */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Property Type</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg ">
+                            {propertyTypeOptions.map((type) => (
+                                <label key={type} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value={type}
+                                        {...step1Form.register("propertyType", { required: "Property type is required" })}
+                                        className="hidden" // hide default radio
+                                    />
+                                    {/* Custom radio button */}
+                                    <div className={`w-5 h-5 border rounded-full border-[#C9A94D] flex items-center justify-center transition-all ${step1Form.watch("propertyType") === type ? "bg-[#14213D]" : "bg-transparent"}`}>{step1Form.watch("propertyType") === type && <div className="w-3 h-3 bg-[#C9A94D] rounded-full" />}</div> {/* FIXED: step2Form → step1Form */}
+                                    <span>{type}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {step1Form.formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.propertyType?.message as string}</p>} {/* FIXED: step2Form → step1Form */}
                     </div>
+
                     <div className="flex justify-between mt-4">
-                        {/* If you want, you can keep this disabled or hidden for step1 */}
                         <button type="button" className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition opacity-50 cursor-not-allowed" disabled>
                             Previous
                         </button>
@@ -260,7 +374,7 @@ const AddListingForm: React.FC = () => {
             </TabsContent>
 
             {/* Step 2 */}
-            <TabsContent value="step2" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            <TabsContent value="step2" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Property Details</h1>
                 <p className="mb-8">Tell us about the capacity and layout</p>
                 <form onSubmit={step2Form.handleSubmit(onSubmitStep2)} className="space-y-5">
@@ -288,7 +402,7 @@ const AddListingForm: React.FC = () => {
 
                         {/* price */}
                         <div>
-                            <label className="block text-sm font-medium">Price (Starting From)</label>
+                            <label className="block text-sm font-medium">Price (Per night)</label>
                             <input type="number" {...step2Form.register("price", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
                             {step2Form.formState.errors.price && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.price?.message}</p>}
                         </div>
@@ -328,8 +442,15 @@ const AddListingForm: React.FC = () => {
                         <label className="block text-sm font-medium mb-2">Amenities</label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">
                             {amenitiesList.map((amenity) => (
-                                <label key={amenity} className="flex items-center gap-2">
-                                    <input type="checkbox" value={amenity} {...step2Form.register("amenities")} className="accent-[#C9A94D]" />
+                                <label key={amenity} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        value={amenity}
+                                        {...step2Form.register("amenities")}
+                                        className="hidden" // Hide the default checkbox
+                                    />
+                                    {/* Custom checkbox */}
+                                    <div className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${step2Form.watch("amenities")?.includes(amenity) ? "bg-[#14213D]" : "bg-transparent"}`}>{step2Form.watch("amenities")?.includes(amenity) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}</div>
                                     <span>{amenity}</span>
                                 </label>
                             ))}
@@ -348,7 +469,8 @@ const AddListingForm: React.FC = () => {
                 </form>
             </TabsContent>
 
-            <TabsContent value="step3" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+            {/* Step 3 */}
+            <TabsContent value="step3" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Photos</h1>
                 <p className="mb-8">Add photos to showcase your property</p>
 
@@ -473,14 +595,16 @@ const AddListingForm: React.FC = () => {
                     </div>
                 </form>
             </TabsContent>
-            <TabsContent value="step4" className="text-[#C9A94D] border border-[#C9A94D] p-6 rounded-[20px]">
+
+            {/* Step 4 */}
+            <TabsContent value="step4" className="text-[#C9A94D] border border-[#C9A94D] p-3 md:p-6 rounded-[20px]">
                 <h1 className="text-[28px] font-bold mb-2">Nearly Done</h1>
                 <p className="mb-8">Make sure everything looks right before you submit. </p>
 
                 {/* Preview Section */}
-                <div className="space-y-4 mb-6 border border-[#C9A94D] p-5 rounded-[20px] text-[#C9A94D]">
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-5">
+                <div className="space-y-4 mb-6 border border-[#C9A94D] p-3 md:p-5 rounded-[20px] text-[#C9A94D]">
+                    <div className="flex items-center justify-between gap-3 flex-col md:flex-row">
+                        <div className="flex gap-5 flex-col md:flex-row">
                             {/* Img - cover */}
                             <div className="relative w-40 h-32 flex items-center justify-center rounded-lg overflow-hidden border border-[#C9A94D] bg-[#2D3546]">{coverPreview ? <Image src={coverPreview} alt="Cover Preview" fill className="object-cover rounded-lg" unoptimized /> : <p className="text-white text-sm">Cover</p>}</div>
                             <div className="gap-1">
@@ -506,9 +630,18 @@ const AddListingForm: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* <div onClick={handleConnectStripe} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
+                        <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
+                        <p>{isConnectingStripe ? "Connecting to Stripe..." : "Add Bank Details (Optional)"}</p>
+                    </div> */}
+                    <div onClick={!accountStatus || accountStatus !== "verified" ? handleConnectStripe : undefined} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe || accountStatus === "verified" ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
+                        <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
+
+                        {stripeLoading ? <p>Checking Bank Details...</p> : isConnectingStripe ? <p>Connecting Bank Details...</p> : accountStatus === "verified" ? <p>Bank Details Verified</p> : <p>Add Bank Details (Optional)</p>}
+                    </div>
+
                     <div className="flex items-center gap-2">
-                        {/* Trigger */}
-                        <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
+                        {/* <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
                             <DialogTrigger asChild>
                                 <div className="flex items-center gap-1 cursor-pointer">
                                     <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
@@ -516,13 +649,12 @@ const AddListingForm: React.FC = () => {
                                 </div>
                             </DialogTrigger>
 
-                            {/* Modal Content */}
+                       
                             <DialogContent className="bg-[#2D3546] border border-[#C9A94D] rounded-[12px] p-6 max-w-lg w-full">
                                 <DialogHeader>
                                     <DialogTitle className="text-white text-lg">Upload Attachment</DialogTitle>
                                 </DialogHeader>
 
-                                {/* Form INSIDE modal */}
                                 <form onSubmit={handleVerifyAttSubmit} className="space-y-4">
                                     <div className="w-full border border-dashed border-[#C9A94D] p-5 rounded-[12px] flex items-center justify-center h-60 relative cursor-pointer" onDragOver={(e) => e.preventDefault()} onDrop={handleVerifyAttDrop} onClick={handleVerifyAttClickUpload}>
                                         {verifyAttPreview ? (
@@ -531,7 +663,7 @@ const AddListingForm: React.FC = () => {
                                                 <X
                                                     className="w-6 h-6 absolute top-3 right-3 text-[#D00000] cursor-pointer"
                                                     onClick={(e) => {
-                                                        e.stopPropagation(); // prevents file picker opening
+                                                        e.stopPropagation();
                                                         handleVerifyAttRemove();
                                                     }}
                                                 />
@@ -548,10 +680,16 @@ const AddListingForm: React.FC = () => {
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
-                        </Dialog>
+                        </Dialog> */}
+                        {/* <Link href="/dashboard/profile/verify" target="_blank">
+                            <div className="flex items-center gap-1 cursor-pointer">
+                                <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
+                                <p>Verify Address (Optional)</p>
+                            </div>
+                        </Link> */}
 
                         {/* Tooltip */}
-                        <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
+                        {/* <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
                             <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
 
                             {showRules && (
@@ -578,6 +716,90 @@ const AddListingForm: React.FC = () => {
                                     </ol>
                                 </div>
                             )}
+                        </div> */}
+
+                        <div className="flex items-center gap-2">
+                            {verificationStatus !== "approved" ? (
+                                <Link href="/dashboard/profile/verify" target="_blank">
+                                    <div className="flex items-center gap-1 cursor-pointer">
+                                        <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
+                                        <p>Verify Address (Optional)</p>
+                                    </div>
+                                </Link>
+                            ) : (
+                                <div className="flex items-center gap-1 opacity-60">
+                                    <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
+                                    <p>Address Verified</p>
+                                </div>
+                            )}
+
+                            {/* Tooltip */}
+                            <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
+                                <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
+
+                                {showRules && (
+                                    <div className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg md:-translate-x-1/2 border border-[#C9A94D] z-50" style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                                        <h2 className="font-bold mb-2 text-[14px]">Common Proof of Address Documents</h2>
+                                        <p className="mb-2">Please provide one of the following recent documents showing your full name and address:</p>
+
+                                        <ol className="list-decimal list-outside ml-4 mb-2 text-[13px] space-y-1">
+                                            <li>
+                                                <span className="font-semibold">Utility Bill (gas, electricity, water, landline, broadband):</span> Must be recent (usually within the last 3 months). Must show your full name and address.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Bank or Building Society Statement:</span> Printed or digital copy is usually acceptable. Must be recent and include your name and address.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Council Tax Bill or Local Authority Letter:</span> Shows your address and is usually considered official.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Government-Issued Letter:</span> HMRC tax document, benefit letter, or other government correspondence. Must be recent and show your name and address.
+                                            </li>
+                                            <li>
+                                                <span className="font-semibold">Tenancy Agreement or Mortgage Statement:</span> Must be current and officially issued.
+                                            </li>
+                                        </ol>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-2 flex-col md:flex-row relative">
+                        {/* <button className="bg-[#626A7D] py-1 px-7 text-white rounded-[8px] w-full md:w-auto">Upload Your Own Host T&Cs</button> */}
+                        <TermsSelection onTermsChange={handleTermsChange} selectedCustomTermsId={selectedCustomTermsId} setSelectedCustomTermsId={setSelectedCustomTermsId} />
+
+                        <div className="relative">
+                            <button className="bg-[#626A7D] py-1 px-7 text-white rounded-[8px] w-full md:w-auto flex items-center gap-1" onClick={() => setShowOptions(!showOptions)} disabled={termsLoading}>
+                                Use/Edit Default Host T&Cs
+                                {termsLoading && " (Loading...)"}
+                            </button>
+
+                            {showOptions && (
+                                <div className="absolute top-full left-0 mt-1 w-full flex flex-col gap-1 z-10">
+                                    {!selectedTermsId ? (
+                                        <button className="w-full bg-[#626A7D] py-1 px-7 text-white rounded-[8px] hover:bg-[#535a6b]" onClick={handleUseDefault} disabled={!defaultTermsResponse?.data?._id}>
+                                            Use Default
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="w-full bg-red-600 py-1 px-7 text-white rounded-[8px] hover:bg-red-700"
+                                            onClick={handleRemoveDefault} // Use the new handler
+                                        >
+                                            Remove Default
+                                        </button>
+                                    )}
+                                    <Link href={"/dashboard/terms-conditions"} target="_blank">
+                                        <button
+                                            className="w-full bg-[#626A7D] py-1 px-7 text-white rounded-[8px] hover:bg-[#535a6b]"
+                                            onClick={() => {
+                                                setShowOptions(false);
+                                            }}
+                                        >
+                                            Edit Default
+                                        </button>
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -593,7 +815,7 @@ const AddListingForm: React.FC = () => {
                     {step4Form.formState.errors.agreeTerms && <p className="text-red-500 text-sm mb-4">{step4Form.formState.errors.agreeTerms.message}</p>}
 
                     {/* Buttons */}
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-3 flex-col md:flex-row">
                         <button type="button" onClick={() => setActiveTab("step3")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition">
                             Previous
                         </button>

@@ -267,22 +267,6 @@ const HostDash = () => {
                         )}
                     </div>
 
-                    {/* <div className=" gap-5 border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <h1 className="text-2xl mb-6">Recent Booking</h1>
-                        <div className="flex items-center justify-between flex-col md:flex-row gap-4 p-2 border border-[#C9A94D] rounded-[10px] mb-6">
-                            <div className="flex items-center gap-5 flex-col md:flex-row">
-                                <Image src={host.image} alt={host.name} width={88} height={88} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                                <div>
-                                    <h1 className="font-bold text-xl">Jhon Vance</h1>
-                                    <p>City town</p>
-                                    <p>£450</p>
-                                </div>
-                            </div>
-                            <div>
-                                <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">confirmed</button>
-                            </div>
-                        </div>
-                    </div> */}
                     <div className="gap-5 border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
                         <h1 className="text-2xl mb-6">Recent Booking</h1>
 
@@ -319,7 +303,7 @@ const HostDash = () => {
                                             </div>
                                         </div>
                                         <div>
-                                            <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">{payment.status === "completed" ? "confirmed" : payment.status}</button>
+                                            <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full">{payment.status === "completed" ? "Confirmed" : payment.status}</button>
                                         </div>
                                     </div>
                                 ))}

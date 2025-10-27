@@ -1,71 +1,105 @@
 // "use client";
 
-// import React, { useState } from "react";
+// import React, { useState, useEffect } from "react";
 // import { useForm } from "react-hook-form";
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import * as z from "zod";
-// import { ArrowLeft } from "lucide-react";
 // import Image from "next/image";
 // import { useRouter } from "next/navigation";
 // import PageHeader from "@/components/PageHeader";
-// import { useUpdateUserProfileMutation } from "@/redux/features/users/usersApi";
+// import { useUpdateUserProfileMutation, useGetSingleUserQuery } from "@/redux/features/users/usersApi";
+// import { currentUser, setUser } from "@/redux/features/auth/authSlice";
+// import { useAppSelector } from "@/redux/hooks";
 // import { toast } from "sonner";
+// import { splitFullName } from "@/utils/splitFullName";
+// import { useDispatch } from "react-redux";
+// import { useRefreshTokenMutation } from "@/redux/features/auth/authApi";
 
 // // --- Zod Schema ---
 // const userSchema = z.object({
 //     firstName: z.string().min(1, "First name is required"),
-//     lastName: z.string().min(1, "Last name is required"),
+//     lastName: z.string().optional(), // Made optional
 //     gender: z.enum(["Male", "Female", "Other"]),
 //     phone: z.string().min(1, "Phone is required"),
 //     address: z.string().min(1, "Address is required"),
 //     country: z.string().min(1, "Country is required"),
 //     city: z.string().min(1, "City is required"),
-//     zip: z.string().min(1, "Zip is required"),
+//     // zip: z.string().min(1, "Zip is required"),
 // });
 
 // type UserFormType = z.infer<typeof userSchema>;
 
 // const EditUserProfileForm = () => {
 //     const router = useRouter();
+//     const mainuser = useAppSelector(currentUser);
 //     const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
 
-//     // --- Default user data ---
-//     const defaultUser = {
-//         firstName: "John",
-//         lastName: "Doe",
-//         gender: "Male" as "Male" | "Female" | "Other",
-//         phone: "000000000",
-//         address: "BLK208 L26 Manchester Street, Grand Broadmore, Antel Grand Village",
-//         country: "UK",
-//         city: "General Trias",
-//         zip: "4107",
-//         avatarUrl: "/dashboard/profile/profileimg.png",
-//     };
+//     // Fetch current user data
+//     const { data: userData, isLoading: isLoadingUser } = useGetSingleUserQuery(mainuser?._id!);
 
 //     // --- Image state for preview ---
-//     const [imagePreview, setImagePreview] = useState<string>(() => defaultUser?.avatarUrl ?? "");
+//     const [imagePreview, setImagePreview] = useState<string>("/dashboard/profile/profileimg.png");
 //     const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
 //     const {
 //         register,
 //         handleSubmit,
+//         getValues,
+//         setValue,
 //         formState: { errors },
+//         reset,
 //     } = useForm<UserFormType>({
 //         resolver: zodResolver(userSchema),
-//         defaultValues: defaultUser,
 //     });
+
+//     // Set form values when user data is loaded
+//     useEffect(() => {
+//         if (userData?.data) {
+//             const user = userData.data;
+//             const { firstName, lastName } = splitFullName(user.name || "");
+
+//             // Set form values
+//             reset({
+//                 firstName: firstName || "",
+//                 lastName: lastName || "",
+//                 gender: user.gender || "Male",
+//                 phone: user.phone || "",
+//                 address: user.address?.street || "",
+//                 country: user.address?.country || "",
+//                 city: user.address?.city || "",
+//                 // zip: user.address?.zip || "",
+//             });
+
+//             // Set profile image
+//             if (user.profileImg) {
+//                 setImagePreview(`${process.env.NEXT_PUBLIC_BASE_API}${user.profileImg}`);
+//             } else {
+//                 setImagePreview("/dashboard/profile/profileimg.png");
+//             }
+//         }
+//     }, [userData, reset]);
+
+//     const dispatch = useDispatch();
+//     const [refreshToken] = useRefreshTokenMutation();
 
 //     const onSubmit = async (data: UserFormType) => {
 //         try {
 //             const formData = new FormData();
 //             formData.append("firstName", data.firstName);
-//             formData.append("lastName", data.lastName);
+
+//             // Only append lastName if it exists and is not empty
+//             if (data.lastName && data.lastName.trim() !== "") {
+//                 formData.append("lastName", data.lastName);
+//             } else {
+//                 // Explicitly send empty string if lastName is empty
+//                 formData.append("lastName", "");
+//             }
+
 //             formData.append("gender", data.gender);
 //             formData.append("phone", data.phone);
 //             formData.append("address", data.address);
 //             formData.append("country", data.country);
 //             formData.append("city", data.city);
-//             formData.append("zip", data.zip);
 
 //             // If new image is selected, append it
 //             if (selectedImageFile) {
@@ -76,7 +110,25 @@
 //             toast.success("Profile updated successfully!");
 //             console.log("Profile updated:", result);
 
-//             // Redirect back or show success
+//             try {
+//                 const refreshResult = await refreshToken().unwrap();
+
+//                 if (refreshResult.data) {
+//                     const backendData = refreshResult.data;
+//                     const user = backendData.user;
+//                     const accessToken = backendData.accessToken;
+
+//                     console.log("Refreshed user:", user);
+//                     console.log("New access token:", accessToken);
+
+//                     // Update user and token in Redux store
+//                     dispatch(setUser({ user, token: accessToken }));
+//                 }
+//             } catch (refreshError) {
+//                 console.warn("Token refresh failed, but profile was updated:", refreshError);
+//             }
+
+//             // Redirect back to profile
 //             router.push("/dashboard/profile");
 //         } catch (error: any) {
 //             console.error("Update failed:", error);
@@ -107,9 +159,20 @@
 
 //     const handleClickBack = () => router.back();
 
+//     if (isLoadingUser) {
+//         return (
+//             <div className="container mx-auto">
+//                 <PageHeader title="Edit Profile" isUser={false} />
+//                 <div className="flex justify-center items-center h-64">
+//                     <p className="text-[#C9A94D]">Loading user data...</p>
+//                 </div>
+//             </div>
+//         );
+//     }
+
 //     return (
 //         <div className="container mx-auto">
-//             <PageHeader title="Edit Profile" isUser={false}></PageHeader>
+//             <PageHeader title="Edit Profile" isUser={false} />
 
 //             {/* Form */}
 //             <form onSubmit={handleSubmit(onSubmit)}>
@@ -124,7 +187,9 @@
 //                         }}
 //                     >
 //                         {/* Avatar Preview */}
-//                         <div className="relative w-[100px] h-[100px] rounded-full overflow-hidden border border-[#C9A94D]">{imagePreview && <Image src={imagePreview} alt="User Avatar" fill className="object-cover" />}</div>
+//                         <div className="relative w-[100px] h-[100px] rounded-full overflow-hidden border border-[#C9A94D]">
+//                             <Image src={imagePreview} alt="User Avatar" fill className="object-cover" />
+//                         </div>
 
 //                         {/* Click to choose */}
 //                         <div className="flex flex-col gap-2">
@@ -148,11 +213,11 @@
 //                         {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>}
 //                     </div>
 
-//                     {/* Last Name */}
+//                     {/* Last Name - Made optional */}
 //                     <div className="flex flex-col md:gap-1">
 //                         <label className="text-[#C9A94D]">Last Name</label>
-//                         <input type="text" {...register("lastName")} placeholder="Enter last name" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
-//                         {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>}
+//                         <input type="text" {...register("lastName")} placeholder="Enter last name (optional)" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
+//                         {/* No error message since it's optional */}
 //                     </div>
 
 //                     {/* Gender */}
@@ -168,7 +233,34 @@
 //                     {/* Phone */}
 //                     <div className="flex flex-col md:gap-1">
 //                         <label className="text-[#C9A94D]">Phone</label>
-//                         <input type="text" {...register("phone")} placeholder="Enter phone number" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
+//                         <div className="flex gap-2">
+//                             {/* Country Code Dropdown */}
+//                             <select
+//                                 onChange={(e) => {
+//                                     const countryCode = e.target.value;
+//                                     const currentPhone = getValues("phone") || "";
+//                                     const phoneWithoutCode = currentPhone.replace(/^\+\d+\s?/, "");
+//                                     const formattedPhone = phoneWithoutCode.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3");
+//                                     setValue("phone", countryCode + " " + formattedPhone);
+//                                 }}
+//                                 className="bg-white border rounded px-3 py-2 text-[#9399A6] w-28"
+//                                 defaultValue="+1"
+//                             >
+//                                 <option value="+1">+1 US</option>
+//                                 <option value="+44">+44 UK</option>
+//                                 <option value="+91">+91 IN</option>
+//                                 <option value="+61">+61 AU</option>
+//                                 <option value="+49">+49 DE</option>
+//                                 <option value="+33">+33 FR</option>
+//                                 <option value="+81">+81 JP</option>
+//                                 <option value="+86">+86 CN</option>
+//                                 <option value="+7">+7 RU</option>
+//                                 <option value="+55">+55 BR</option>
+//                             </select>
+
+//                             {/* Phone Number Input */}
+//                             <input type="text" {...register("phone")} placeholder="Enter phone number" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6] flex-1" />
+//                         </div>
 //                         {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
 //                     </div>
 
@@ -194,11 +286,11 @@
 //                     </div>
 
 //                     {/* Zip */}
-//                     <div className="flex flex-col md:gap-1">
+//                     {/* <div className="flex flex-col md:gap-1">
 //                         <label className="text-[#C9A94D]">Zip/Postal Code</label>
 //                         <input type="text" {...register("zip")} placeholder="Enter zip code" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
 //                         {errors.zip && <p className="text-red-500 text-sm mt-1">{errors.zip.message}</p>}
-//                     </div>
+//                     </div> */}
 //                 </div>
 
 //                 {/* Submit Button */}
@@ -220,7 +312,6 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
@@ -231,11 +322,12 @@ import { toast } from "sonner";
 import { splitFullName } from "@/utils/splitFullName";
 import { useDispatch } from "react-redux";
 import { useRefreshTokenMutation } from "@/redux/features/auth/authApi";
+import { countryCodes } from "./CountryCodes";
 
 // --- Zod Schema ---
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
+    lastName: z.string().optional(), // Made optional
     gender: z.enum(["Male", "Female", "Other"]),
     phone: z.string().min(1, "Phone is required"),
     address: z.string().min(1, "Address is required"),
@@ -250,6 +342,7 @@ const EditUserProfileForm = () => {
     const router = useRouter();
     const mainuser = useAppSelector(currentUser);
     const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
+    const [selectedCountryCode, setSelectedCountryCode] = useState("+1");
 
     // Fetch current user data
     const { data: userData, isLoading: isLoadingUser } = useGetSingleUserQuery(mainuser?._id!);
@@ -293,23 +386,65 @@ const EditUserProfileForm = () => {
             } else {
                 setImagePreview("/dashboard/profile/profileimg.png");
             }
+
+            // Extract country code from phone if exists
+            if (user.phone) {
+                const phoneMatch = user.phone.match(/^(\+\d+)\s/);
+                if (phoneMatch) {
+                    setSelectedCountryCode(phoneMatch[1]);
+                }
+            }
         }
     }, [userData, reset]);
 
     const dispatch = useDispatch();
     const [refreshToken] = useRefreshTokenMutation();
 
+    const handleCountryCodeChange = (code: string) => {
+        setSelectedCountryCode(code);
+        const currentPhone = getValues("phone") || "";
+        const phoneWithoutCode = currentPhone.replace(/^\+\d+\s?/, "");
+        const formattedPhone = phoneWithoutCode.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3");
+        setValue("phone", code + " " + formattedPhone);
+    };
+
+    const formatPhoneNumber = (value: string) => {
+        // Remove all non-digit characters
+        const digits = value.replace(/\D/g, "");
+
+        // Format based on length
+        if (digits.length <= 3) {
+            return digits;
+        } else if (digits.length <= 6) {
+            return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+        } else {
+            return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+        }
+    };
+
+    const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhoneNumber(e.target.value);
+        setValue("phone", selectedCountryCode + " " + formatted);
+    };
+
     const onSubmit = async (data: UserFormType) => {
         try {
             const formData = new FormData();
             formData.append("firstName", data.firstName);
-            formData.append("lastName", data.lastName);
+
+            // Only append lastName if it exists and is not empty
+            if (data.lastName && data.lastName.trim() !== "") {
+                formData.append("lastName", data.lastName);
+            } else {
+                // Explicitly send empty string if lastName is empty
+                formData.append("lastName", "");
+            }
+
             formData.append("gender", data.gender);
             formData.append("phone", data.phone);
             formData.append("address", data.address);
             formData.append("country", data.country);
             formData.append("city", data.city);
-            // formData.append("zip", data.zip);
 
             // If new image is selected, append it
             if (selectedImageFile) {
@@ -333,12 +468,9 @@ const EditUserProfileForm = () => {
 
                     // Update user and token in Redux store
                     dispatch(setUser({ user, token: accessToken }));
-
-                    // toast.success("Profile and session updated successfully!");
                 }
             } catch (refreshError) {
                 console.warn("Token refresh failed, but profile was updated:", refreshError);
-                // Continue even if token refresh fails since profile update was successful
             }
 
             // Redirect back to profile
@@ -369,8 +501,6 @@ const EditUserProfileForm = () => {
         };
         reader.readAsDataURL(file);
     };
-
-    const handleClickBack = () => router.back();
 
     if (isLoadingUser) {
         return (
@@ -426,11 +556,11 @@ const EditUserProfileForm = () => {
                         {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>}
                     </div>
 
-                    {/* Last Name */}
+                    {/* Last Name - Made optional */}
                     <div className="flex flex-col md:gap-1">
                         <label className="text-[#C9A94D]">Last Name</label>
-                        <input type="text" {...register("lastName")} placeholder="Enter last name" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
-                        {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>}
+                        <input type="text" {...register("lastName")} placeholder="Enter last name (optional)" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
+                        {/* No error message since it's optional */}
                     </div>
 
                     {/* Gender */}
@@ -444,11 +574,7 @@ const EditUserProfileForm = () => {
                     </div>
 
                     {/* Phone */}
-                    {/* <div className="flex flex-col md:gap-1">
-                        <label className="text-[#C9A94D]">Phone</label>
-                        <input type="text" {...register("phone")} placeholder="Enter phone number" className="bg-white border rounded px-3 py-2 text-[#9399A6] placeholder-[#9399A6]" />
-                        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
-                    </div> */}
+                    {/* Phone */}
                     <div className="flex flex-col md:gap-1">
                         <label className="text-[#C9A94D]">Phone</label>
                         <div className="flex gap-2">
@@ -464,16 +590,11 @@ const EditUserProfileForm = () => {
                                 className="bg-white border rounded px-3 py-2 text-[#9399A6] w-28"
                                 defaultValue="+1"
                             >
-                                <option value="+1">+1 US</option>
-                                <option value="+44">+44 UK</option>
-                                <option value="+91">+91 IN</option>
-                                <option value="+61">+61 AU</option>
-                                <option value="+49">+49 DE</option>
-                                <option value="+33">+33 FR</option>
-                                <option value="+81">+81 JP</option>
-                                <option value="+86">+86 CN</option>
-                                <option value="+7">+7 RU</option>
-                                <option value="+55">+55 BR</option>
+                                {countryCodes.map((country) => (
+                                    <option key={country.code} value={country.code}>
+                                        {country.code} {country.name}
+                                    </option>
+                                ))}
                             </select>
 
                             {/* Phone Number Input */}

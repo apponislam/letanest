@@ -19,8 +19,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { setRedirectPath, currentUser } from "@/redux/features/auth/authSlice";
 import { useGetHostRatingStatsQuery, useGetPropertyRatingsQuery, useGetPropertyRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { IUser } from "@/types/property";
+import DateSelectionWithPrice from "./DateSelectionWithPrice";
+import { differenceInDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 export default function PropertyPage2() {
+    const [selectedDates, setSelectedDates] = useState<DateRange | undefined>();
     const params = useParams();
     const { id } = params;
     const router = useRouter();
@@ -37,6 +41,7 @@ export default function PropertyPage2() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const property = response?.data;
+    console.log(property);
 
     const { data: ratingStats, isLoading: ratingLoading } = useGetPropertyRatingStatsQuery(id as string);
     const stats = ratingStats?.data;
@@ -56,9 +61,6 @@ export default function PropertyPage2() {
 
     // Array of ratings
     const propertyRatingsArray = propertyRatingsData?.data || [];
-
-    // Average rating calculation
-    // const propertyAverageRating = propertyRatingsArray.length > 0 ? propertyRatingsArray.reduce((sum, r) => sum + r.overallExperience, 0) / propertyRatingsArray.length : 0;
 
     const amenitiesListingIcons: Record<string, number> = {
         wifi: 1,
@@ -269,6 +271,12 @@ export default function PropertyPage2() {
         return `${process.env.NEXT_PUBLIC_BASE_API || ""}${imagePath}`;
     };
 
+    const calculateTotalPrice = (dates: any, pricePerNight: any) => {
+        if (!dates?.from || !dates?.to) return pricePerNight;
+        const days = differenceInDays(dates.to, dates.from) + 1;
+        return days * pricePerNight;
+    };
+
     return (
         <div className="container mx-auto py-10">
             <div className="mx-4 md:mx-0">
@@ -327,11 +335,7 @@ export default function PropertyPage2() {
                                 <h2 className="text-xl md:text-[40px] font-bold md:mb-4">{property.title}</h2>
                                 <p className="text-[16px] md:text-2xl font-bold">#{property.propertyNumber}</p>
                             </div>
-                            {/* <div className="flex items-center gap-3 w-56">
-                                <SingleStarRating rating={4} />
-                                <p className="text-2xl font-bold text-[#C9A94D]">4.0</p>
-                                <p className="text-xl text-[#C9A94D]">(0 reviews)</p>
-                            </div> */}
+
                             <div className="flex items-center gap-3 w-56">
                                 {ratingLoading ? (
                                     <>
@@ -447,19 +451,10 @@ export default function PropertyPage2() {
                                                 (e.target as HTMLImageElement).src = "/listing/avatar.jpg";
                                             }}
                                         />
-                                        {/* <div>
-                                            <p className="text-2xl text-white">{property.createdBy.name || "Host"}</p>
-                                            <p className="text-white">{property.createdBy.email}</p>
-                                            <div className="flex items-center gap-3">
-                                                <SingleStarRating rating={4} size={20} />
-                                                <p className="text-[14px] font-bold text-[#C9A94D]">4.0</p>
-                                                <p className="text-[13px] text-[#C9A94D]">Host Rating</p>
-                                            </div>
-                                        </div> */}
                                         <div>
                                             {/* Host Info */}
-                                            <p className="text-2xl text-white">{property.createdBy.name || "Host"}</p>
-                                            <p className="text-white">{property.createdBy.email}</p>
+                                            <p className="text-2xl text-white">{property.createdBy.name?.split(/\s+/)[0] || "Host"}</p>
+                                            {/* <p className="text-white">{property.createdBy.email}</p> */}
 
                                             {/* Host Rating */}
                                             <div className="flex items-center gap-3 mt-2">
@@ -555,7 +550,7 @@ export default function PropertyPage2() {
                                                         <SingleStarRating rating={r.overallExperience} size={16} />
                                                         <p className="text-sm text-[#C9A94D]">{r.overallExperience.toFixed(1)}</p>
                                                     </div>
-                                                    <p className="text-gray-300 text-sm">{r.description}</p>
+                                                    {r.description && <p className="text-gray-300 text-sm">{r.description}</p>}
                                                 </div>
                                             </div>
                                         );
@@ -590,46 +585,19 @@ export default function PropertyPage2() {
                         </div>
 
                         {/* Things to know section */}
-                        <div className="pb-6 md:pb-12 mb-6 md:mb-12">
-                            <h1 className="text-[32px] text-white mb-4 font-bold">Things to know</h1>
-                            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                                <div>
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <Image src="/listing/ban.png" alt="House Rules" height={24} width={24}></Image>
-                                        <h1 className="text-2xl text-white font-bold">House Rules</h1>
-                                    </div>
-                                    <p className="text-[18px] text-[#B6BAC3]">Check-in: 3:00 PM | Check-out: 11:00 AM | No smoking | Pets allowed with prior approval</p>
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <Image src="/listing/heart-pulse.png" alt="Health & Safety" height={24} width={24}></Image>
-                                        <h1 className="text-2xl text-white font-bold">Health & Safety</h1>
-                                    </div>
-                                    <p className="text-[18px] text-[#B6BAC3]">Smoke detectors installed | First aid kit available | Emergency contact information provided</p>
-                                </div>
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-4 mb-2">
-                                    <Image src="/listing/menu-right-square-alt.png" alt="Cancellation Policy" height={24} width={24}></Image>
-                                    <h1 className="text-2xl text-white font-bold">Cancellation Policy</h1>
-                                </div>
-                                <p className="text-[18px] text-[#B6BAC3]">Free cancellation up to 48 hours before check-in. After that, 50% refund up to 24 hours before check-in.</p>
-                            </div> */}
-                            {property?.termsAndConditions?.content && (
+                        {property?.termsAndConditions?.content && (
+                            <div className="pb-6 md:pb-12 mb-6 md:mb-12">
+                                <h1 className="text-[32px] text-white mb-4 font-bold">Things to know</h1>
                                 <div className="">
-                                    {/* <div className="flex items-center gap-4 mb-4">
-                                        <Image src="/listing/document.png" alt="Terms and Conditions" height={24} width={24} />
-                                        <h1 className="text-2xl text-white font-bold">Terms and Conditions</h1>
-                                    </div> */}
                                     <div
-                                        className="text-[18px] text-[#B6BAC3] prose prose-invert max-w-none"
+                                        className="text-[18px] text-[#B6BAC3] prose prose-invert max-w-none rich-text-content"
                                         dangerouslySetInnerHTML={{
                                             __html: property.termsAndConditions.content,
                                         }}
                                     />
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right column - 1/3 sticky */}
@@ -637,35 +605,19 @@ export default function PropertyPage2() {
                         <div className="md:sticky top-24 z-10">
                             <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
                                 <h1 className="text-[32px] mb-2 font-bold">£{property.price}</h1>
-                                <div className="flex items-center gap-2 mb-6">
-                                    {ratingLoading ? (
-                                        <>
-                                            <div className="flex gap-1">
-                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                    <div key={i} className="h-5 w-5 bg-gray-200 rounded-full animate-pulse" />
-                                                ))}
-                                            </div>
-                                            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse" />
-                                            <div className="h-4 w-14 bg-gray-200 rounded animate-pulse" />
-                                        </>
-                                    ) : totalRatings > 0 ? (
-                                        <>
-                                            <SingleStarRating rating={averageRating} size={20} />
-                                            <p className="text-sm font-bold text-[#C9A94D]">{averageRating.toFixed(1)}</p>
-                                            <p className="text-sm text-[#C9A94D]">
-                                                ({totalRatings} {totalRatings === 1 ? "review" : "reviews"})
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <SingleStarRating rating={0} size={20} />
-                                            <p className="text-sm font-bold text-gray-400">–</p>
-                                            <p className="text-sm text-gray-400">(No reviews)</p>
-                                        </>
-                                    )}
-                                </div>
 
-                                <Button onClick={handleBookNow} disabled={isChatLoading} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
+                                {/* Show Available Dates instead of Reviews */}
+                                {/* <div className="flex items-center gap-2 mb-6">
+                                    <div className="flex flex-col">
+                                        <p className="text-sm font-bold text-[#C9A94D]">Available</p>
+                                        <p className="text-sm text-[#C9A94D]">
+                                            {new Date(property.availableFrom).toLocaleDateString()} - {new Date(property.availableTo).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div> */}
+                                <DateSelectionWithPrice property={property} onDateSelect={(dates) => setSelectedDates(dates)} />
+
+                                {/* <Button onClick={handleBookNow} disabled={isChatLoading} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
                                     {isChatLoading ? (
                                         <div className="flex items-center gap-2">
                                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -673,6 +625,16 @@ export default function PropertyPage2() {
                                         </div>
                                     ) : (
                                         "Book Now"
+                                    )}
+                                </Button> */}
+                                <Button onClick={handleBookNow} disabled={isChatLoading || !selectedDates?.from || !selectedDates?.to} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
+                                    {isChatLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            Processing...
+                                        </div>
+                                    ) : (
+                                        `Book Now £${calculateTotalPrice(selectedDates, property.price)}`
                                     )}
                                 </Button>
 

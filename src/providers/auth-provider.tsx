@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUser, setRedirectPath } from "@/redux/features/auth/authSlice";
-import { roleRoutes } from "@/config/routeConfig";
+import { roleRoutes } from "@/config/menuConfig";
 
 interface AuthProviderProps {
     children: ReactNode;

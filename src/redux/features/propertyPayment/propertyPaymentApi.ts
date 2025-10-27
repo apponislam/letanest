@@ -81,6 +81,7 @@ interface GetAllPaymentsResponse {
 }
 
 interface GetAllPaymentsParams {
+    search?: string;
     page?: number;
     limit?: number;
     status?: string;
@@ -199,6 +200,7 @@ export const paymentApi = baseApi.injectEndpoints({
                         ...(params.endDate ? { endDate: params.endDate } : {}),
                         ...(params.sortBy ? { sortBy: params.sortBy } : {}),
                         ...(params.sortOrder ? { sortOrder: params.sortOrder } : {}),
+                        ...(params.search ? { search: params.search } : {}),
                     })
                 ).toString();
 
@@ -228,11 +230,16 @@ export const paymentApi = baseApi.injectEndpoints({
             }),
             providesTags: ["propertyPayments"],
         }),
-        getHostPayments: builder.query<any, { page?: number; limit?: number }>({
+        getHostPayments: builder.query<any, { page?: number; limit?: number; search?: string }>({
             query: (params = {}) => {
                 const searchParams = new URLSearchParams();
                 searchParams.append("page", (params.page || 1).toString());
                 searchParams.append("limit", (params.limit || 10).toString());
+
+                // Add search parameter
+                if (params.search) {
+                    searchParams.append("search", params.search);
+                }
 
                 return {
                     url: `/property-payment/host/my-payments?${searchParams.toString()}`,

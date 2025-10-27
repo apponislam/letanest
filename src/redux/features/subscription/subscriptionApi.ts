@@ -264,6 +264,17 @@ export const subscriptionApi = baseApi.injectEndpoints({
             transformResponse: (response: ApiResponse<any>) => response.data,
             providesTags: (result, error, sessionId) => [{ type: "Subscriptions", id: `session_${sessionId}` }],
         }),
+        deleteSubscription: build.mutation<{ data: ISubscription; message: string }, string>({
+            query: (id: string) => ({
+                url: `/subscriptions/${id}`,
+                method: "DELETE",
+            }),
+            transformResponse: (response: ApiResponse<ISubscription>) => ({
+                data: response.data,
+                message: response.message,
+            }),
+            invalidatesTags: ["Subscriptions"],
+        }),
     }),
 });
 
@@ -280,4 +291,5 @@ export const {
     useToggleSubscriptionStatusMutation,
     useCreateCheckoutSessionMutation,
     useGetCheckoutSessionQuery,
+    useDeleteSubscriptionMutation,
 } = subscriptionApi;
