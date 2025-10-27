@@ -1,4 +1,3 @@
-import PropertyPage from "@/components/listings/ListingDetails";
 import PropertyPage2 from "@/components/listings/ListingDetails2";
 import React from "react";
 
