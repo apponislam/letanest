@@ -1,102 +1,44 @@
-// "use client";
-
-// import { Pie, PieChart, Cell } from "recharts";
-// import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-// import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-
-// export const description = "A donut chart";
-
-// const chartData = [
-//     { name: "Bed & Breakfast", value: 20, color: "#FF914D" },
-//     { name: "Apartment", value: 20, color: "#6CE5E8" },
-//     { name: "Room only", value: 20, color: "#FF3131" },
-//     { name: "Guesthouse", value: 40, color: "#7ED957" },
-// ];
-
-// export function ChartPieDonut() {
-//     const chartConfig: Record<string, { label: string; color: string }> = {
-//         "Bed & Breakfast": { label: "Bed & Breakfast", color: "#FF914D" },
-//         Apartment: { label: "Apartment", color: "#6CE5E8" },
-//         "Room only": { label: "Room only", color: "#FF3131" },
-//         Guesthouse: { label: "Guesthouse", color: "#7ED957" },
-//     };
-
-//     return (
-//         <Card className="relative flex flex-col bg-transparent p-0 border-none shadow-none text-white">
-//             <CardHeader className="items-center pb-0">
-//                 <CardTitle>Pie Chart - Donut</CardTitle>
-//             </CardHeader>
-
-//             <CardContent className="flex-1 pb-0 relative">
-//                 <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
-//                     <PieChart>
-//                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-//                         <Pie
-//                             data={chartData}
-//                             dataKey="value"
-//                             nameKey="name"
-//                             innerRadius={80} // thickness = outerRadius - innerRadius = 100 - 80 = 20px
-//                             outerRadius={100}
-//                             paddingAngle={0} // gap between slices
-//                             cornerRadius={0} // optional: rounded edges for slices
-//                         >
-//                             {chartData.map((entry) => (
-//                                 <Cell key={entry.name} fill={entry.color} />
-//                             ))}
-//                         </Pie>
-//                     </PieChart>
-//                 </ChartContainer>
-
-//                 {/* Labels in 4 corners */}
-//                 <div className="absolute top-2 left-2 text-[#FF914D] font-medium text-[18px]">
-//                     <p>{`${chartData[0].name} `}</p>
-//                     <span>{`${chartData[0].value}%`}</span>
-//                 </div>
-//                 <div className="absolute top-2 right-2 text-[#6CE5E8] font-medium text-[18px]">
-//                     <p>{`${chartData[1].name} `}</p>
-//                     <span>{`${chartData[1].value}%`}</span>
-//                 </div>
-//                 <div className="absolute bottom-2 left-2 text-[#FF3131] font-medium text-[18px]">
-//                     <p>{`${chartData[2].name} `}</p>
-//                     <span>{`${chartData[2].value}%`}</span>
-//                 </div>
-//                 <div className="absolute bottom-2 right-2 text-[#7ED957] font-medium text-[18px]">
-//                     <p>{`${chartData[3].name} `}</p>
-//                     <span>{`${chartData[3].value}%`}</span>
-//                 </div>
-//             </CardContent>
-//             <CardFooter className="flex-col gap-3 text-sm p-0 items-start">
-//                 <div>
-//                     <p className="text-white text-sm">Filter By</p>
-//                 </div>
-//                 <div className="flex items-center gap-3">
-//                     <button className="bg-[#C9A94D] text-white p-2 rounded-[8px]">Properties Type</button>
-//                     <button className="bg-[#C9A94D] text-white p-2 rounded-[8px]">Period</button>
-//                 </div>
-//             </CardFooter>
-//         </Card>
-//     );
-// }
-
 "use client";
 
 import { Pie, PieChart, Cell } from "recharts";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useGetPropertyStatusStatsQuery } from "@/redux/features/dashboard/dashboardApi";
+import { useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Calendar } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export const description = "A donut chart for property status";
 
 // Define colors in frontend
 const statusColors = {
-    published: "#7ED957", // Green
-    pending: "#FF914D", // Orange
-    rejected: "#FF3131", // Red
-    hidden: "#6CE5E8", // Blue
+    published: "#7ED957",
+    pending: "#FF914D",
+    rejected: "#FF3131",
+    hidden: "#6CE5E8",
 };
 
+// Property type options
+const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"] as const;
+
 export function ChartPieDonut() {
-    const { data: statusData, isLoading, error } = useGetPropertyStatusStatsQuery();
+    const [filters, setFilters] = useState({
+        propertyType: "",
+        startDate: null as Date | null,
+        endDate: null as Date | null,
+    });
+
+    // Convert Date objects to ISO strings for the API
+    const apiFilters = {
+        propertyType: filters.propertyType || undefined,
+        startDate: filters.startDate ? filters.startDate.toISOString().split("T")[0] : undefined,
+        endDate: filters.endDate ? filters.endDate.toISOString().split("T")[0] : undefined,
+    };
+
+    const { data: statusData, isLoading, error } = useGetPropertyStatusStatsQuery(apiFilters);
 
     // Add colors to the data in frontend
     const chartData =
@@ -113,6 +55,32 @@ export function ChartPieDonut() {
         return config;
     }, {});
 
+    const handlePropertyTypeChange = (type: string) => {
+        setFilters((prev) => ({
+            ...prev,
+            propertyType: prev.propertyType === type ? "" : type,
+        }));
+    };
+
+    const handleDateChange = (dates: [Date | null, Date | null]) => {
+        const [start, end] = dates;
+        setFilters((prev) => ({
+            ...prev,
+            startDate: start,
+            endDate: end,
+        }));
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            propertyType: "",
+            startDate: null,
+            endDate: null,
+        });
+    };
+
+    const hasActiveFilters = filters.propertyType || filters.startDate || filters.endDate;
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -125,6 +93,12 @@ export function ChartPieDonut() {
         <Card className="relative flex flex-col bg-transparent p-0 border-none shadow-none text-white">
             <CardHeader className="items-center pb-0">
                 <CardTitle>Property Status</CardTitle>
+                {hasActiveFilters && (
+                    <div className="text-sm text-yellow-400 mt-1 text-center">
+                        {filters.propertyType && `Type: ${filters.propertyType}`}
+                        {filters.startDate && ` | Period: ${filters.startDate?.toLocaleDateString()}${filters.endDate ? ` - ${filters.endDate?.toLocaleDateString()}` : ""}`}
+                    </div>
+                )}
             </CardHeader>
 
             <CardContent className="flex-1 pb-0 relative">
@@ -148,14 +122,72 @@ export function ChartPieDonut() {
                 ))}
             </CardContent>
 
-            <CardFooter className="flex-col gap-3 text-sm p-0 items-start">
-                <div>
+            <CardFooter className="flex-col gap-3 text-sm p-0 items-start mt-4">
+                <div className="flex justify-between items-center w-full">
                     <p className="text-white text-sm">Filter By</p>
+                    {hasActiveFilters && (
+                        <button onClick={clearFilters} className="text-xs text-yellow-400 hover:text-yellow-300 underline">
+                            Clear Filters
+                        </button>
+                    )}
                 </div>
-                <div className="flex items-center gap-3">
-                    <button className="bg-[#C9A94D] text-white p-2 rounded-[8px]">Properties Type</button>
-                    <button className="bg-[#C9A94D] text-white p-2 rounded-[8px]">Period</button>
+
+                <div className="flex items-center gap-3 flex-wrap">
+                    {/* Property Type Dropdown */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button className="bg-[#C9A94D] hover:bg-[#b89742] text-white p-2 rounded-[8px] flex items-center gap-2">
+                                Property Type
+                                <ChevronDown className="w-4 h-4" />
+                                {filters.propertyType && <span className="w-2 h-2 bg-white rounded-full"></span>}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-white border border-[#C9A94D] z-50 max-h-60 overflow-y-auto">
+                            <DropdownMenuItem className="cursor-pointer text-center border-b border-gray-200" onClick={() => handlePropertyTypeChange("")}>
+                                Clear Selection
+                            </DropdownMenuItem>
+                            {propertyTypeOptions.map((type) => (
+                                <DropdownMenuItem key={type} className={`cursor-pointer ${filters.propertyType === type ? "bg-[#C9A94D] text-white" : ""}`} onClick={() => handlePropertyTypeChange(type)}>
+                                    {type}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Date Range Picker */}
+                    <div className="relative">
+                        <DatePicker
+                            selected={filters.startDate}
+                            onChange={handleDateChange}
+                            startDate={filters.startDate}
+                            endDate={filters.endDate}
+                            selectsRange
+                            placeholderText="Select Period"
+                            className="bg-[#C9A94D] hover:bg-[#b89742] text-white p-2 rounded-[8px] cursor-pointer text-center w-40 flex items-center justify-center gap-2"
+                            customInput={
+                                <Button className="bg-[#C9A94D] hover:bg-[#b89742] text-white p-2 rounded-[8px] flex items-center gap-2 w-full">
+                                    <Calendar className="w-4 h-4" />
+                                    Period
+                                    {(filters.startDate || filters.endDate) && <span className="w-2 h-2 bg-white rounded-full"></span>}
+                                </Button>
+                            }
+                            calendarClassName="border border-[#C9A94D]"
+                        />
+                    </div>
                 </div>
+
+                {/* Active Filters Display */}
+                {hasActiveFilters && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {filters.propertyType && <span className="bg-[#C9A94D] text-white px-2 py-1 rounded text-xs">Type: {filters.propertyType}</span>}
+                        {filters.startDate && (
+                            <span className="bg-[#C9A94D] text-white px-2 py-1 rounded text-xs">
+                                {filters.startDate?.toLocaleDateString()}
+                                {filters.endDate && ` - ${filters.endDate?.toLocaleDateString()}`}
+                            </span>
+                        )}
+                    </div>
+                )}
             </CardFooter>
         </Card>
     );
