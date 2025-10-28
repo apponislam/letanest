@@ -4,7 +4,6 @@ import React from "react";
 const page = () => {
     return (
         <>
-            {/* <PropertyPage></PropertyPage> */}
             <PropertyPage2></PropertyPage2>
         </>
     );
