@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Star, MessagesSquare, Loader2, MessageCircle } from "lucide-react";
+import { Star, MessagesSquare, Loader2, MessageCircle, CalendarIcon } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSocket } from "@/redux/features/socket/socketHooks";
@@ -16,6 +16,13 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import ReportHostModal from "./RepostHost";
 import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+import DatePicker from "react-datepicker";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Calendar } from "../ui/calendar";
+import { DateRange } from "react-day-picker";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: number; className?: string }) => {
@@ -43,10 +50,14 @@ const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: numb
 
 export default function MessagesLayout2() {
     const { user } = useSelector((state: RootState) => state.auth);
-    const { isConnected, onlineUsers, connectSocket, disconnectSocket, joinConversation, leaveConversation, sendTyping, getTypingUsers, isUserOnline } = useSocket();
+    const { isConnected, connectSocket, joinConversation, leaveConversation, sendTyping, getTypingUsers, isUserOnline } = useSocket();
     // const [markConversationAsRead] = useMarkConversationAsReadsMutation();
     const [markConversationAsReads] = useMarkConversationAsReadsMutation();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+    // Add these to your component state
+    const [date, setDate] = React.useState<DateRange | undefined>();
+    const [calculatedPrice, setCalculatedPrice] = useState(0);
 
     // Connect socket when component mounts
     useEffect(() => {
@@ -218,43 +229,95 @@ export default function MessagesLayout2() {
         }
     };
 
+    // const handleSendOffer = async () => {
+    //     if (!selectedProperty || !agreed || !user || !selectedConversation) {
+    //         console.warn("⚠️ Cannot send offer - missing requirements:", {
+    //             selectedProperty,
+    //             agreed,
+    //             user: !!user,
+    //             conversation: !!selectedConversation,
+    //         });
+    //         return;
+    //     }
+
+    //     // Collect input values
+    //     const checkInInput = (document.querySelector<HTMLInputElement>("#checkInDate")?.value || "").trim();
+    //     const checkOutInput = (document.querySelector<HTMLInputElement>("#checkOutDate")?.value || "").trim();
+    //     const feeInput = (document.querySelector<HTMLInputElement>("#offerFee")?.value || "").trim();
+
+    //     if (!checkInInput || !checkOutInput || !feeInput) {
+    //         console.warn("⚠️ Offer missing required fields (dates or fee)");
+    //         return;
+    //     }
+
+    //     try {
+    //         // Convert string dates to Date objects
+    //         const checkInDate = new Date(checkInInput);
+    //         const checkOutDate = new Date(checkOutInput);
+
+    //         // Validate dates
+    //         if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+    //             console.warn("⚠️ Invalid dates provided");
+    //             return;
+    //         }
+
+    //         console.log("📤 Sending offer:", {
+    //             propertyId: selectedProperty,
+    //             checkInDate: checkInDate,
+    //             checkOutDate: checkOutDate,
+    //             agreedFee: feeInput,
+    //         });
+
+    //         await sendMessage({
+    //             conversationId: selectedConversation,
+    //             sender: user._id,
+    //             type: "offer",
+    //             propertyId: selectedProperty,
+    //             checkInDate: checkInDate.toISOString(),
+    //             checkOutDate: checkOutDate.toISOString(),
+    //             agreedFee: feeInput,
+    //         }).unwrap();
+
+    //         console.log("✅ Offer sent successfully");
+
+    //         // Reset modal and inputs
+    //         setShowOfferModal(false);
+    //         setSelectedProperty(null);
+    //         setAgreed(false);
+
+    //         // Refetch latest data
+    //         setTimeout(() => {
+    //             refetchMessages();
+    //             refetchConversations();
+    //         }, 100);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
+
+    // Handle typing with proper debounce
+
     const handleSendOffer = async () => {
-        if (!selectedProperty || !agreed || !user || !selectedConversation) {
+        if (!selectedProperty || !agreed || !user || !selectedConversation || !date?.from || !date?.to || calculatedPrice === 0) {
             console.warn("⚠️ Cannot send offer - missing requirements:", {
                 selectedProperty,
                 agreed,
                 user: !!user,
                 conversation: !!selectedConversation,
+                dateFrom: !!date?.from,
+                dateTo: !!date?.to,
+                calculatedPrice,
             });
             return;
         }
 
-        // Collect input values
-        const checkInInput = (document.querySelector<HTMLInputElement>("#checkInDate")?.value || "").trim();
-        const checkOutInput = (document.querySelector<HTMLInputElement>("#checkOutDate")?.value || "").trim();
-        const feeInput = (document.querySelector<HTMLInputElement>("#offerFee")?.value || "").trim();
-
-        if (!checkInInput || !checkOutInput || !feeInput) {
-            console.warn("⚠️ Offer missing required fields (dates or fee)");
-            return;
-        }
-
         try {
-            // Convert string dates to Date objects
-            const checkInDate = new Date(checkInInput);
-            const checkOutDate = new Date(checkOutInput);
-
-            // Validate dates
-            if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
-                console.warn("⚠️ Invalid dates provided");
-                return;
-            }
-
             console.log("📤 Sending offer:", {
                 propertyId: selectedProperty,
-                checkInDate: checkInDate,
-                checkOutDate: checkOutDate,
-                agreedFee: feeInput,
+                checkInDate: date.from,
+                checkOutDate: date.to,
+                agreedFee: calculatedPrice,
+                nights: Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24)),
             });
 
             await sendMessage({
@@ -262,9 +325,9 @@ export default function MessagesLayout2() {
                 sender: user._id,
                 type: "offer",
                 propertyId: selectedProperty,
-                checkInDate: checkInDate.toISOString(),
-                checkOutDate: checkOutDate.toISOString(),
-                agreedFee: feeInput,
+                checkInDate: date.from.toISOString(),
+                checkOutDate: date.to.toISOString(),
+                agreedFee: calculatedPrice.toString(), // Convert to string if your API expects string
             }).unwrap();
 
             console.log("✅ Offer sent successfully");
@@ -273,6 +336,8 @@ export default function MessagesLayout2() {
             setShowOfferModal(false);
             setSelectedProperty(null);
             setAgreed(false);
+            setDate(undefined);
+            setCalculatedPrice(0);
 
             // Refetch latest data
             setTimeout(() => {
@@ -280,11 +345,10 @@ export default function MessagesLayout2() {
                 refetchConversations();
             }, 100);
         } catch (error) {
-            console.log(error);
+            console.error("❌ Failed to send offer:", error);
         }
     };
 
-    // Handle typing with proper debounce
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputText(e.target.value);
 
@@ -422,6 +486,8 @@ export default function MessagesLayout2() {
     };
 
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
+
+    console.log(publishedProperties);
 
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">
@@ -655,7 +721,7 @@ export default function MessagesLayout2() {
                                                 </button>
 
                                                 {/* Offer Modal */}
-                                                {showOfferModal && (
+                                                {/* {showOfferModal && (
                                                     <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]">
                                                         <div className="flex justify-between items-center mb-3">
                                                             <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
@@ -664,7 +730,6 @@ export default function MessagesLayout2() {
                                                             </button>
                                                         </div>
 
-                                                        {/* Property Selection */}
                                                         <div className="mb-4">
                                                             <label className="block text-sm font-medium text-[#14213D] mb-2">Select Property</label>
                                                             {isLoading ? (
@@ -688,7 +753,6 @@ export default function MessagesLayout2() {
                                                             )}
                                                         </div>
 
-                                                        {/* Date and Price Inputs */}
                                                         <div className="space-y-3 mb-4">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="flex-1">
@@ -708,6 +772,161 @@ export default function MessagesLayout2() {
                                                             </div>
                                                         </div>
 
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
+                                                            <label htmlFor="agree" className="text-sm text-gray-700 cursor-pointer select-none">
+                                                                I agree to the{" "}
+                                                                <Link href="/terms-of-conditions" target="_blank" className="text-[#C9A94D] hover:underline">
+                                                                    T&Cs
+                                                                </Link>
+                                                            </label>
+                                                        </div>
+
+                                                        <div className="flex gap-2">
+                                                            <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                                                                Send Offer
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setShowOfferModal(false);
+                                                                    setSelectedProperty(null);
+                                                                    setAgreed(false);
+                                                                }}
+                                                                className="px-4 py-2 border border-gray-300 rounded-lg text-[#14213D] text-sm"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )} */}
+                                                {showOfferModal && (
+                                                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]">
+                                                        <div className="flex justify-between items-center mb-3">
+                                                            <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
+                                                            <button onClick={() => setShowOfferModal(false)} className="text-gray-500 hover:text-gray-700">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Property Selection */}
+                                                        <div className="mb-4">
+                                                            <label className="block text-sm font-medium text-[#14213D] mb-2">Select Property</label>
+                                                            {isLoading ? (
+                                                                <div className="text-center py-2">
+                                                                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                                                                    <span className="text-xs text-gray-600">Loading properties...</span>
+                                                                </div>
+                                                            ) : publishedProperties?.data ? (
+                                                                <div className="space-y-2 max-h-20 overflow-y-auto">
+                                                                    {publishedProperties.data.map((property: any) => (
+                                                                        <label key={property._id} className="flex items-center space-x-2 cursor-pointer">
+                                                                            <input
+                                                                                type="radio"
+                                                                                name="property"
+                                                                                value={property._id}
+                                                                                checked={selectedProperty === property._id}
+                                                                                onChange={(e) => {
+                                                                                    setSelectedProperty(e.target.value);
+                                                                                    // Reset dates when property changes
+                                                                                    setDate(undefined);
+                                                                                    setCalculatedPrice(0);
+                                                                                }}
+                                                                                className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]"
+                                                                            />
+                                                                            <span className="text-sm">
+                                                                                Property No: <span className="text-[#C9A94D] font-bold">{property.propertyNumber}</span> - Price: <span className="text-[#C9A94C] font-bold">£{property.price}</span>/night
+                                                                            </span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-sm text-gray-600">No published properties found</p>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Get selected property data */}
+                                                        {(() => {
+                                                            const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
+                                                            const propertyPrice = selectedPropertyData?.price || 0;
+                                                            const availableFrom = selectedPropertyData?.availableFrom ? new Date(selectedPropertyData.availableFrom) : new Date();
+                                                            const availableTo = selectedPropertyData?.availableTo ? new Date(selectedPropertyData.availableTo) : new Date();
+
+                                                            return (
+                                                                selectedPropertyData && (
+                                                                    <>
+                                                                        {/* Date Range Picker */}
+                                                                        <div className="space-y-3 mb-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium text-[#14213D] mb-2">Select Dates</label>
+                                                                                <Popover>
+                                                                                    <PopoverTrigger asChild>
+                                                                                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal border-[#C9A94D] hover:bg-[#C9A94D]/10", !date && "text-muted-foreground")}>
+                                                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                                            {date?.from ? (
+                                                                                                date.to ? (
+                                                                                                    <>
+                                                                                                        {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                                                                                                    </>
+                                                                                                ) : (
+                                                                                                    format(date.from, "LLL dd, y")
+                                                                                                )
+                                                                                            ) : (
+                                                                                                <span>Pick a date range</span>
+                                                                                            )}
+                                                                                        </Button>
+                                                                                    </PopoverTrigger>
+                                                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                                                        <Calendar
+                                                                                            initialFocus
+                                                                                            mode="range"
+                                                                                            defaultMonth={date?.from}
+                                                                                            selected={date}
+                                                                                            onSelect={(newDate) => {
+                                                                                                setDate(newDate);
+                                                                                                if (newDate?.from && newDate?.to) {
+                                                                                                    const nights = Math.ceil((newDate.to.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                                    setCalculatedPrice(nights * propertyPrice);
+                                                                                                } else {
+                                                                                                    setCalculatedPrice(0);
+                                                                                                }
+                                                                                            }}
+                                                                                            numberOfMonths={2}
+                                                                                            disabled={(day) => {
+                                                                                                // Disable dates outside the available range
+                                                                                                return day < new Date(day.setHours(0, 0, 0, 0)) || day < availableFrom || day > availableTo;
+                                                                                            }}
+                                                                                        />
+                                                                                    </PopoverContent>
+                                                                                </Popover>
+                                                                                <p className="text-xs text-gray-500 mt-2">
+                                                                                    Available: {availableFrom.toLocaleDateString()} - {availableTo.toLocaleDateString()}
+                                                                                </p>
+                                                                            </div>
+
+                                                                            {/* Price Calculation Display */}
+                                                                            {calculatedPrice > 0 && date?.from && date?.to && (
+                                                                                <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-3">
+                                                                                    <div className="flex justify-between items-center text-sm">
+                                                                                        <span className="text-[#14213D] font-medium">Your Offer:</span>
+                                                                                        <span className="text-[#C9A94D] font-bold text-lg">£{calculatedPrice}</span>
+                                                                                    </div>
+                                                                                    <div className="text-xs text-gray-600 mt-1">
+                                                                                        {(() => {
+                                                                                            const nights = Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                            return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
+                                                                                        })()}
+                                                                                    </div>
+                                                                                    <div className="text-xs text-gray-600 mt-1">
+                                                                                        Dates: {date.from.toLocaleDateString()} - {date.to.toLocaleDateString()}
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </>
+                                                                )
+                                                            );
+                                                        })()}
+
                                                         {/* ✅ Agree to T&Cs */}
                                                         <div className="flex items-center gap-2 mb-3">
                                                             <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
@@ -721,7 +940,7 @@ export default function MessagesLayout2() {
 
                                                         {/* Action Buttons */}
                                                         <div className="flex gap-2">
-                                                            <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                                                            <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || !date?.from || !date?.to || calculatedPrice === 0} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
                                                                 Send Offer
                                                             </button>
                                                             <button
@@ -729,6 +948,8 @@ export default function MessagesLayout2() {
                                                                     setShowOfferModal(false);
                                                                     setSelectedProperty(null);
                                                                     setAgreed(false);
+                                                                    setDate(undefined);
+                                                                    setCalculatedPrice(0);
                                                                 }}
                                                                 className="px-4 py-2 border border-gray-300 rounded-lg text-[#14213D] text-sm"
                                                             >
