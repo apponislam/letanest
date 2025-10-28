@@ -5,6 +5,13 @@ export enum RatingType {
     PROPERTY = "property",
     SITE = "site",
 }
+
+export enum RatingStatus {
+    PENDING = "pending",
+    APPROVED = "approved",
+    REJECTED = "rejected",
+}
+
 // Rating interfaces for the API
 interface CreateRatingData {
     type: RatingType;
@@ -32,6 +39,8 @@ interface Rating {
     overallExperience: number;
     country?: string;
     description?: string;
+    isDeleted: boolean;
+    status: RatingStatus;
     createdAt: string;
     updatedAt: string;
 }
@@ -97,7 +106,7 @@ export const ratingApi = baseApi.injectEndpoints({
                     page: number;
                     limit: number;
                     total: number;
-                }; // Remove totalPages from here
+                };
             },
             { propertyId: string; page?: number; limit?: number }
         >({
@@ -349,6 +358,22 @@ export const ratingApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["MyRatings"],
         }),
+        updateRatingStatus: builder.mutation<
+            {
+                success: boolean;
+                message: string;
+                data: Rating;
+            },
+            { ratingId: string; status: string }
+        >({
+            query: ({ ratingId, status }) => ({
+                url: `/rating/admin/${ratingId}/status`,
+                method: "PATCH",
+                body: { status },
+                credentials: "include",
+            }),
+            invalidatesTags: ["Rating"],
+        }),
     }),
 });
 
@@ -369,4 +394,5 @@ export const {
     useGetAdminRatingStatsQuery,
     // my ratings check
     useCheckUserPropertiesRatingMutation,
+    useUpdateRatingStatusMutation,
 } = ratingApi;
