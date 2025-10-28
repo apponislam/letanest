@@ -86,11 +86,12 @@ export const dashboardApi = baseApi.injectEndpoints({
             }),
             providesTags: ["Dashboard"],
         }),
-        getPropertyStatusStats: builder.query<PropertyStatusStatsResponse, void>({
-            query: () => ({
+        getPropertyStatusStats: builder.query<PropertyStatusStatsResponse, { propertyType?: string; startDate?: string; endDate?: string }>({
+            query: (filters = {}) => ({
                 url: "/dashboard/property-status",
                 method: "GET",
                 credentials: "include",
+                params: filters,
             }),
             providesTags: ["Dashboard"],
         }),

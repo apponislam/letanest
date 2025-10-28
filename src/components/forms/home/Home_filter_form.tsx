@@ -98,7 +98,7 @@ const HomeFilterForm = () => {
 
         if (filters.minPrice > 0) params.set("minPrice", filters.minPrice.toString());
         if (filters.maxPrice < 3000) params.set("maxPrice", filters.maxPrice.toString());
-        if (filters.propertyTypes.length > 0) params.set("propertyType", filters.propertyTypes.join(","));
+        if (filters.propertyTypes.length > 0) params.set("propertyTypes", filters.propertyTypes.join(","));
         if (filters.location) params.set("location", filters.location);
         if (filters.bedrooms > 1) params.set("bedrooms", filters.bedrooms.toString());
 
