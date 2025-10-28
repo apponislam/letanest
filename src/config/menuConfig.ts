@@ -34,8 +34,14 @@ export const menuItems = {
     ],
 };
 
-export const roleRoutes = {
-    [roles.GUEST]: ["/dashboard", "/messages", "/contact", "/dashboard/memberships", "/dashboard/payment-methods"],
-    [roles.HOST]: ["/dashboard", "/messages", "/dashboard/transaction", "/dashboard/memberships", "/dashboard/property-listing", "/dashboard/terms-conditions", "/dashboard/payment-methods"],
-    [roles.ADMIN]: ["/dashboard", "/messages", "/dashboard/contacts", "/dashboard/user", "/dashboard/transaction", "/dashboard/review", "/dashboard/reports", "/dashboard/terms-conditions", "/dashboard/property-management", "/dashboard/memberships", "/dashboard/authentication", "/dashboard/host-verify"],
+// export const roleRoutes = {
+//     [roles.GUEST]: ["/dashboard", "/messages", "/contact", "/dashboard/memberships", "/dashboard/payment-methods"],
+//     [roles.HOST]: ["/dashboard", "/messages", "/dashboard/transaction", "/dashboard/memberships", "/dashboard/property-listing", "/dashboard/terms-conditions", "/dashboard/payment-methods"],
+//     [roles.ADMIN]: ["/dashboard", "/messages", "/dashboard/contacts", "/dashboard/user", "/dashboard/transaction", "/dashboard/review", "/dashboard/reports", "/dashboard/terms-conditions", "/dashboard/property-management", "/dashboard/memberships", "/dashboard/authentication", "/dashboard/host-verify"],
+// };
+
+export const roleRoutes: Record<string, string[]> = {
+    GUEST: ["/dashboard", "/messages", "/contact", "/dashboard/memberships", "/dashboard/payment-methods"],
+    HOST: ["/dashboard", "/messages", "/dashboard/transaction", "/dashboard/memberships", "/dashboard/property-listing", "/dashboard/terms-conditions", "/dashboard/payment-methods"],
+    ADMIN: ["/dashboard", "/messages", "/contact", "/dashboard/contacts", "/dashboard/user", "/dashboard/transaction", "/dashboard/review", "/dashboard/reports", "/dashboard/terms-conditions", "/dashboard/property-management", "/dashboard/memberships", "/dashboard/authentication", "/dashboard/host-verify", "/dashboard/property-listing", "/dashboard/payment-methods"],
 };

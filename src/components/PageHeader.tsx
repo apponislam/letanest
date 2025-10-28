@@ -24,6 +24,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
     const dispatch = useDispatch();
     const [logout] = useLogoutMutation();
     const { data: myprofile } = useGetMyProfileQuery();
+    console.log(myprofile);
 
     const handleLogout = async () => {
         const loadingToast = toast.loading("Logging out...");
@@ -44,9 +45,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
                 <ArrowLeft />
                 <p>Back To Previous</p>
             </div>
-
             <h1 className="text-2xl text-[#C9A94D]">{title}</h1>
-
             {isUser && (
                 <>
                     {user ? (
@@ -56,7 +55,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
                                     {user?.profileImg ? <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${user.profileImg}`} alt={user.name || "User"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover h-[30px] w-[30px]" /> : <Avatar name={user?.name || "User"} size={30} />}
                                     <div className="flex flex-col items-start">
                                         <div className="text-[#C9A94D] text-[18px] leading-none">{user?.name || "User"}</div>
-                                        {myprofile?.data.subscriptions.activeSubscriptions[0]?.subscription?.subscription?.badge && <button className="bg-[#C9A94D] text-white px-2 rounded-[20px] text-[12px] w-auto">{myprofile.data.subscriptions.activeSubscriptions[0].subscription.subscription.badge}</button>}
+                                        {myprofile?.data?.subscriptions?.currentSubscription?.subscription?.badge && <button className="bg-[#C9A94D] text-white px-2 rounded-[20px] text-[12px] w-auto">{myprofile.data.subscriptions.currentSubscription.subscription.badge}</button>}
                                     </div>
                                 </div>
                             </DropdownMenuTrigger>
