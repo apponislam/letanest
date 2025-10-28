@@ -134,7 +134,7 @@ const HostDash = () => {
                         </button>
                     </div> */}
                     <div className="flex items-center justify-center flex-col gap-2">
-                        <Image src={randomAdminData?.data?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${randomAdminData.data.profileImg}` : "/default-avatar.png"} alt={randomAdminData?.data?.name || "Admin"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
+                        <Image src={randomAdminData?.data?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${randomAdminData.data.profileImg}` : "/home/avatar.jpg"} alt={randomAdminData?.data?.name || "Admin"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
                         <p>Contact {randomAdminData?.data?.name || "Admin"}</p>
                         <button onClick={handleSupport} disabled={isSending} className="bg-[#C9A94D] rounded-[10px] px-4 py-1 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                             <Image src="/dashboard/host/message-activity.png" alt="Message Icon" width={24} height={24} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
