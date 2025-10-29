@@ -24,7 +24,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
     const dispatch = useDispatch();
     const [logout] = useLogoutMutation();
     const { data: myprofile } = useGetMyProfileQuery();
-    console.log(myprofile);
+    // console.log(myprofile);
 
     const handleLogout = async () => {
         const loadingToast = toast.loading("Logging out...");

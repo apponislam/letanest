@@ -41,9 +41,13 @@ interface GetUsersParams {
 
 interface GetUsersResponse {
     data: IUser[];
-    total: number;
-    page: number;
-    limit: number;
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+    };
+    success: boolean;
+    message: string;
 }
 
 export interface UpdateProfileRequest {
@@ -181,6 +185,27 @@ export interface GetMyProfileResponse {
     data: IUserWithSubscriptions;
 }
 
+export interface ChangeRoleRequest {
+    userId: string;
+    newRole: Role;
+}
+
+export interface ChangeRoleResponse {
+    success: boolean;
+    message: string;
+    data: IUser;
+}
+
+export interface DeleteUserRequest {
+    userId: string;
+}
+
+export interface DeleteUserResponse {
+    success: boolean;
+    message: string;
+    data: IUser;
+}
+
 export const userApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
@@ -227,7 +252,7 @@ export const userApi = baseApi.injectEndpoints({
             providesTags: ["MySubscriptions"],
         }),
 
-        // 🆕 ✅ Activate Free Tier
+        //  Activate Free Tier
         activateFreeTier: build.mutation<{ success: boolean; message: string; data?: any }, { subscriptionId: string }>({
             query: (data) => ({
                 url: "/users/me/free-tier/activate",
@@ -237,7 +262,7 @@ export const userApi = baseApi.injectEndpoints({
             invalidatesTags: ["MySubscriptions", "Users"],
         }),
 
-        // 🆕 ✅ Stripe Connect Endpoints
+        //  Stripe Connect Endpoints
         connectStripeAccount: build.mutation<ConnectStripeResponse, void>({
             query: () => ({
                 url: "/users/stripe/connect",
@@ -290,6 +315,26 @@ export const userApi = baseApi.injectEndpoints({
             }),
             providesTags: ["RandomAdmin"],
         }),
+
+        // Change User Role (Admin only)
+        changeUserRole: build.mutation<ChangeRoleResponse, ChangeRoleRequest>({
+            query: (data) => ({
+                url: "/users/change-role",
+                method: "PATCH",
+                body: data,
+            }),
+            invalidatesTags: ["Users"],
+        }),
+
+        // Delete User (Admin only - soft delete)
+        deleteUser: build.mutation<DeleteUserResponse, DeleteUserRequest>({
+            query: (data) => ({
+                url: "/users/delete",
+                method: "PATCH",
+                body: data,
+            }),
+            invalidatesTags: ["Users"],
+        }),
     }),
 });
 
@@ -309,4 +354,8 @@ export const {
     useGetMyProfileQuery,
     // get random admin
     useGetRandomAdminQuery,
+
+    //Admin management hooks
+    useChangeUserRoleMutation,
+    useDeleteUserMutation,
 } = userApi;

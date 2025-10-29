@@ -24,10 +24,11 @@ const UserDash = () => {
         role: roleFilter,
     });
 
-    console.log(usersData);
+    console.log("Users Data:", usersData);
+
     const users = usersData?.data || [];
-    const totalUsers = usersData?.total || 0;
-    const totalPages = usersData ? Math.ceil(totalUsers / itemsPerPage) : 0;
+    const totalUsers = usersData?.meta?.total || 0;
+    const totalPages = Math.ceil(totalUsers / itemsPerPage);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -35,12 +36,12 @@ const UserDash = () => {
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
-        setCurrentPage(1); // Reset to first page when searching
+        setCurrentPage(1);
     };
 
-    const handleRoleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setRoleFilter(e.target.value);
-        setCurrentPage(1); // Reset to first page when filtering
+    const handleRoleFilterChange = (value: string) => {
+        setRoleFilter(value === "all" ? "" : value);
+        setCurrentPage(1);
     };
 
     // Calculate serial number for each user
@@ -80,7 +81,7 @@ const UserDash = () => {
                     <div className="gap-5 bg-[#2D3546] rounded-2xl p-5">
                         <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
                             <div className="flex flex-col md:flex-row gap-4">
-                                <Select value={roleFilter || "all"} onValueChange={(value) => handleRoleFilterChange({ target: { value: value === "all" ? "" : value } } as React.ChangeEvent<HTMLSelectElement>)}>
+                                <Select value={roleFilter || "all"} onValueChange={handleRoleFilterChange}>
                                     <SelectTrigger className="rounded-[12px] text-white bg-[#C9A94D] border border-[#C9A94D] py-2 px-3 text-sm focus:outline-none focus:ring-0">
                                         <SelectValue placeholder="All Roles" />
                                     </SelectTrigger>
@@ -149,7 +150,7 @@ const UserDash = () => {
                             </div>
                         </div>
 
-                        {/* Pagination */}
+                        {/* Pagination - Fixed data access */}
                         {totalPages > 0 && (
                             <div className="flex justify-between items-center mt-6 gap-2">
                                 {/* Results count */}

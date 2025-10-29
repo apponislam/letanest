@@ -16,13 +16,13 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import ReportHostModal from "./RepostHost";
 import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
-import DatePicker from "react-datepicker";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { DateRange } from "react-day-picker";
+import ReportModal from "./RepostHost";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: number; className?: string }) => {
@@ -601,28 +601,36 @@ export default function MessagesLayout2() {
                                 )}
                                 <div className="flex-1 text-[#14213D]">
                                     {/* <h1 className="text-xl font-bold">{otherParticipant?.name || "Unknown User"}</h1> */}
-                                    <h1 className="text-xl font-bold"> {getDisplayName(otherParticipant?.name, otherParticipant?.role)}</h1>
+                                    <div className="flex items-center gap-4">
+                                        <h1 className="text-xl font-bold"> {getDisplayName(otherParticipant?.name, otherParticipant?.role)}</h1>
+                                        {otherParticipant.role === "HOST" ? (
+                                            <button className="bg-[#C9A94D] px-2 text-white rounded-[4px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
+                                                Report Host
+                                            </button>
+                                        ) : (
+                                            <button className="bg-[#14213D] px-2 text-white rounded-[4px] hover:bg-[#0f1a2f] transition-colors" onClick={() => setIsReportModalOpen(true)}>
+                                                Report Guest
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant.role}</p>
-                                        {/* <div className="flex items-center gap-2">
-                                            <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
-                                            <p>4.5</p>
-                                        </div> */}
+
                                         {otherParticipant?.role === "HOST" && (
                                             <div className="flex items-center gap-2">
                                                 <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
                                                 <p>{ratingStats?.data?.averageRating?.toFixed(1) || "0.0"}</p>
                                             </div>
                                         )}
-                                        {otherParticipant.role === "HOST" && (
+                                        {/* {otherParticipant.role === "HOST" && (
                                             <button className="bg-[#C9A94D] px-2 text-white rounded-[10px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
                                                 Report Host
                                             </button>
-                                        )}
+                                        )} */}
                                         {/* <div className={`text-sm font-medium ${isUserOnline(otherParticipant?._id) ? "text-green-300" : "text-gray-600"}`}>{isUserOnline(otherParticipant?._id) ? "Online" : "Offline"}</div> */}
                                     </div>
                                 </div>
-                                {otherParticipant.role === "HOST" && <ReportHostModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} hostId={otherParticipant._id} hostName={otherParticipant.name} />}
+                                <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} reportedUserId={otherParticipant._id} reportedUserName={otherParticipant.name} reportedUserRole="HOST" conversationId={selectedConversation} />
                                 {/* <div className={`px-3 py-1 rounded-full text-xs font-medium ${isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{isConnected ? "Connected" : "Disconnected"}</div> */}
                             </div>
                         </div>

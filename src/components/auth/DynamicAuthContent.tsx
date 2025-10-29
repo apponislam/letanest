@@ -58,17 +58,19 @@ const DynamicAuthContent: React.FC<DynamicAuthContentProps> = ({ pageType }) => 
 
     return (
         <div className="w-full md:w-full lg:w-1/2 py-4 px-4 md:pt-[100px] md:pl-[100px] md:pb-[100px]">
-            <Image
-                src={getFullImageUrl(content.logo)}
-                width={307}
-                height={61}
-                alt="Letanest Logo"
-                className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"
-                onError={(e) => {
-                    // Fallback to default logo if image fails to load
-                    e.currentTarget.src = defaultContent.logo;
-                }}
-            />
+            <Link href="/" className="cursor-pointer">
+                <Image
+                    src={getFullImageUrl(content.logo)}
+                    width={307}
+                    height={61}
+                    alt="Letanest Logo"
+                    className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"
+                    onError={(e) => {
+                        // Fallback to default logo if image fails to load
+                        e.currentTarget.src = defaultContent.logo;
+                    }}
+                />
+            </Link>
             <h1 className="text-white text-3xl md:text-5xl mb-5">{content.title}</h1>
 
             {/* Only show the link paragraph for signin page */}
