@@ -1,7 +1,7 @@
 import { baseApi } from "../../api/baseApi";
 
 export interface IPayment {
-    _id: string; // string instead of ObjectId for frontend
+    _id: string;
     stripePaymentIntentId: string;
 
     agreedFee: number;
@@ -139,6 +139,23 @@ interface PaymentStatsResponse {
 interface DownloadPDFRequest {
     fromDate: string;
     toDate: string;
+}
+
+interface GetPaymentsByPropertyResponse {
+    success: boolean;
+    message: string;
+    data: IPayment[];
+    meta: {
+        page: number;
+        limit: number;
+        total: number;
+    };
+}
+
+interface GetPaymentsByPropertyParams {
+    page?: number;
+    limit?: number;
+    search?: string;
 }
 
 export const paymentApi = baseApi.injectEndpoints({
@@ -340,6 +357,25 @@ export const paymentApi = baseApi.injectEndpoints({
                 }
             },
         }),
+        getPaymentsByProperty: builder.query<GetPaymentsByPropertyResponse, { propertyId: string; params?: GetPaymentsByPropertyParams }>({
+            query: ({ propertyId, params = {} }) => {
+                const searchParams = new URLSearchParams();
+                searchParams.append("page", (params.page || 1).toString());
+                searchParams.append("limit", (params.limit || 10).toString());
+
+                // Only add search parameter if provided
+                if (params.search) {
+                    searchParams.append("search", params.search);
+                }
+
+                return {
+                    url: `/property-payment/property/${propertyId}?${searchParams.toString()}`,
+                    method: "GET",
+                    credentials: "include",
+                };
+            },
+            providesTags: (result, error, { propertyId }) => [{ type: "propertyPayments", id: propertyId }],
+        }),
     }),
 });
 
@@ -357,4 +393,5 @@ export const {
     useDownloadHostPaymentsPDFMutation,
     // PDF Download
     useDownloadPaymentsPDFMutation,
+    useGetPaymentsByPropertyQuery,
 } = paymentApi;

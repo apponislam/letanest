@@ -14,7 +14,6 @@ import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import ReportHostModal from "./RepostHost";
 import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
@@ -25,7 +24,7 @@ import { DateRange } from "react-day-picker";
 import ReportModal from "./RepostHost";
 
 // Avatar component for fallback
-const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: number; className?: string }) => {
+const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
     const getInitials = (fullName: string) => {
         return fullName
             .split(" ")
@@ -42,7 +41,7 @@ const Avatar = ({ name, size = 48, className = "" }: { name: string; size?: numb
     };
 
     return (
-        <div className={`rounded-full border-2 border-white flex items-center justify-center text-white font-semibold ${getBackgroundColor(name)} ${className}`} style={{ width: size, height: size }}>
+        <div className={`rounded-full border-2 flex items-center justify-center text-white font-semibold ${getBackgroundColor(name)} ${className} ${isVerified ? "border-green-500" : "border-white"}`} style={{ width: size, height: size }}>
             {getInitials(name)}
         </div>
     );
@@ -399,7 +398,7 @@ export default function MessagesLayout2() {
     const otherParticipant = currentConversation?.participants?.find((p: any) => p._id !== user?._id);
 
     // Filter out current user from typing indicators
-    const otherUserTyping = typingUsers.filter((userId) => userId !== user?._id);
+    const otherUserTyping = typingUsers.filter((userId: any) => userId !== user?._id);
 
     const { data: ratingStats } = useGetHostRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
         skip: !otherParticipant || otherParticipant.role !== "HOST",
@@ -506,10 +505,6 @@ export default function MessagesLayout2() {
                                 </button>
                             </div>
                         )}
-                        {/* <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`} title={isConnected ? "Connected" : "Disconnected"} />
-                            <span className="text-xs text-[#14213D]">{onlineUsers.length} online</span>
-                        </div> */}
                     </div>
 
                     <div className="flex items-center border border-[#C9A94D] rounded-lg px-3 py-2 bg-white">
@@ -529,26 +524,37 @@ export default function MessagesLayout2() {
                             const otherParticipant = conversation.participants.find((p: any) => p._id !== user?._id);
                             const unreadCount = getUnreadCount(conversation);
                             const isOnline = isUserOnline(otherParticipant?._id);
+                            console.log(otherParticipant);
 
                             return (
                                 <div key={conversation._id} className={`flex flex-col p-3 cursor-pointer hover:bg-[#9399A6] rounded-lg transition-colors ${selectedConversation === conversation._id ? "bg-[#9399A6] shadow-md" : ""}`} onClick={() => handleConversationClick(conversation._id)}>
                                     <div className="flex items-center gap-3">
                                         <div className="relative">
                                             {otherParticipant?.profileImg ? (
-                                                <Image
-                                                    src={`${backendURL}${otherParticipant.profileImg}`}
-                                                    alt={otherParticipant?.name}
-                                                    width={48}
-                                                    height={48}
-                                                    className="rounded-full border-2 border-white object-cover h-12 w-12"
-                                                    onError={(e) => {
-                                                        // If image fails to load, the parent will render the Avatar component
-                                                        e.currentTarget.style.display = "none";
-                                                    }}
-                                                />
+                                                <div className="relative">
+                                                    <Image
+                                                        src={`${backendURL}${otherParticipant.profileImg}`}
+                                                        alt={otherParticipant?.name}
+                                                        width={48}
+                                                        height={48}
+                                                        className={`rounded-full border-2 object-cover h-12 w-12 ${otherParticipant?.isVerifiedByAdmin ? "border-green-500" : "border-white"}`}
+                                                        onError={(e) => {
+                                                            // If image fails to load, the parent will render the Avatar component
+                                                            e.currentTarget.style.display = "none";
+                                                        }}
+                                                    />
+                                                    {/* Verified text at bottom center for Image */}
+                                                    {otherParticipant?.isVerifiedByAdmin && <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-[8px] px-1 rounded-[4px] whitespace-nowrap">verified</div>}
+                                                </div>
                                             ) : null}
-                                            {/* <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? "bg-green-500" : "bg-gray-400"}`} title={isOnline ? "Online" : "Offline"} /> */}
-                                            {!otherParticipant?.profileImg && <Avatar name={otherParticipant?.name || "Unknown User"} size={48} />}
+
+                                            {!otherParticipant?.profileImg && (
+                                                <div className="relative">
+                                                    <Avatar name={otherParticipant?.name || "Unknown User"} size={48} isVerified={otherParticipant?.isVerifiedByAdmin} />
+                                                    {/* Verified text at bottom center for Avatar */}
+                                                    {otherParticipant?.isVerifiedByAdmin && <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-[8px] px-1 rounded-[4px] whitespace-nowrap">verified</div>}
+                                                </div>
+                                            )}
 
                                             {/* Unread count badge */}
                                             {unreadCount > 0 && <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{unreadCount > 9 ? "9+" : unreadCount}</div>}
@@ -1013,6 +1019,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                 conversationId: message.conversationId,
             }).unwrap();
         } catch (error) {
+            console.log(error);
             console.error("Failed to reject offer:", error);
         }
     };
@@ -1117,6 +1124,13 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                         </div>
                     </div>
 
+                    {message.guestNo && (
+                        <p className="text-xs flex justify-between mb-1">
+                            <span className="text-gray-700">Number of Guests:</span>
+                            <span className="font-medium">{message.guestNo}</span>
+                        </p>
+                    )}
+
                     {/* Fees with currency formatting */}
                     <p className="text-xs flex justify-between mb-1">
                         <span className="text-gray-700">Agreed Fee:</span>
@@ -1151,6 +1165,94 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                             {/* <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold hover:bg-[#363D4F] transition-colors">Cancel</button> */}
                             <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isRejecting ? "Cancelling..." : "Cancel"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt="Me"
+                            width={30}
+                            height={30}
+                            className="rounded-full ml-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                    ))}
+            </div>
+        );
+    }
+
+    if (message.type === "request") {
+        const formatDate = (dateString: string) => {
+            if (!dateString) return "Not set";
+
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return "Invalid date";
+
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        };
+
+        return (
+            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt={message.sender?.name}
+                            width={30}
+                            height={30}
+                            className="rounded-full mr-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                    ))}
+                <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
+                    <p className="font-semibold text-sm mb-2 text-center">Booking Request</p>
+
+                    {/* Dates with proper formatting */}
+                    <div className="text-xs mb-1 flex justify-between">
+                        <span className="text-gray-700 block mb-1">Requested dates:</span>
+                        <div className="font-medium block text-right">
+                            <p>{formatDate(message.checkInDate)}</p>
+                            <p>{formatDate(message.checkOutDate)}</p>
+                        </div>
+                    </div>
+
+                    {/* Guest Number */}
+                    {message.guestNo && (
+                        <p className="text-xs flex justify-between mb-1">
+                            <span className="text-gray-700">Number of Guests:</span>
+                            <span className="font-medium">{message.guestNo}</span>
+                        </p>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2 mt-3">
+                        <div className="grid grid-cols-2 gap-2">
+                            {isMe ? (
+                                // Disabled Confirm Booking button when message is from current user
+                                <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
+                                    Confirm Booking
+                                </button>
+                            ) : (
+                                // Active Confirm Booking button when message is from other user
+                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Confirm Booking</button>
+                            )}
+                            <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                {isRejecting ? "Rejecting..." : "Reject Booking"}
                             </button>
                         </div>
                     </div>

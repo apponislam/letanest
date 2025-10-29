@@ -161,7 +161,7 @@ export default function RoleBasedProvider({ children }: RoleBasedProviderProps) 
 
         if (!isRouteAllowed) {
             return (
-                <div className="flex justify-center items-center min-h-screen">
+                <div className="flex justify-center items-center min-h-screen w-full">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A94D] mx-auto mb-4"></div>
                         <p className="text-[#C9A94D]">Redirecting...</p>

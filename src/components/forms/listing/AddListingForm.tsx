@@ -388,7 +388,7 @@ const AddListingForm: React.FC = () => {
 
                         {/* bedrooms */}
                         <div>
-                            <label className="block text-sm font-medium">Bedrooms</label>
+                            <label className="block text-sm font-medium">Beds</label>
                             <input type="number" {...step2Form.register("bedrooms", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
                             {step2Form.formState.errors.bedrooms && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.bedrooms?.message}</p>}
                         </div>
@@ -809,7 +809,7 @@ const AddListingForm: React.FC = () => {
                     <div className="flex items-center mb-6">
                         <input type="checkbox" {...step4Form.register("agreeTerms")} className="mr-3 w-4 h-4 text-[#C9A94D] border-[#C9A94D] focus:ring-[#C9A94D] accent-[#C9A94D]" />
                         <label htmlFor="agreeTerms" className="text-sm font-medium">
-                            I Agree to LetANest Terms & Conditions
+                            I Agree to LetANest <Link href="/terms-of-conditions">Terms & Conditions</Link>
                         </label>
                     </div>
                     {step4Form.formState.errors.agreeTerms && <p className="text-red-500 text-sm mb-4">{step4Form.formState.errors.agreeTerms.message}</p>}

@@ -100,11 +100,11 @@ const StripeAccountManager = () => {
                                     <div>
                                         <p className="font-semibold text-[#14213D]">{isConnected ? "Account Connected" : "Account Not Connected"}</p>
                                         <p className="text-sm text-[#6B7280]">{isConnected ? "Ready to receive payments" : "Connect to start receiving payouts"}</p>
-                                        {accountData?.stripeStatus && (
+                                        {/* {accountData?.stripeStatus && (
                                             <div className="text-xs text-gray-500 mt-1">
                                                 Charges: {accountData.stripeStatus.chargesEnabled ? "✅" : "❌"} | Payouts: {accountData.stripeStatus.payoutsEnabled ? "✅" : "❌"}
                                             </div>
-                                        )}
+                                        )} */}
                                     </div>
                                 </div>
                             </div>
