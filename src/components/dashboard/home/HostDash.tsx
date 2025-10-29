@@ -239,7 +239,9 @@ const HostDash = () => {
                                             </div>
                                         </div>
                                         <div className="w-full md:w-auto">
-                                            <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full  md:w-auto hover:bg-[#B89A45] transition-colors">Active</button>
+                                            <Link href={`/dashboard/active-listings/${property._id}`}>
+                                                <button className="font-bold bg-[#C9A94D] text-white px-2 rounded-[10px] w-full  md:w-auto hover:bg-[#B89A45] transition-colors cursor-pointer">Active</button>
+                                            </Link>
                                         </div>
                                     </div>
                                 ))}

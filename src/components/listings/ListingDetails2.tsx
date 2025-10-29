@@ -25,6 +25,7 @@ import { DateRange } from "react-day-picker";
 
 export default function PropertyPage2() {
     const [selectedDates, setSelectedDates] = useState<DateRange | undefined>();
+    const [guestNumber, setGuestNumber] = useState<number>(1);
     const params = useParams();
     const { id } = params;
     const router = useRouter();
@@ -100,6 +101,17 @@ export default function PropertyPage2() {
             return;
         }
 
+        // Validate dates and guest number
+        if (!selectedDates?.from || !selectedDates?.to) {
+            alert("Please select check-in and check-out dates");
+            return;
+        }
+
+        if (guestNumber < 1 || guestNumber > 20) {
+            alert("Please enter a valid number of guests (1-20)");
+            return;
+        }
+
         setIsChatLoading(true);
 
         try {
@@ -117,17 +129,20 @@ export default function PropertyPage2() {
             if (conversationResult.success && conversationResult.data?._id) {
                 const conversationId = conversationResult.data._id;
 
-                // Step 2: Send the booking message
-                console.log("📤 Sending booking message...");
+                // Step 2: Send the REQUEST type message with dates and guest number only
+                console.log("📤 Sending booking request message...");
                 await sendMessage({
                     conversationId: conversationId,
                     sender: user._id,
-                    type: "text",
-                    text: `I would like to make a booking request for property ${property.propertyNumber}. Is it currently available?`,
+                    type: "request", // REQUEST type
+                    propertyId: property._id,
+                    checkInDate: selectedDates.from.toISOString(),
+                    checkOutDate: selectedDates.to.toISOString(),
+                    guestNo: guestNumber.toString(),
                     skip: true,
                 }).unwrap();
 
-                console.log("✅ Booking message sent successfully");
+                console.log("✅ Booking request message sent successfully");
 
                 // Navigate to messages page
                 console.log("🔀 Redirecting to messages...");
@@ -615,7 +630,7 @@ export default function PropertyPage2() {
                                         </p>
                                     </div>
                                 </div> */}
-                                <DateSelectionWithPrice property={property} onDateSelect={(dates) => setSelectedDates(dates)} />
+                                <DateSelectionWithPrice property={property} onDateSelect={(dates) => setSelectedDates(dates)} onGuestNumberChange={(guests) => setGuestNumber(guests)} />
 
                                 {/* <Button onClick={handleBookNow} disabled={isChatLoading} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
                                     {isChatLoading ? (
@@ -671,7 +686,7 @@ export default function PropertyPage2() {
                                     </DialogContent>
                                 </Dialog>
 
-                                <p className="text-[13px] mt-3 text-center">Awaiting host confirmation before payment.</p>
+                                <p className="text-[13px] mt-3 text-center">Please wait for the host’s confirmation before making your payment.</p>
                             </div>
 
                             {/* Ask a Question Section - Updated */}
