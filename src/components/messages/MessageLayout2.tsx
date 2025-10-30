@@ -1171,7 +1171,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 mt-3">
                         <div className="grid grid-cols-2 gap-2">
-                            {user?._id === message.propertyId?.createdBy ? (
+                            {user?._id === message.propertyId?.createdBy?._id ? (
                                 // Disabled Pay button when message is from current user OR user is property creator
                                 <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
                                     Pay
@@ -1339,14 +1339,14 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                                 <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
                                 <span>Property Manager:</span>
                             </div>
-                            <span className="text-right flex-1">{message?.sender?.name}</span>
+                            <span className="text-right flex-1">{message.propertyId?.createdBy?.name}</span>
                         </div>
                         <div className="text-xs flex justify-between flex-wrap items-start">
                             <div className="flex items-center gap-2">
                                 <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
                                 <span>Phone:</span>
                             </div>
-                            <span>{message?.sender?.phone}</span>
+                            <span>{message.propertyId?.createdBy?.phone}</span>
                         </div>
                     </div>
                 </div>

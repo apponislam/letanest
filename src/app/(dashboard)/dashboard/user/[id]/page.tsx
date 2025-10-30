@@ -77,7 +77,7 @@ const Page = () => {
     };
 
     const handleViewConversation = (conversationId: string) => {
-        router.push(`/dashboard/user/${id}/messages/${conversationId}`);
+        router.push(`/dashboard/user/messages/${conversationId}`);
     };
 
     if (isLoading) {
