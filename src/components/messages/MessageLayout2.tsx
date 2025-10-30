@@ -8,7 +8,7 @@ import { Star, MessagesSquare, Loader2, MessageCircle, CalendarIcon } from "luci
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSocket } from "@/redux/features/socket/socketHooks";
-import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation } from "@/redux/features/messages/messageApi";
+import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation, useConvertRequestToOfferMutation } from "@/redux/features/messages/messageApi";
 import { useGetMyPublishedPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
@@ -22,6 +22,8 @@ import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { DateRange } from "react-day-picker";
 import ReportModal from "./RepostHost";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -422,6 +424,8 @@ export default function MessagesLayout2() {
                 return `Accepted: ${lastMessage.propertyId.propertyNumber || ""}`;
             case "rejected":
                 return `Rejected: ${lastMessage.propertyId.propertyNumber || ""}`;
+            case "request":
+                return `Request: ${lastMessage.propertyId.propertyNumber || ""}`;
             default:
                 return lastMessage.text || "";
         }
@@ -1007,6 +1011,8 @@ export default function MessagesLayout2() {
 
 // Message Bubble Component
 const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId?: string }) => {
+    const user = useAppSelector(currentUser);
+
     const isMe = message.sender?._id === currentUserId;
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
@@ -1021,6 +1027,20 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         } catch (error) {
             console.log(error);
             console.error("Failed to reject offer:", error);
+        }
+    };
+
+    const [convertRequestToOffer, { isLoading: isConverting }] = useConvertRequestToOfferMutation();
+
+    const handleConvertToOffer = async () => {
+        try {
+            await convertRequestToOffer({
+                messageId: message._id,
+                conversationId: message.conversationId,
+            }).unwrap();
+        } catch (error) {
+            console.log(error);
+            console.error("Failed to convert request to offer:", error);
         }
     };
 
@@ -1151,18 +1171,17 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 mt-3">
                         <div className="grid grid-cols-2 gap-2">
-                            {isMe ? (
-                                // Disabled Pay button when message is from current user
+                            {user?._id === message.propertyId?.createdBy ? (
+                                // Disabled Pay button when message is from current user OR user is property creator
                                 <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
                                     Pay
                                 </button>
                             ) : (
-                                // Active Pay button when message is from other user
+                                // Active Pay button when message is from other user AND user is not property creator
                                 <Link href={`/listings/${message._id}/pay`} className="w-full">
                                     <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Pay</button>
                                 </Link>
                             )}
-                            {/* <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold hover:bg-[#363D4F] transition-colors">Cancel</button> */}
                             <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isRejecting ? "Cancelling..." : "Cancel"}
                             </button>
@@ -1249,7 +1268,9 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                                 </button>
                             ) : (
                                 // Active Confirm Booking button when message is from other user
-                                <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Confirm Booking</button>
+                                <button onClick={handleConvertToOffer} disabled={isConverting} className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {isConverting ? "Converting..." : "Confirm Booking"}
+                                </button>
                             )}
                             <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isRejecting ? "Rejecting..." : "Reject Booking"}
