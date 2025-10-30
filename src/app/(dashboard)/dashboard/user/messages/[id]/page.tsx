@@ -252,13 +252,13 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
 
                         <div className="flex justify-between">
                             <span className="text-gray-700">Manager:</span>
-                            <span className="font-semibold">{message.sender?.name || "N/A"}</span>
+                            <span className="font-semibold">{message.propertyId?.createdBy?.name || "N/A"}</span>
                         </div>
 
-                        {message.sender?.phone && (
+                        {message.propertyId?.createdBy?.phone && (
                             <div className="flex justify-between">
                                 <span className="text-gray-700">Phone:</span>
-                                <span className="font-semibold">{message.sender.phone}</span>
+                                <span className="font-semibold">{message.propertyId?.createdBy?.phone}</span>
                             </div>
                         )}
                     </div>
