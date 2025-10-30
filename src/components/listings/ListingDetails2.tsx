@@ -112,6 +112,15 @@ export default function PropertyPage2() {
             return;
         }
 
+        // Calculate agreedFee (total price)
+        const calculateTotalPrice = () => {
+            if (!selectedDates?.from || !selectedDates?.to) return 0;
+            const days = differenceInDays(selectedDates.to, selectedDates.from) + 1;
+            return days * property.price;
+        };
+
+        const agreedFee = calculateTotalPrice();
+
         setIsChatLoading(true);
 
         try {
@@ -129,7 +138,7 @@ export default function PropertyPage2() {
             if (conversationResult.success && conversationResult.data?._id) {
                 const conversationId = conversationResult.data._id;
 
-                // Step 2: Send the REQUEST type message with dates and guest number only
+                // Step 2: Send the REQUEST type message with dates, guest number, and agreedFee
                 console.log("📤 Sending booking request message...");
                 await sendMessage({
                     conversationId: conversationId,
@@ -139,6 +148,7 @@ export default function PropertyPage2() {
                     checkInDate: selectedDates.from.toISOString(),
                     checkOutDate: selectedDates.to.toISOString(),
                     guestNo: guestNumber.toString(),
+                    agreedFee: agreedFee, // Add calculated agreedFee
                     skip: true,
                 }).unwrap();
 

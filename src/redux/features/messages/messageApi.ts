@@ -162,6 +162,30 @@ export const messageApi = baseApi.injectEndpoints({
                 }
             },
         }),
+        convertRequestToOffer: builder.mutation({
+            query: ({ messageId, conversationId }) => ({
+                url: `/messages/${messageId}/convert-to-offer`,
+                method: "PATCH",
+                body: { conversationId },
+            }),
+            invalidatesTags: (_result, _error, arg) => [{ type: "Messages", id: arg.conversationId }, "Messages", "Conversations"],
+            onQueryStarted: async ({ messageId, conversationId }, { dispatch, queryFulfilled }) => {
+                // Optimistically mark message as offer locally for sender
+                const patch = dispatch(
+                    messageApi.util.updateQueryData("getConversationMessages", { conversationId }, (draft: any) => {
+                        const messages = draft?.data || draft || [];
+                        const msg = messages.find((m: any) => m._id === messageId);
+                        if (msg) msg.type = "offer";
+                    })
+                );
+
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patch.undo();
+                }
+            },
+        }),
         // NEW: Mark conversation as read
         markConversationAsReads: builder.mutation({
             query: (conversationId) => ({
@@ -189,6 +213,7 @@ export const {
     useGetMessageByIdQuery,
     useMarkAsReadMutation,
     useRejectOfferMutation,
+    useConvertRequestToOfferMutation,
     useMarkConversationAsReadsMutation,
     // my unread message count
     useGetTotalUnreadCountQuery,
