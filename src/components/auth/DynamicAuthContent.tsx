@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetPageConfigQuery } from "@/redux/features/pageconfig/pageConfigApi";
+import { House } from "lucide-react";
 
 interface DynamicAuthContentProps {
     pageType: "signin" | "signup";
@@ -58,6 +59,11 @@ const DynamicAuthContent: React.FC<DynamicAuthContentProps> = ({ pageType }) => 
 
     return (
         <div className="w-full md:w-full lg:w-1/2 py-4 px-4 md:pt-[100px] md:pl-[100px] md:pb-[100px]">
+            <Link href="/">
+                <div className="flex items-center gap-4 text-[#D4BA71] mb-4 uppercase">
+                    <House /> Back To Home
+                </div>
+            </Link>
             <Link href="/" className="cursor-pointer">
                 <Image
                     src={getFullImageUrl(content.logo)}

@@ -24,7 +24,7 @@ const UserDash = () => {
         role: roleFilter,
     });
 
-    console.log("Users Data:", usersData);
+    // console.log("Users Data:", usersData);
 
     const users = usersData?.data || [];
     const totalUsers = usersData?.meta?.total || 0;

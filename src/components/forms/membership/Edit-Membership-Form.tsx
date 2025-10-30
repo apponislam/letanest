@@ -92,6 +92,7 @@ const EditMembershipForm = () => {
     // Reset form when subscription data is loaded
     React.useEffect(() => {
         if (subscription) {
+            console.log(subscription);
             reset({
                 name: subscription.name,
                 type: subscription.type,
@@ -132,7 +133,7 @@ const EditMembershipForm = () => {
                 switch (watchLevel) {
                     case "free":
                         setValue("bookingFee", 10);
-                        setValue("bookingLimit", undefined);
+                        setValue("bookingLimit", 0);
                         setValue("cost", 0);
                         setValue("billingPeriod", "none");
                         break;
@@ -144,7 +145,7 @@ const EditMembershipForm = () => {
                         break;
                     case "gold":
                         setValue("bookingFee", 0);
-                        setValue("bookingLimit", undefined);
+                        setValue("bookingLimit", 999);
                         setValue("cost", 49.99);
                         setValue("billingPeriod", "annual");
                         break;
@@ -162,15 +163,15 @@ const EditMembershipForm = () => {
                         break;
                     case "premium":
                         setValue("commission", 5);
-                        setValue("freeBookings", undefined);
+                        setValue("freeBookings", 0);
                         setValue("listingLimit", 2);
                         setValue("cost", 4.99);
                         setValue("billingPeriod", "monthly");
                         break;
                     case "gold":
                         setValue("commission", 0);
-                        setValue("freeBookings", undefined);
-                        setValue("listingLimit", 999); // Unlimited
+                        setValue("freeBookings", 0);
+                        setValue("listingLimit", 999);
                         setValue("cost", 9.99);
                         setValue("billingPeriod", "monthly");
                         break;
@@ -193,9 +194,7 @@ const EditMembershipForm = () => {
                 bookingLimit: data.bookingLimit ? Number(data.bookingLimit) : undefined,
                 freeBookings: data.freeBookings ? Number(data.freeBookings) : undefined,
                 listingLimit: data.listingLimit ? Number(data.listingLimit) : undefined,
-                // Convert commission to number if it's a number string
                 commission: data.commission ? (typeof data.commission === "string" && !isNaN(Number(data.commission)) ? Number(data.commission) : data.commission) : undefined,
-                // Convert bookingFee to number if it's a number string
                 bookingFee: data.bookingFee ? (typeof data.bookingFee === "string" && !isNaN(Number(data.bookingFee)) ? Number(data.bookingFee) : data.bookingFee) : undefined,
             };
 
@@ -205,6 +204,7 @@ const EditMembershipForm = () => {
                 id: subscriptionId,
                 data: submissionData,
             }).unwrap();
+            console.log(result);
 
             toast.success(result.message || "Subscription updated successfully!");
             router.push("/dashboard/memberships");
@@ -400,7 +400,7 @@ const EditMembershipForm = () => {
                             <>
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bookingFee">Booking Fee</Label>
-                                    <Input id="bookingFee" placeholder={fieldHelpers.bookingFeeHelp} {...register("bookingFee")} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
+                                    <Input type="number" id="bookingFee" placeholder={fieldHelpers.bookingFeeHelp} {...register("bookingFee", { valueAsNumber: true })} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
                                     {errors.bookingFee && <span className="text-red-500 text-sm">{errors.bookingFee.message}</span>}
                                 </div>
 
