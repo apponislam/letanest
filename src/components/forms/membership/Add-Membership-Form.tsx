@@ -320,7 +320,7 @@ const AddMembershipForm = () => {
                             <>
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bookingFee">Booking Fee</Label>
-                                    <Input id="bookingFee" placeholder={fieldHelpers.bookingFeeHelp} {...register("bookingFee")} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
+                                    <Input id="bookingFee" placeholder={fieldHelpers.bookingFeeHelp} {...(register("bookingFee"), { valueAsNumber: true })} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
                                     {errors.bookingFee && <span className="text-red-500 text-sm">{errors.bookingFee.message}</span>}
                                 </div>
 

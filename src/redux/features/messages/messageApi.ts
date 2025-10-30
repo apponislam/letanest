@@ -198,6 +198,26 @@ export const messageApi = baseApi.injectEndpoints({
             query: () => "/messages/unread-count",
             providesTags: ["Conversations", "Messages"],
         }),
+
+        // Admin routes
+
+        // Get conversations by user ID (admin)
+        getConversationsByUserId: builder.query({
+            query: ({ userId, page = 1, limit = 20 }) => `/messages/admin/conversations/user/${userId}?page=${page}&limit=${limit}`,
+            providesTags: (_result, _error, arg) => [{ type: "Conversations", id: `user-${arg.userId}` }],
+        }),
+
+        // Get all conversation messages (admin)
+        getAllConversationMessages: builder.query({
+            query: ({ conversationId, page = 1, limit = 100 }) => `/messages/admin/conversations/${conversationId}/messages?page=${page}&limit=${limit}`,
+            providesTags: (_result, _error, arg) => [{ type: "Messages", id: arg.conversationId }],
+        }),
+
+        // Search user conversations (admin)
+        searchUserConversations: builder.query({
+            query: ({ searchTerm, page = 1, limit = 20 }) => `/messages/admin/conversations/search/users?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
+            providesTags: ["Conversations"],
+        }),
     }),
 });
 
@@ -217,4 +237,8 @@ export const {
     useMarkConversationAsReadsMutation,
     // my unread message count
     useGetTotalUnreadCountQuery,
+    // NEW ADMIN ROUTES
+    useGetConversationsByUserIdQuery,
+    useGetAllConversationMessagesQuery,
+    useSearchUserConversationsQuery,
 } = messageApi;

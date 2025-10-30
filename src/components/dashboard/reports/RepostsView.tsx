@@ -493,7 +493,7 @@ const ReportsView = () => {
 
     const handleViewConversation = (conversationId?: string) => {
         if (conversationId) {
-            router.push(`/messages/${conversationId}`);
+            router.push(`/dashboard/reports/${conversationId}`);
         } else {
             toast.error("No conversation available");
         }

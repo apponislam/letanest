@@ -1,4 +1,5 @@
 import OtpForm from "@/components/forms/auth/forgot_pass_otp_form";
+import { House } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -10,6 +11,11 @@ const page = () => {
             <div className="absolute inset-0 bg-black/50"></div>
             <div className="relative z-10 flex h-full flex-col lg:flex-row justify-between">
                 <div className="w-full md:w-full lg:w-1/2 py-4 px-4 pt-[100px] md:pl-[100px] md:pb-[100px] flex items-center justify-center">
+                    <Link href="/">
+                        <div className="flex items-center gap-4 text-[#D4BA71] mb-4 uppercase">
+                            <House /> Back To Home
+                        </div>
+                    </Link>
                     <Link href={"/"} className="cursor-pointer">
                         <Image src="/logo.svg" width={307} height={61} alt="Letanest Logo" className="mb-4 md:mb-6 h-11 w-auto md:h-[61px]"></Image>
                     </Link>
