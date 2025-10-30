@@ -248,7 +248,6 @@ const AddListingForm: React.FC = () => {
             toast.success("Property created successfully!");
         } catch (err: any) {
             toast.error(err?.data?.message || "Failed to create property");
-            console.error("Error creating property:", err);
         }
     };
 
@@ -282,9 +281,6 @@ const AddListingForm: React.FC = () => {
             <TabsTrigger value={step} className={`flex flex-col items-center justify-center data-[state=active]:bg-transparent relative ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"}`} onClick={() => handleTabChange(step)}>
                 <div className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-200 ${isActive ? "bg-[#C9A94D] text-white" : isCompleted ? "bg-[#C9A94D] text-white" : "bg-[#9399A6] text-[#B6BAC3]"}`}>{isCompleted ? <Check className="w-6 h-6" /> : stepNumber}</div>
                 <p className={`mt-2 text-center transition-colors duration-200 ${isActive ? "text-[#C9A94D] font-semibold" : isCompleted ? "text-[#C9A94D] font-semibold" : "text-[#B6BAC3]"}`}>{label}</p>
-
-                {/* Progress line between steps */}
-                {/* {stepNumber < 4 && <div className={`absolute top-6 left-full w-8 h-0.5 -translate-y-1/2 ${isCompleted ? "bg-green-500" : "bg-[#9399A6]"}`} />} */}
             </TabsTrigger>
         );
     };
@@ -314,33 +310,6 @@ const AddListingForm: React.FC = () => {
                             {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
                         </div>
                     ))}
-                    {/* <div>
-                        <label className="block text-sm font-medium">Property Type</label>
-                        <DropdownMenu open={open} onOpenChange={setOpen}>
-                            <DropdownMenuTrigger asChild>
-                                <button type="button" className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 text-left focus:ring-2 focus:ring-[#C9A94D] focus:outline-none">
-                                    {selectedType || "Select Type"}
-                                </button>
-                            </DropdownMenuTrigger>
-
-                            <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
-                                {propertyTypeOptions.map((option, i) => (
-                                    <DropdownMenuItem
-                                        key={i}
-                                        className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer"
-                                        onClick={() => {
-                                            setValue("propertyType", option, { shouldValidate: true });
-                                            setOpen(false);
-                                        }}
-                                    >
-                                        {option}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
-                    </div> */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Property Type</label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg ">
@@ -366,7 +335,7 @@ const AddListingForm: React.FC = () => {
                             Previous
                         </button>
 
-                        <button type="submit" className="bg-[#C9A94D] text-white py-2 px-10 rounded-lg hover:bg-[#bfa14a] transition">
+                        <button type="submit" className="bg-[#C9A94D] text-white py-2 px-10 rounded-lg hover:bg-[#bfa14a] transition cursor-pointer">
                             Next
                         </button>
                     </div>
@@ -459,10 +428,10 @@ const AddListingForm: React.FC = () => {
                     </div>
 
                     <div className="flex justify-between mt-4">
-                        <button type="button" onClick={() => setActiveTab("step1")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition">
+                        <button type="button" onClick={() => setActiveTab("step1")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition cursor-pointer">
                             Previous
                         </button>
-                        <button type="submit" className="bg-[#C9A94D] text-white py-[10px] px-10 rounded-lg  hover:bg-[#bfa14a] transition">
+                        <button type="submit" className="bg-[#C9A94D] text-white py-[10px] px-10 rounded-lg  hover:bg-[#bfa14a] transition cursor-pointer">
                             Next
                         </button>
                     </div>
@@ -586,10 +555,10 @@ const AddListingForm: React.FC = () => {
 
                     {/* Navigation Buttons */}
                     <div className="flex justify-between mt-4">
-                        <button type="button" onClick={() => setActiveTab("step2")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition">
+                        <button type="button" onClick={() => setActiveTab("step2")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition cursor-pointer">
                             Previous
                         </button>
-                        <button type="submit" className="bg-[#C9A94D] text-white py-2 px-6 rounded-lg hover:bg-[#bfa14a] transition">
+                        <button type="submit" className="bg-[#C9A94D] text-white py-2 px-6 rounded-lg hover:bg-[#bfa14a] transition cursor-pointer">
                             Next
                         </button>
                     </div>
@@ -630,10 +599,6 @@ const AddListingForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* <div onClick={handleConnectStripe} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
-                        <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
-                        <p>{isConnectingStripe ? "Connecting to Stripe..." : "Add Bank Details (Optional)"}</p>
-                    </div> */}
                     <div onClick={!accountStatus || accountStatus !== "verified" ? handleConnectStripe : undefined} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe || accountStatus === "verified" ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
                         <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
 
@@ -641,83 +606,6 @@ const AddListingForm: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* <Dialog open={verifyAttOpen} onOpenChange={setVerifyAttOpen}>
-                            <DialogTrigger asChild>
-                                <div className="flex items-center gap-1 cursor-pointer">
-                                    <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
-                                    <p>Verify Address (Optional)</p>
-                                </div>
-                            </DialogTrigger>
-
-                       
-                            <DialogContent className="bg-[#2D3546] border border-[#C9A94D] rounded-[12px] p-6 max-w-lg w-full">
-                                <DialogHeader>
-                                    <DialogTitle className="text-white text-lg">Upload Attachment</DialogTitle>
-                                </DialogHeader>
-
-                                <form onSubmit={handleVerifyAttSubmit} className="space-y-4">
-                                    <div className="w-full border border-dashed border-[#C9A94D] p-5 rounded-[12px] flex items-center justify-center h-60 relative cursor-pointer" onDragOver={(e) => e.preventDefault()} onDrop={handleVerifyAttDrop} onClick={handleVerifyAttClickUpload}>
-                                        {verifyAttPreview ? (
-                                            <>
-                                                <Image src={verifyAttPreview} alt="Attachment Preview" fill className="object-cover rounded-lg" unoptimized />
-                                                <X
-                                                    className="w-6 h-6 absolute top-3 right-3 text-[#D00000] cursor-pointer"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleVerifyAttRemove();
-                                                    }}
-                                                />
-                                            </>
-                                        ) : (
-                                            <span className="text-white text-center">Drag & Drop or Click to Upload</span>
-                                        )}
-                                    </div>
-
-                                    <DialogFooter>
-                                        <Button type="submit" variant="secondary" disabled={!verifyAttFile} className="bg-[#C9A94D] text-white hover:bg-[#b8973e]">
-                                            Submit
-                                        </Button>
-                                    </DialogFooter>
-                                </form>
-                            </DialogContent>
-                        </Dialog> */}
-                        {/* <Link href="/dashboard/profile/verify" target="_blank">
-                            <div className="flex items-center gap-1 cursor-pointer">
-                                <Image src="/listing/add/attachment.png" alt="Attachment" width={24} height={24} />
-                                <p>Verify Address (Optional)</p>
-                            </div>
-                        </Link> */}
-
-                        {/* Tooltip */}
-                        {/* <div className="relative inline-block" onMouseEnter={() => setShowRules(true)} onMouseLeave={() => setShowRules(false)} onClick={() => setShowRules(!showRules)}>
-                            <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
-
-                            {showRules && (
-                                <div className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg md:-translate-x-1/2 border border-[#C9A94D] z-50" style={{ maxHeight: "80vh", overflowY: "auto" }}>
-                                    <h2 className="font-bold mb-2 text-[14px]">Common Proof of Address Documents</h2>
-                                    <p className="mb-2">Please provide one of the following recent documents showing your full name and address:</p>
-
-                                    <ol className="list-decimal list-outside ml-4 mb-2 text-[13px] space-y-1">
-                                        <li>
-                                            <span className="font-semibold">Utility Bill (gas, electricity, water, landline, broadband):</span> Must be recent (usually within the last 3 months). Must show your full name and address.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Bank or Building Society Statement:</span> Printed or digital copy is usually acceptable. Must be recent and include your name and address.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Council Tax Bill or Local Authority Letter:</span> Shows your address and is usually considered official.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Government-Issued Letter:</span> HMRC tax document, benefit letter, or other government correspondence. Must be recent and show your name and address.
-                                        </li>
-                                        <li>
-                                            <span className="font-semibold">Tenancy Agreement or Mortgage Statement:</span> Must be current and officially issued.
-                                        </li>
-                                    </ol>
-                                </div>
-                            )}
-                        </div> */}
-
                         <div className="flex items-center gap-2">
                             {verificationStatus !== "approved" ? (
                                 <Link href="/dashboard/profile/verify" target="_blank">
@@ -816,11 +704,21 @@ const AddListingForm: React.FC = () => {
 
                     {/* Buttons */}
                     <div className="flex justify-between gap-3 flex-col md:flex-row">
-                        <button type="button" onClick={() => setActiveTab("step3")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition">
+                        <button type="button" onClick={() => setActiveTab("step3")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition cursor-pointer">
                             Previous
                         </button>
-                        <button type="submit" className="bg-[#C9A94D] text-white py-2 px-10 rounded-lg hover:bg-[#bfa14a] transition">
-                            Submit for Review
+                        <button type="submit" disabled={isLoading} className={`flex items-center cursor-pointer justify-center gap-2 py-2 px-10 rounded-lg transition text-white ${isLoading ? "bg-[#bfa14a] cursor-not-allowed" : "bg-[#C9A94D] hover:bg-[#bfa14a]"}`}>
+                            {isLoading ? (
+                                <>
+                                    <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                    </svg>
+                                    <span>Submitting...</span>
+                                </>
+                            ) : (
+                                <span>Submit for Review</span>
+                            )}
                         </button>
                     </div>
                 </form>
