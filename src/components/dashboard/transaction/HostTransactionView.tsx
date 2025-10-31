@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import StripeAccountManager from "../payments/StripeAccountManager";
+import BankDetailsManager from "../payments/BankDetailsManager";
 
 const HostTransectionView = () => {
     const [page, setPage] = useState(1);
@@ -105,9 +106,12 @@ const HostTransectionView = () => {
 
     return (
         <div className="container mx-auto md:p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex md:items-center justify-between mb-6 flex-col md:flex-row gap-3">
                 <h1 className="text-3xl font-bold text-[#C9A94D]">My Payments</h1>
-                <StripeAccountManager></StripeAccountManager>
+                <div className="flex flex-col md:flex-row gap-4">
+                    <BankDetailsManager></BankDetailsManager>
+                    <StripeAccountManager></StripeAccountManager>
+                </div>
             </div>
 
             <div className="bg-[#2D3546] border border-[#C9A94D] rounded-[20px] p-6">
@@ -216,40 +220,38 @@ const HostTransectionView = () => {
                         </div>
 
                         {/* Date Range Picker - Middle above pagination controls */}
-                        <div className="flex flex-col md:flex-row justify-end items-center  mt-4 gap-4">
-                            <div className="flex items-center gap-3">
-                                {/* From Date Popover */}
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" className={cn("justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64] text-sm", !fromDate && "text-muted-foreground")}>
-                                            <CalendarIcon className="mr-2 h-4 w-4 text-[#C9A94D]" />
-                                            {fromDate ? format(fromDate, "PPP") : "From date"}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0 bg-[#2D3546] border-[#C9A94D]">
-                                        <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus className="bg-[#2D3546] text-white" />
-                                    </PopoverContent>
-                                </Popover>
+                        <div className="flex justify-end items-center mt-4 gap-4 flex-col md:flex-row">
+                            {/* From Date Popover */}
+                            <Popover>
+                                <PopoverTrigger asChild className="w-full md:w-auto">
+                                    <Button variant="outline" className={cn("justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64] text-sm", !fromDate && "text-muted-foreground")}>
+                                        <CalendarIcon className="mr-2 h-4 w-4 text-[#C9A94D]" />
+                                        {fromDate ? format(fromDate, "PPP") : "From date"}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0 bg-[#2D3546] border-[#C9A94D]">
+                                    <Calendar mode="single" selected={fromDate} onSelect={setFromDate} initialFocus className="bg-[#2D3546] text-white" />
+                                </PopoverContent>
+                            </Popover>
 
-                                {/* To Date Popover */}
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" className={cn("justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64] text-sm", !toDate && "text-muted-foreground")}>
-                                            <CalendarIcon className="mr-2 h-4 w-4 text-[#C9A94D]" />
-                                            {toDate ? format(toDate, "PPP") : "To date"}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0 bg-[#2D3546] border-[#C9A94D]">
-                                        <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus className="bg-[#2D3546] text-white" />
-                                    </PopoverContent>
-                                </Popover>
+                            {/* To Date Popover */}
+                            <Popover>
+                                <PopoverTrigger asChild className="w-full md:w-auto">
+                                    <Button variant="outline" className={cn("justify-start text-left font-normal bg-[#434D64] border-[#C9A94D] text-white hover:text-[#C9A94D] hover:bg-[#434D64] text-sm", !toDate && "text-muted-foreground")}>
+                                        <CalendarIcon className="mr-2 h-4 w-4 text-[#C9A94D]" />
+                                        {toDate ? format(toDate, "PPP") : "To date"}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0 bg-[#2D3546] border-[#C9A94D]">
+                                    <Calendar mode="single" selected={toDate} onSelect={setToDate} initialFocus className="bg-[#2D3546] text-white" />
+                                </PopoverContent>
+                            </Popover>
 
-                                {/* Download Report Button */}
-                                <Button onClick={handleDownloadReport} disabled={!fromDate || !toDate || downloadLoading} className="bg-[#C9A94D] text-white hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                                    <Download className="w-4 h-4 mr-2" />
-                                    {downloadLoading ? "Downloading..." : "Download Report"}
-                                </Button>
-                            </div>
+                            {/* Download Report Button */}
+                            <Button onClick={handleDownloadReport} disabled={!fromDate || !toDate || downloadLoading} className="bg-[#C9A94D] text-white hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed text-sm w-full md:w-auto">
+                                <Download className="w-4 h-4 mr-2" />
+                                {downloadLoading ? "Downloading..." : "Download Report"}
+                            </Button>
                         </div>
 
                         {/* Pagination Controls */}

@@ -17,7 +17,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        console.log(user);
         if (user === undefined) return;
 
         if (!user) {

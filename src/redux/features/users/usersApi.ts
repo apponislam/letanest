@@ -206,6 +206,11 @@ export interface DeleteUserResponse {
     data: IUser;
 }
 
+interface DownloadUsersExcelParams {
+    year: string;
+    month?: string;
+}
+
 export const userApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
@@ -335,6 +340,43 @@ export const userApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Users"],
         }),
+
+        downloadUsersExcel: build.mutation<{ success: boolean }, DownloadUsersExcelParams>({
+            async queryFn(params, _queryApi, _extraOptions, fetchWithBQ) {
+                try {
+                    const response = await fetchWithBQ({
+                        url: "/users/download-excel",
+                        method: "GET",
+                        params: {
+                            year: params.year,
+                            ...(params.month && params.month !== "all" && { month: params.month }),
+                        },
+                        responseHandler: (response) => response.blob(),
+                    });
+
+                    if ("error" in response) {
+                        return { error: response.error as any };
+                    }
+
+                    const blob = response.data as Blob;
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+
+                    const fileName = `users-${params.year}${params.month && params.month !== "all" ? `-${params.month.padStart(2, "0")}` : ""}.xlsx`;
+                    a.download = fileName;
+
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    return { data: { success: true } };
+                } catch (err: any) {
+                    return { error: { message: err.message ?? "Unknown error" } };
+                }
+            },
+        }),
     }),
 });
 
@@ -358,4 +400,6 @@ export const {
     //Admin management hooks
     useChangeUserRoleMutation,
     useDeleteUserMutation,
+    // Download Excel hook
+    useDownloadUsersExcelMutation,
 } = userApi;
