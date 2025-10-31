@@ -11,6 +11,7 @@ import { CalendarIcon, Download, Search } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import StripeAccountManager from "../payments/StripeAccountManager";
+import BankDetailsManager from "../payments/BankDetailsManager";
 
 const TransectionView = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -86,12 +87,15 @@ const TransectionView = () => {
             <PageHeader title={"Transactions"}></PageHeader>
 
             {/* Welcome Text */}
-            <div className="flex items-center justify-between gap-4 mb-8 flex-col md:flex-row">
+            <div className="flex items-center justify-between mb-8 flex-col md:flex-row gap-3">
                 <div className="text-[#C9A94D] ">
                     <h1 className="font-bold text-[30px] mb-4">Transactions</h1>
                     <p>Here's the latest transaction data for your account.</p>
                 </div>
-                <StripeAccountManager></StripeAccountManager>
+                <div className="flex flex-col md:flex-row gap-4">
+                    <BankDetailsManager></BankDetailsManager>
+                    <StripeAccountManager></StripeAccountManager>
+                </div>
             </div>
 
             <div className="bg-[#2D3546] p-5 rounded-[4px] mb-4">

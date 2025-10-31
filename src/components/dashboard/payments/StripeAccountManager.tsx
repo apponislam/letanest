@@ -16,9 +16,7 @@ const StripeAccountManager = () => {
     // Derived state from API
     const isConnected = accountStatus?.data?.status === "verified";
     const isLoading = isConnecting || isDisconnecting;
-    const accountData = accountStatus?.data;
-
-    console.log(accountStatus);
+    // const accountData = accountStatus?.data;
 
     const handleConnectAccount = async () => {
         try {
