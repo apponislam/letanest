@@ -9,7 +9,6 @@ interface RefreshTokenResponse {
     };
 }
 
-// Base query with auth headers
 const baseQuery = fetchBaseQuery({
     baseUrl: `${process.env.NEXT_PUBLIC_BASE_API}/api/v1/`,
     credentials: "include",
@@ -24,11 +23,11 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
     let result = await baseQuery(args, api, extraOptions);
 
     if (result?.error?.status === 401 || result?.error?.status === 403) {
-        console.log("Access token expired. Attempting refresh...");
+        // console.log("Access token expired. Attempting refresh...");
 
         const refreshResult = await baseQuery({ url: "/auth/refresh-token", method: "POST", credentials: "include" }, api, extraOptions);
 
-        console.log(refreshResult);
+        // console.log(refreshResult);
 
         if (refreshResult.data && typeof refreshResult.data === "object" && "data" in refreshResult.data) {
             const backendData = (refreshResult.data as RefreshTokenResponse).data;
@@ -55,10 +54,9 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
     return result;
 };
 
-// API slice
 export const baseApi = createApi({
     reducerPath: "api",
     baseQuery: baseQueryWithReauth,
-    tagTypes: ["User", "Terms", "Users", "Properties", "Verifications", "Subscriptions", "SubscribedPlans", "MySubscriptions", "Conversations", "Messages", "PaymentMethods", "StripeAccount", "propertyPayments", "Dashboard", "Rating", "Contacts", "MyProfile", "PageConfig", "MyRatings", "Reports", "RandomAdmin", "MyBankDetails", "BankDetails"],
+    tagTypes: ["User", "Terms", "Users", "Properties", "Verifications", "Subscriptions", "SubscribedPlans", "MySubscriptions", "Conversations", "Messages", "PaymentMethods", "StripeAccount", "propertyPayments", "Dashboard", "Rating", "Contacts", "MyProfile", "PageConfig", "MyRatings", "Reports", "RandomAdmin", "MyBankDetails", "BankDetails", "PrivacyPolicy"],
     endpoints: () => ({}),
 });
