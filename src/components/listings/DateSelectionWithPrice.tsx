@@ -160,6 +160,7 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
 
             {/* Guest Number Input */}
             <div className="mt-4">
+                <p className="mb-2 text-xs">Guests</p>
                 <Input
                     type="number"
                     min="1"

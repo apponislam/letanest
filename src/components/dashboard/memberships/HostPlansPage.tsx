@@ -141,12 +141,14 @@ const HostPlansPage = () => {
 
     const plans = hostSubscriptions || [];
 
+    console.log(plans);
+
     return (
         <div>
-            <PageHeader title="Host Subscriptions"></PageHeader>
+            <PageHeader title="Host Memberships"></PageHeader>
             <div className="text-[#C9A94D]">
                 <div className="border border-[#C9A94D] rounded-[20px] p-5">
-                    <h1 className="text-2xl md:text-[40px] mb-4">Host Subscriptions (Nest Series)</h1>
+                    <h1 className="text-2xl md:text-[40px] mb-4">Host Memberships (Nest Series)</h1>
                     <p className="mb-6">Maximize your earnings and grow your hosting business.</p>
 
                     {(isCreatingCheckout || isActivatingFreeTier) && (
@@ -179,6 +181,8 @@ const HostPlansPage = () => {
                                         </p>
 
                                         <p className="text-[33px] font-bold mb-4 text-center">{formatPrice(plan.cost, plan.currency, plan.billingPeriod)}</p>
+
+                                        <p className="text-sm mb-4">{plan.description}</p>
 
                                         {/* Benefits - Expandable */}
                                         <div className="mb-4">

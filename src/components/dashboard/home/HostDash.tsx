@@ -70,7 +70,7 @@ const HostDash = () => {
                 conversationId: conversationId,
                 sender: randomAdminData?.data?._id!,
                 type: "text",
-                text: `our team will respond to you within 48 hours`,
+                text: `Thank you for contacting us! Please use the chat below to tell us how we can help. Our team strives to respond within 24 hours, though response times may be slightly longer during busy periods.`,
                 skip: true,
             }).unwrap();
             router.push("/messages");
