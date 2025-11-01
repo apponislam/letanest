@@ -357,7 +357,7 @@ const AddListingForm: React.FC = () => {
 
                         {/* bedrooms */}
                         <div>
-                            <label className="block text-sm font-medium">Beds</label>
+                            <label className="block text-sm font-medium">Bedrooms</label>
                             <input type="number" {...step2Form.register("bedrooms", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
                             {step2Form.formState.errors.bedrooms && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.bedrooms?.message}</p>}
                         </div>
@@ -591,11 +591,11 @@ const AddListingForm: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                             <Image src="/listing/add/home-roof.png" alt="User Alt" width={24} height={24}></Image>
-                            <span>{step2Data?.bedrooms || "N/A"} Bed</span>
+                            <span>{step2Data?.bedrooms || "N/A"} Bedrooms</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Image src="/listing/add/bed-front.png" alt="User Alt" width={24} height={24}></Image>
-                            <span>{step2Data?.bathrooms || "N/A"} Bath</span>
+                            <span>{step2Data?.bathrooms || "N/A"} Bathrooms</span>
                         </div>
                     </div>
 

@@ -162,7 +162,7 @@ const SignUpForm = () => {
                             <input type="checkbox" {...register("acceptedTerms")} className="accent-[#C9A94D]" />
                             <label className="text-[#C9A94D]">
                                 I accept the
-                                <Link href="/terms-of-conditions" target="_blank" className="ml-1 hover:underline">
+                                <Link href="/terms-of-conditions" className="ml-1 hover:underline">
                                     terms and conditions
                                 </Link>
                             </label>

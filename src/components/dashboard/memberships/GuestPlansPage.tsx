@@ -144,10 +144,10 @@ const GuestPlansPage = () => {
 
     return (
         <div>
-            <PageHeader title="Guest Subscriptions"></PageHeader>
+            <PageHeader title="Guest Memberships"></PageHeader>
             <div className="text-[#C9A94D]">
                 <div className="border border-[#C9A94D] rounded-[20px] p-5">
-                    <h1 className="text-2xl md:text-[40px] mb-4">Guest Subscriptions (Stayers)</h1>
+                    <h1 className="text-2xl md:text-[40px] mb-4">Guest Memberships (Stayers)</h1>
                     <p className="mb-6">Unlock perks, protection, and peace of mind.</p>
 
                     {(isCreatingCheckout || isActivatingFreeTier) && (
@@ -183,6 +183,8 @@ const GuestPlansPage = () => {
                                         </p>
 
                                         <p className="text-[33px] font-bold mb-4 text-center">{formatPrice(plan.cost, plan.currency, plan.billingPeriod)}</p>
+
+                                        <p className="text-sm  mb-4">{plan.description}</p>
 
                                         {/* Benefits - Expandable */}
                                         <div className="mb-4">

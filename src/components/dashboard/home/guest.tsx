@@ -433,7 +433,7 @@ const Guest = () => {
                                                     const daysLeft = 28 - daysDifference;
                                                     return (
                                                         <button onClick={() => handleRateNow(payment)} className="w-full bg-[#C9A94D] text-white rounded-[10px] px-2 hover:bg-[#b8973e] transition-colors" title={daysLeft > 0 ? `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left to review` : "Last day to review"}>
-                                                            Review Now {daysLeft > 0 && `(${daysLeft}d)`}
+                                                            Review Now
                                                         </button>
                                                     );
                                                 } else {

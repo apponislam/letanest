@@ -17,7 +17,7 @@ const verifySchema = z.object({
     dob: z.string().min(1, "Date of birth is required"),
     countryOfBirth: z.string().min(1, "Country of birth is required"),
     cityOfBirth: z.string().min(1, "City of birth is required"),
-    zip: z.string().min(1, "Zip code is required"),
+    zip: z.string().min(1, "Postcode is required"),
     proofAddress: z.instanceof(File, { message: "Proof of Address is required" }),
     proofID: z.instanceof(File, { message: "Proof of ID is required" }),
 });

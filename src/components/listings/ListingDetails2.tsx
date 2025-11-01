@@ -85,12 +85,9 @@ export default function PropertyPage2() {
 
     const handleBookNow = () => {
         if (!user) {
-            // Save the current path for redirect after login
-            console.log("hit here");
             dispatch(setRedirectPath(`/listings/${id}`));
             setIsDialogOpen(true);
         } else {
-            // User is logged in, proceed with booking chat
             handleBookingChat();
         }
     };
@@ -171,7 +168,16 @@ export default function PropertyPage2() {
         }
     };
 
-    const handleChatWithHost = async () => {
+    const handleChatWithHost = () => {
+        if (!user) {
+            dispatch(setRedirectPath(`/listings/${id}`));
+            setIsDialogOpen(true);
+        } else {
+            handleChatWithHost2();
+        }
+    };
+
+    const handleChatWithHost2 = async () => {
         if (!property?.createdBy?._id) {
             console.error("❌ Host information not available");
             return;
@@ -195,7 +201,16 @@ export default function PropertyPage2() {
         }
     };
 
-    const handleAskQuestion = async () => {
+    const handleAskQuestion = () => {
+        if (!user) {
+            dispatch(setRedirectPath(`/listings/${id}`));
+            setIsDialogOpen(true);
+        } else {
+            handleAskQuestion2();
+        }
+    };
+
+    const handleAskQuestion2 = async () => {
         if (!property?.createdBy?._id) {
             console.error("❌ Host information not available");
             return;
@@ -428,7 +443,7 @@ export default function PropertyPage2() {
 
                         {/* Sleeping arrangements section - using property data */}
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
-                            <h1 className="text-[32px] text-white mb-4 font-bold">Where you'll sleep</h1>
+                            <h1 className="text-[32px] text-white mb-4 font-bold">Take a Closer Look</h1>
                             <div className="space-y-12">
                                 {/* Create sleeping arrangement from property data */}
                                 <div className="flex flex-col items-center">
@@ -631,27 +646,7 @@ export default function PropertyPage2() {
                             <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
                                 <h1 className="text-[32px] mb-2 font-bold">£{property.price}</h1>
 
-                                {/* Show Available Dates instead of Reviews */}
-                                {/* <div className="flex items-center gap-2 mb-6">
-                                    <div className="flex flex-col">
-                                        <p className="text-sm font-bold text-[#C9A94D]">Available</p>
-                                        <p className="text-sm text-[#C9A94D]">
-                                            {new Date(property.availableFrom).toLocaleDateString()} - {new Date(property.availableTo).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                </div> */}
                                 <DateSelectionWithPrice property={property} onDateSelect={(dates) => setSelectedDates(dates)} onGuestNumberChange={(guests) => setGuestNumber(guests)} />
-
-                                {/* <Button onClick={handleBookNow} disabled={isChatLoading} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
-                                    {isChatLoading ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                            Processing...
-                                        </div>
-                                    ) : (
-                                        "Book Now"
-                                    )}
-                                </Button> */}
                                 <Button onClick={handleBookNow} disabled={isChatLoading || !selectedDates?.from || !selectedDates?.to} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">
                                     {isChatLoading ? (
                                         <div className="flex items-center gap-2">
@@ -659,7 +654,7 @@ export default function PropertyPage2() {
                                             Processing...
                                         </div>
                                     ) : (
-                                        `Book Now £${calculateTotalPrice(selectedDates, property.price)}`
+                                        `Book Now`
                                     )}
                                 </Button>
 
