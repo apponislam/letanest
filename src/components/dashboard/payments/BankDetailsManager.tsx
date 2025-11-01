@@ -163,7 +163,8 @@ const BankDetailsManager = () => {
                                             <CreditCard className="w-4 h-4 text-[#C9A94D]" />
                                             <div>
                                                 <p className="text-xs text-gray-500">Account Number</p>
-                                                <p className="font-medium text-[#14213D]">•••• {bankDetails.accountNumber.slice(-4)}</p>
+                                                {/* <p className="font-medium text-[#14213D]">•••• {bankDetails.accountNumber.slice(-4)}</p> */}
+                                                <p className="font-medium text-[#14213D]">{bankDetails.accountNumber}</p>
                                             </div>
                                         </div>
 
