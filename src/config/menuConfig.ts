@@ -1,5 +1,5 @@
 import { roles } from "@/redux/features/auth/authSlice";
-import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck, Flag, Bookmark } from "lucide-react";
+import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck, Flag, Bookmark, ShieldCheck } from "lucide-react";
 
 export const menuItems = {
     [roles.ADMIN]: [
@@ -11,6 +11,7 @@ export const menuItems = {
         { title: "Review", url: "/dashboard/review", icon: Star },
         { title: "Reports", url: "/dashboard/reports", icon: Flag },
         { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
+        { title: "Privacy Policy", url: "/dashboard/privacy-policy", icon: ShieldCheck },
         { title: "Property Management", url: "/dashboard/property-management", icon: Home },
         { title: "Membership", url: "/dashboard/memberships", icon: Users },
         { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
@@ -37,5 +38,23 @@ export const menuItems = {
 export const roleRoutes: Record<string, string[]> = {
     GUEST: ["/dashboard", "/messages", "/contact", "/dashboard/memberships", "/dashboard/payment-methods", "/dashboard/profile"],
     HOST: ["/dashboard", "/messages", "/dashboard/transaction", "/dashboard/memberships", "/dashboard/property-listing", "/dashboard/terms-conditions", "/dashboard/payment-methods", "/dashboard/profile", "/dashboard/listing/add", "/dashboard/active-listings"],
-    ADMIN: ["/dashboard", "/messages", "/contact", "/dashboard/contacts", "/dashboard/user", "/dashboard/transaction", "/dashboard/review", "/dashboard/reports", "/dashboard/terms-conditions", "/dashboard/property-management", "/dashboard/memberships", "/dashboard/authentication", "/dashboard/host-verify", "/dashboard/property-listing", "/dashboard/payment-methods", "/dashboard/active-listings"],
+    ADMIN: [
+        "/dashboard",
+        "/messages",
+        "/contact",
+        "/dashboard/contacts",
+        "/dashboard/user",
+        "/dashboard/transaction",
+        "/dashboard/review",
+        "/dashboard/reports",
+        "/dashboard/terms-conditions",
+        "/dashboard/property-management",
+        "/dashboard/memberships",
+        "/dashboard/authentication",
+        "/dashboard/host-verify",
+        "/dashboard/property-listing",
+        "/dashboard/payment-methods",
+        "/dashboard/active-listings",
+        "/dashboard/privacy-policy",
+    ],
 };
