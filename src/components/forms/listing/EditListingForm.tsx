@@ -60,7 +60,58 @@ type Step2Data = z.infer<typeof step2Schema>;
 type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
 
-const amenitiesList = ["Wifi", "Garden", "Beach Access", "Parking", "Pool", "Smoking Allowed", "Hot Tub", "Pet Friendly", "Balcony", "Towels Included", "Dryer", "Kitchen", "Tv", "Gym", "Lift Access", "Disability Access", "Disability Parking"];
+const amenitiesList = [
+    // Essentials
+    "Wifi",
+    "Towels Included",
+    "Heating",
+    "Air Conditioning",
+    "Kitchen",
+    "Washing Machine",
+    "Dryer",
+    "Tv",
+
+    // Parking & Transport
+    "Parking",
+    "EV Charging Point",
+
+    // Safety & Security
+    "Smoke Alarm",
+    "Carbon Monoxide Alarm",
+    "First Aid Kit",
+    "CCTV / Security Lighting",
+
+    // Outdoor & Leisure
+    "Garden",
+    "Balcony / Terrace",
+    "BBQ Facilities",
+    "Outdoor Furniture",
+    "Pool",
+    "Hot Tub",
+    "Beach Access",
+
+    // Family-Friendly
+    "High Chair",
+    "Cot / Travel Cot",
+    "Playground Nearby",
+
+    // Extras
+    "Gym",
+    "Coffee Machine / Kettle",
+    "Hairdryer",
+    "Iron / Ironing Board",
+
+    // Accessibility
+    "Disability Access",
+    "Disability Parking",
+    "Lift Access",
+    "Step-free Entrance",
+
+    // Pet & Smoking Policies
+    "Pet Friendly",
+    "Smoking Allowed",
+] as const;
+
 const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
 const EditPropertyPage = () => {
@@ -645,11 +696,11 @@ const EditPropertyPage = () => {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Image src="/listing/add/home-roof.png" alt="User Alt" width={24} height={24} />
-                                <span>{step2Data?.bedrooms || property?.bedrooms || "N/A"} Bed</span>
+                                <span>{step2Data?.bedrooms || property?.bedrooms || "N/A"} Bedrooms</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Image src="/listing/add/bed-front.png" alt="User Alt" width={24} height={24} />
-                                <span>{step2Data?.bathrooms || property?.bathrooms || "N/A"} Bath</span>
+                                <span>{step2Data?.bathrooms || property?.bathrooms || "N/A"} Bathrooms</span>
                             </div>
                         </div>
 
