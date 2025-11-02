@@ -9,7 +9,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { ArrowLeft, ArrowRight, MessagesSquare } from "lucide-react";
 import SingleStarRating from "@/utils/SingleStarRating";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { useGetSinglePropertyQuery } from "@/redux/features/property/propertyApi";
@@ -42,7 +42,7 @@ export default function PropertyPage2() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const property = response?.data;
-    console.log(property);
+    // console.log(property);
 
     const { data: ratingStats, isLoading: ratingLoading } = useGetPropertyRatingStatsQuery(id as string);
     const stats = ratingStats?.data;
@@ -76,11 +76,30 @@ export default function PropertyPage2() {
         gym: 10,
         "beach access": 11,
         "smoking allowed": 12,
-        balcony: 13,
+        "balcony / terrace": 13,
         kitchen: 14,
         "lift access": 15,
         "disability access": 16,
         "disability parking": 17,
+
+        // Newly added amenities
+        heating: 18,
+        "air conditioning": 19,
+        "washing machine": 20,
+        "ev charging point": 21,
+        "smoke alarm": 22,
+        "carbon monoxide alarm": 23,
+        "first aid kit": 24,
+        "cctv / security lighting": 25,
+        "bbq facilities": 26,
+        "outdoor furniture": 27,
+        "high chair": 28,
+        "cot / travel cot": 29,
+        "playground nearby": 30,
+        "coffee machine / kettle": 31,
+        hairdryer: 32,
+        "iron / ironing board": 33,
+        "step-free entrance": 34,
     };
 
     const handleBookNow = () => {
