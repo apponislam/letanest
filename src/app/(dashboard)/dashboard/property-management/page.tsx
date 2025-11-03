@@ -1,5 +1,4 @@
-// import PropertyManagement from "@/components/dashboard/property-management/PropertyManagement";
-import PropertyManagement from "@/components/dashboard/property-management/PropertyManagement2";
+import PropertyManagement from "@/components/dashboard/property-management/PropertyManagement";
 import React from "react";
 
 const page = () => {
