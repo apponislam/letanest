@@ -31,9 +31,15 @@ const TransectionView = () => {
 
     // Use real API data instead of mock data
     const transactions = transectionData?.data || [];
-    const meta = transectionData?.meta || { page: 1, limit: 10, total: 0, totalPages: 0 };
+    const meta = transectionData?.meta || { page: 1, limit: 10, total: 0 };
 
-    const totalPages = meta.totalPages;
+    // Calculate totalPages based on total and limit
+    const totalPages = Math.ceil(meta.total / meta.limit);
+    const currentPageNum = meta.page || currentPage;
+    const totalProperties = meta.total || 0;
+    const showingFrom = totalProperties > 0 ? (currentPageNum - 1) * meta.limit + 1 : 0;
+    const showingTo = Math.min(currentPageNum * meta.limit, totalProperties);
+
     const displayedTransactions = transactions;
 
     const handlePageChange = (page: number) => setCurrentPage(page);
@@ -117,7 +123,7 @@ const TransectionView = () => {
                 {searchTerm && (
                     <div className="mb-4 text-sm text-gray-300 flex items-center gap-2">
                         <span>
-                            Showing {meta.total} results for "{searchTerm}"
+                            Showing {showingFrom}-{showingTo} of {totalProperties} results for "{searchTerm}"
                         </span>
                         <button onClick={clearSearch} className="text-[#C9A94D] hover:underline text-xs">
                             Clear search
@@ -243,19 +249,19 @@ const TransectionView = () => {
                 {totalPages > 1 && (
                     <div className="flex justify-end items-center mt-6 gap-2">
                         {/* Left Arrow */}
-                        <button onClick={() => handlePageChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 text-[#C9A94D] disabled:opacity-50 hover:bg-[#C9A94D]/20 rounded">
+                        <button onClick={() => handlePageChange(Math.max(1, currentPageNum - 1))} disabled={currentPageNum === 1} className="p-2 text-[#C9A94D] disabled:opacity-50 hover:bg-[#C9A94D]/20 rounded">
                             <ChevronLeft className="w-8 h-8" />
                         </button>
 
                         {/* Page numbers with ellipsis */}
                         {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((page) => {
-                            if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                            if (page === 1 || page === totalPages || (page >= currentPageNum - 1 && page <= currentPageNum + 1)) {
                                 return (
-                                    <button key={page} onClick={() => handlePageChange(page)} className={`px-4 py-2 rounded-full font-medium ${currentPage === page ? "bg-[#C9A94D] text-white border border-[#C9A94D]" : "bg-transparent text-white border border-[#C9A94D] hover:bg-[#C9A94D]/20"}`}>
+                                    <button key={page} onClick={() => handlePageChange(page)} className={`px-4 py-2 rounded-full font-medium ${currentPageNum === page ? "bg-[#C9A94D] text-white border border-[#C9A94D]" : "bg-transparent text-white border border-[#C9A94D] hover:bg-[#C9A94D]/20"}`}>
                                         {page}
                                     </button>
                                 );
-                            } else if (page === currentPage - 2 || page === currentPage + 2) {
+                            } else if (page === currentPageNum - 2 || page === currentPageNum + 2) {
                                 return (
                                     <span key={page} className="px-2 text-white">
                                         ...
@@ -267,7 +273,7 @@ const TransectionView = () => {
                         })}
 
                         {/* Right Arrow */}
-                        <button onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2 text-[#C9A94D] disabled:opacity-50 hover:bg-[#C9A94D]/20 rounded">
+                        <button onClick={() => handlePageChange(Math.min(totalPages, currentPageNum + 1))} disabled={currentPageNum === totalPages} className="p-2 text-[#C9A94D] disabled:opacity-50 hover:bg-[#C9A94D]/20 rounded">
                             <ChevronRight className="w-8 h-8" />
                         </button>
                     </div>
