@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,14 +25,37 @@ const signupSchema = z.object({
 
 type SignUpFormInputs = z.infer<typeof signupSchema>;
 
+// ---------------- Local Storage Helpers ----------------
+const STORAGE_KEY = "signup_form_data";
+
+const saveFormData = (data: Partial<SignUpFormInputs>) => {
+    if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+};
+
+const getFormData = (): Partial<SignUpFormInputs> => {
+    if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : {};
+    }
+    return {};
+};
+
+const clearFormData = () => {
+    if (typeof window !== "undefined") {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+};
+
+// ---------------- Main Component ----------------
 const SignUpForm = () => {
     const router = useRouter();
+    // const pathname = usePathname();
     const dispatch = useAppDispatch();
-    const handleBack = () => {
-        router.back();
-    };
 
     const [showPassword, setShowPassword] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const {
         register,
@@ -40,15 +63,53 @@ const SignUpForm = () => {
         resetField,
         setValue,
         watch,
+        reset,
         formState: { errors },
     } = useForm<SignUpFormInputs>({
         resolver: zodResolver(signupSchema),
         defaultValues: { role: "GUEST" },
     });
-    const [registerUser, { isLoading }] = useRegisterMutation();
 
+    const [registerUser, { isLoading }] = useRegisterMutation();
     const path = useSelector(redirectPath);
 
+    // ---------------- Handle Navigation / Reload ----------------
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+        const savedData = getFormData();
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromTerms = urlParams.get("fromTerms") === "true";
+
+        if (fromTerms) {
+            // ✅ Came from Terms page — restore form data
+            console.log("📄 Came from terms page - restoring form data");
+            if (savedData && Object.keys(savedData).length > 0) {
+                Object.entries(savedData).forEach(([key, value]) => {
+                    setValue(key as keyof SignUpFormInputs, value as any);
+                });
+            }
+        } else if (navigationEntry?.type === "reload") {
+            // 🔄 Only clear data on true page reload
+            console.log("🔄 True page reload detected - clearing form data");
+            clearFormData();
+            reset();
+        }
+
+        setIsInitialLoad(false);
+    }, [setValue, reset]);
+
+    // ---------------- Auto-save data while typing ----------------
+    useEffect(() => {
+        if (isInitialLoad) return;
+        const subscription = watch((value) => {
+            saveFormData(value);
+        });
+        return () => subscription.unsubscribe();
+    }, [watch, isInitialLoad]);
+
+    // ---------------- Submit Form ----------------
     const onSubmit = async (data: SignUpFormInputs) => {
         const loadingToast = toast.loading("Registering...");
 
@@ -64,6 +125,9 @@ const SignUpForm = () => {
             const result = await registerUser(payload).unwrap();
 
             toast.success(result?.message || "Registered successfully!", { id: loadingToast });
+
+            clearFormData(); // ✅ Clear form data only after successful registration
+
             if (path) {
                 dispatch(setRedirectPath(null));
                 router.push(path);
@@ -82,6 +146,26 @@ const SignUpForm = () => {
         }
     };
 
+    // ---------------- Handle Role Change ----------------
+    const handleRoleChange = (role: "GUEST" | "HOST") => {
+        setValue("role", role);
+        toast.success(`Role changed to ${role === "GUEST" ? "Guest" : "Host"}!`);
+    };
+
+    // ---------------- Handle Terms Click ----------------
+    const handleTermsClick = (e: React.MouseEvent) => {
+        const formData = watch();
+        saveFormData(formData);
+        // Navigate to terms with a return flag
+        router.push(`/terms-of-conditions?role=${watch("role").toLowerCase()}&returnTo=register`);
+    };
+
+    // ---------------- Handle Back Button ----------------
+    const handleBack = () => {
+        router.back();
+    };
+
+    // ---------------- UI ----------------
     return (
         <div className="flex flex-col md:min-h-screen">
             {/* Heading */}
@@ -95,25 +179,11 @@ const SignUpForm = () => {
                     <form className="flex flex-col gap-3 w-full" onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex justify-center mb-6">
                             <div className="flex border border-[#C9A94D] rounded-lg overflow-hidden bg-white">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setValue("role", "GUEST");
-                                        toast.success("Role changed to Guest!"); // show toast
-                                    }}
-                                    className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "GUEST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}
-                                >
+                                <button type="button" onClick={() => handleRoleChange("GUEST")} className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "GUEST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}>
                                     Guest
                                 </button>
 
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setValue("role", "HOST");
-                                        toast.success("Role changed to Host!"); // show toast
-                                    }}
-                                    className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "HOST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}
-                                >
+                                <button type="button" onClick={() => handleRoleChange("HOST")} className={`px-6 py-2 font-semibold transition-colors ${watch("role") === "HOST" ? "bg-[#C9A94D] text-white rounded-lg" : "bg-white text-[#C9A94D]"}`}>
                                     Host
                                 </button>
                             </div>
@@ -162,9 +232,9 @@ const SignUpForm = () => {
                             <input type="checkbox" {...register("acceptedTerms")} className="accent-[#C9A94D]" />
                             <label className="text-[#C9A94D]">
                                 I accept the
-                                <Link href="/terms-of-conditions" className="ml-1 hover:underline">
+                                <button type="button" className="ml-1 hover:underline" onClick={handleTermsClick}>
                                     terms and conditions
-                                </Link>
+                                </button>
                             </label>
                         </div>
                         {errors.acceptedTerms && <p className="text-red-500 text-sm mt-1">{errors.acceptedTerms.message}</p>}
@@ -173,6 +243,7 @@ const SignUpForm = () => {
                         <button type="submit" className="w-full bg-[#C9A94D] text-white py-5 rounded-lg font-semibold hover:bg-[#b38f3e] transition-colors" disabled={isLoading}>
                             {isLoading ? "Registering..." : "Sign Up"}
                         </button>
+
                         <p className="text-[#C9A94D] mb-2">
                             Already have an account?{" "}
                             <Link href="/auth/login" className="text-[#135E9A]">

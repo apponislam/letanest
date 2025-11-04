@@ -210,8 +210,10 @@ import { useGetAllUsersQuery, useDownloadUsersExcelMutation } from "@/redux/feat
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const UserDash = () => {
+    const router = useRouter();
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [roleFilter, setRoleFilter] = useState<string>("");
@@ -315,6 +317,14 @@ const UserDash = () => {
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 11 }, (_, i) => currentYear - i);
 
+    const handleViewConversation = (userId?: string) => {
+        if (userId) {
+            router.push(`/dashboard/user/${userId}`);
+        } else {
+            toast.error("No conversation available");
+        }
+    };
+
     if (error) {
         return (
             <div className="w-full">
@@ -372,6 +382,7 @@ const UserDash = () => {
                                             <th className="py-3 px-6 text-left font-normal">Role</th>
                                             <th className="py-3 px-6 text-left font-normal">Phone</th>
                                             <th className="py-3 px-6 text-left font-normal">Created At</th>
+                                            <th className="py-3 px-6 text-left font-normal">Messages</th>
                                             <th className="py-3 px-6 text-left font-normal">Action</th>
                                         </tr>
                                     </thead>
@@ -393,7 +404,10 @@ const UserDash = () => {
                                                     </td>
                                                     <td className="py-3 px-6 font-normal">{user.phone || "N/A"}</td>
                                                     <td className="py-3 px-6 font-normal">{formatDate(user.createdAt)}</td>
-                                                    <td className="py-3 px-6 font-normal text-center">
+                                                    <td className="cursor-pointer" onClick={() => handleViewConversation(user?._id)}>
+                                                        View Conversations
+                                                    </td>
+                                                    <td className="py-3 px-6 font-normal text-center cursor-pointer">
                                                         <UserAction user={user} />
                                                     </td>
                                                 </tr>
