@@ -125,6 +125,14 @@ export interface IProperty extends IPropertyStep1, IPropertyStep2, IPropertyStep
     status?: "pending" | "published" | "rejected" | "hidden";
     isDeleted?: boolean;
     termsAndConditions?: any;
+    nearbyPlaces?: {
+        name: string;
+        type: string;
+        distance: number;
+        lat: number;
+        lng: number;
+        address: string;
+    }[];
 }
 
 // Query parameters for listing

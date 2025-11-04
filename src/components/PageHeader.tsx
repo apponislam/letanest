@@ -3,7 +3,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser, logOut } from "@/redux/features/auth/authSlice";
@@ -20,6 +20,7 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = true }) => {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const user = useAppSelector(currentUser);
     const dispatch = useDispatch();
     const [logout] = useLogoutMutation();
@@ -39,9 +40,24 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
         }
     };
 
+    const handleBack = () => {
+        const returnTo = searchParams.get("returnTo");
+        const fromTerms = searchParams.get("fromTerms");
+
+        if (returnTo === "register" || fromTerms === "true") {
+            // Navigate back to register with flag
+            router.push("/auth/register?fromTerms=true");
+        } else if (returnTo === "add-listing") {
+            // Navigate back to add listing with flag
+            router.push("/dashboard/listing/add?fromTerms=true");
+        } else {
+            router.back();
+        }
+    };
+
     return (
         <div className="p-5 border border-[#C9A94D] flex justify-between items-center mb-6 flex-col md:flex-row gap-4">
-            <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={() => router.back()}>
+            <div className="text-[#C9A94D] flex items-center gap-3 text-[18px] cursor-pointer hover:underline" onClick={handleBack}>
                 <ArrowLeft />
                 <p>Back To Previous</p>
             </div>

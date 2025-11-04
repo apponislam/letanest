@@ -617,11 +617,11 @@ export default function MessagesLayout2() {
                                             <button className="bg-[#C9A94D] px-2 text-white rounded-[4px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
                                                 Report Host
                                             </button>
-                                        ) : (
+                                        ) : otherParticipant.role === "GUEST" ? (
                                             <button className="bg-[#14213D] px-2 text-white rounded-[4px] hover:bg-[#0f1a2f] transition-colors" onClick={() => setIsReportModalOpen(true)}>
                                                 Report Guest
                                             </button>
-                                        )}
+                                        ) : null}
                                     </div>
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant.role}</p>
@@ -909,10 +909,9 @@ export default function MessagesLayout2() {
                                                                                                 }
                                                                                             }}
                                                                                             numberOfMonths={2}
-                                                                                            disabled={(day) => {
-                                                                                                // Disable dates outside the available range
-                                                                                                return day < new Date(day.setHours(0, 0, 0, 0)) || day < availableFrom || day > availableTo;
-                                                                                            }}
+                                                                                            // disabled={(day) => {
+                                                                                            //     return day < new Date(day.setHours(0, 0, 0, 0)) || day < availableFrom || day > availableTo;
+                                                                                            // }}
                                                                                         />
                                                                                     </PopoverContent>
                                                                                 </Popover>
@@ -1220,6 +1219,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
 
             return `${day}/${month}/${year}`;
         };
+        // console.log(message);
 
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
@@ -1238,36 +1238,26 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-                    <p className="font-semibold text-sm mb-2 text-center">Booking Request</p>
-
-                    {/* Dates with proper formatting */}
-                    <div className="text-xs mb-1 flex justify-between">
-                        <span className="text-gray-700 block mb-1">Requested dates:</span>
-                        <div className="font-medium block text-right">
-                            <p>{formatDate(message.checkInDate)}</p>
-                            <p>{formatDate(message.checkOutDate)}</p>
-                        </div>
+                <div className="bg-[#D4BA71] p-3 border-2 border-black w-64">
+                    <p className="font-semibold text-sm text-center">Booking Request</p>
+                    <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                    <p className="text-center text-[12px] mb-2">Requested Dates:</p>
+                    <div className="flex justify-center items-center gap-4 mb-2">
+                        <div className="border border-black bg-[#16223D] text-white px-3 py-1 text-[10px]">{formatDate(message.checkInDate)}</div>
+                        <div className="border border-black bg-[#16223D] text-white px-3 py-1 text-[10px]">{formatDate(message.checkOutDate)}</div>
                     </div>
-
-                    {/* Guest Number */}
                     {message.guestNo && (
-                        <p className="text-xs flex justify-between mb-1">
-                            <span className="text-gray-700">Number of Guests:</span>
-                            <span className="font-medium">{message.guestNo}</span>
-                        </p>
+                        <div>
+                            <p className="text-center text-[12px] mb-2">Guests:</p>
+                            <div className="flex justify-center items-center gap-4 mb-2">
+                                <div className="border border-black bg-[#16223D] text-white px-10 py-1 text-[10px]">{message.guestNo}</div>
+                            </div>
+                        </div>
                     )}
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col gap-2 mt-3">
+                    {/* <div className="flex flex-col gap-2 mt-3">
                         <div className="grid grid-cols-2 gap-2">
-                            {isMe ? (
-                                // Disabled Confirm Booking button when message is from current user
-                                <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
-                                    Confirm Booking
-                                </button>
-                            ) : (
-                                // Active Confirm Booking button when message is from other user
+                            {isMe ? null : (
                                 <button onClick={handleConvertToOffer} disabled={isConverting} className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                     {isConverting ? "Converting..." : "Confirm Booking"}
                                 </button>
@@ -1276,8 +1266,29 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                                 {isRejecting ? "Rejecting..." : "Reject Booking"}
                             </button>
                         </div>
+                    </div> */}
+                    <div className="flex flex-col gap-2 mt-3">
+                        <div className="flex justify-center items-center gap-4">
+                            {isMe ? (
+                                // If it's me, show only Cancel Booking button
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-10 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {isRejecting ? "Canceling..." : "Cancel Booking"}
+                                </button>
+                            ) : (
+                                // If it's not me, show both Make Offer and Reject Request buttons
+                                <>
+                                    <button onClick={handleConvertToOffer} disabled={isConverting} className="border border-black bg-[#16223D] text-white px-4  py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        {isConverting ? "Making Offer..." : "Make Offer"}
+                                    </button>
+                                    <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        {isRejecting ? "Rejecting..." : "Reject Request"}
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
+
                 {isMe &&
                     (message.sender?.profileImg ? (
                         <Image
