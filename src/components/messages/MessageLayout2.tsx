@@ -1014,127 +1014,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         );
     }
 
-    // if (message.type === "offer") {
-    //     // Format dates properly
-    //     const formatDate = (dateString: string) => {
-    //         if (!dateString) return "Not set";
-
-    //         const date = new Date(dateString);
-    //         if (isNaN(date.getTime())) return "Invalid date";
-
-    //         const day = String(date.getDate()).padStart(2, "0");
-    //         const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
-    //         const year = date.getFullYear();
-
-    //         return `${day}/${month}/${year}`;
-    //     };
-
-    //     // Calculate total if not provided
-    //     const calculateTotal = () => {
-    //         const agreedFee = parseFloat(message.agreedFee) || 0;
-    //         const bookingFee = parseFloat(message.bookingFee) || 0;
-    //         return (agreedFee + bookingFee).toFixed(2);
-    //     };
-
-    //     const totalAmount = message.total || calculateTotal();
-
-    //     return (
-    //         <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-    //             {!isMe &&
-    //                 (message.sender?.profileImg ? (
-    //                     <Image
-    //                         src={`${backendURL}${message.sender.profileImg}`}
-    //                         alt={message.sender?.name}
-    //                         width={30}
-    //                         height={30}
-    //                         className="rounded-full mr-2 h-[30px] w-[30px]"
-    //                         onError={(e) => {
-    //                             e.currentTarget.style.display = "none";
-    //                         }}
-    //                     />
-    //                 ) : (
-    //                     <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
-    //                 ))}
-    //             <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-    //                 <p className="font-semibold text-sm mb-2 text-center">Nest Offer</p>
-
-    //                 {/* Property ID - show only first 8 characters for better display */}
-    //                 <p className="text-xs flex justify-between mb-1">
-    //                     <span className="text-gray-700">Property ID:</span>
-    //                     <span className="font-medium">{message.propertyId?.propertyNumber}</span>
-    //                 </p>
-
-    //                 {/* Dates with proper formatting */}
-    //                 <div className="text-xs mb-1 flex justify-between">
-    //                     <span className="text-gray-700 block mb-1">Agreed dates:</span>
-    //                     <div className="font-medium block text-right">
-    //                         <p>{formatDate(message.checkInDate)}</p> <p>{formatDate(message.checkOutDate)}</p>
-    //                     </div>
-    //                 </div>
-
-    //                 {message.guestNo && (
-    //                     <p className="text-xs flex justify-between mb-1">
-    //                         <span className="text-gray-700">Number of Guests:</span>
-    //                         <span className="font-medium">{message.guestNo}</span>
-    //                     </p>
-    //                 )}
-
-    //                 {/* Fees with currency formatting */}
-    //                 <p className="text-xs flex justify-between mb-1">
-    //                     <span className="text-gray-700">Agreed Fee:</span>
-    //                     <span className="font-medium">£{parseFloat(message.agreedFee || "0").toFixed(2)}</span>
-    //                 </p>
-
-    //                 <p className="text-xs flex justify-between mb-1">
-    //                     <span className="text-gray-700">Booking Fee:</span>
-    //                     <span className="font-medium">{message.bookingFee ? `£${parseFloat(message.bookingFee).toFixed(2)}` : "£0.00"}</span>
-    //                 </p>
-
-    //                 {/* Total */}
-    //                 <p className="text-xs font-semibold flex justify-between  pt-1 mt-1">
-    //                     <span>Total:</span>
-    //                     <span>£{totalAmount}</span>
-    //                 </p>
-
-    //                 {/* Action Buttons */}
-    //                 <div className="flex flex-col gap-2 mt-3">
-    //                     <div className="grid grid-cols-2 gap-2">
-    //                         {user?._id === message.propertyId?.createdBy?._id ? (
-    //                             // Disabled Pay button when message is from current user OR user is property creator
-    //                             <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
-    //                                 Pay
-    //                             </button>
-    //                         ) : (
-    //                             // Active Pay button when message is from other user AND user is not property creator
-    //                             <Link href={`/listings/${message._id}/pay`} className="w-full">
-    //                                 <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Pay</button>
-    //                             </Link>
-    //                         )}
-    //                         <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-    //                             {isRejecting ? "Cancelling..." : "Cancel"}
-    //                         </button>
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //             {isMe &&
-    //                 (message.sender?.profileImg ? (
-    //                     <Image
-    //                         src={`${backendURL}${message.sender.profileImg}`}
-    //                         alt="Me"
-    //                         width={30}
-    //                         height={30}
-    //                         className="rounded-full ml-2 h-[30px] w-[30px]"
-    //                         onError={(e) => {
-    //                             e.currentTarget.style.display = "none";
-    //                         }}
-    //                     />
-    //                 ) : (
-    //                     <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
-    //                 ))}
-    //         </div>
-    //     );
-    // }
-
     if (message.type === "offer") {
         const formatDate = (dateString: string) => {
             if (!dateString) return "Not set";
@@ -1319,8 +1198,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
             </div>
         );
     }
-
-    // console.log(message);
 
     if (message.type === "accepted") {
         return (
