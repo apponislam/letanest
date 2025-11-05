@@ -122,17 +122,17 @@ const StripeAccountManager = () => {
                             {/* Buttons */}
                             <div className="space-y-3">
                                 {!isConnected ? (
-                                    <button onClick={handleConnectAccount} disabled={isLoading} className="w-full bg-[#C9A94D] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+                                    <button onClick={handleConnectAccount} disabled={isLoading} className="cursor-pointer w-full bg-[#C9A94D] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
                                         {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
                                         {isLoading ? "Connecting..." : "Connect Payment Account"}
                                     </button>
                                 ) : (
                                     <>
-                                        <button onClick={handleViewDashboard} className="w-full bg-[#C9A94D] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#b8973e] transition-colors flex items-center justify-center gap-2">
+                                        <button onClick={handleViewDashboard} className="cursor-pointer w-full bg-[#C9A94D] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#b8973e] transition-colors flex items-center justify-center gap-2">
                                             View Dashboard
                                             <ExternalLink className="w-4 h-4" />
                                         </button>
-                                        <button onClick={handleDisconnectAccount} disabled={isLoading} className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+                                        <button onClick={handleDisconnectAccount} disabled={isLoading} className="cursor-pointer w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
                                             {isLoading ? <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> : null}
                                             {isLoading ? "Disconnecting..." : "Disconnect Account"}
                                         </button>

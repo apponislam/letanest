@@ -2,7 +2,7 @@
 
 import PageHeader from "../PageHeader";
 import MessagesLayout2 from "./MessageLayout2";
-// import MessagesLayout from "./MessagesLayout";
+// import MessagesLayout2 from "./MessagesLayout";
 
 const MessageViews = () => {
     return (
