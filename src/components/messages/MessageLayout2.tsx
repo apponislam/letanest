@@ -52,7 +52,6 @@ const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name:
 export default function MessagesLayout2() {
     const { user } = useSelector((state: RootState) => state.auth);
     const { isConnected, connectSocket, joinConversation, leaveConversation, sendTyping, getTypingUsers, isUserOnline } = useSocket();
-    // const [markConversationAsRead] = useMarkConversationAsReadsMutation();
     const [markConversationAsReads] = useMarkConversationAsReadsMutation();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
@@ -208,7 +207,6 @@ export default function MessagesLayout2() {
             return;
         }
 
-        // console.log("📤 [MessagesLayout2] Sending message:", inputText);
         try {
             await sendMessage({
                 conversationId: selectedConversation,
@@ -220,7 +218,6 @@ export default function MessagesLayout2() {
             setInputText("");
             handleStopTyping();
 
-            // Refetch messages to ensure we have latest data
             setTimeout(() => {
                 refetchMessages();
                 refetchConversations();
@@ -229,74 +226,6 @@ export default function MessagesLayout2() {
             console.error("❌ [MessagesLayout2] Failed to send message:", error);
         }
     };
-
-    // const handleSendOffer = async () => {
-    //     if (!selectedProperty || !agreed || !user || !selectedConversation) {
-    //         console.warn("⚠️ Cannot send offer - missing requirements:", {
-    //             selectedProperty,
-    //             agreed,
-    //             user: !!user,
-    //             conversation: !!selectedConversation,
-    //         });
-    //         return;
-    //     }
-
-    //     // Collect input values
-    //     const checkInInput = (document.querySelector<HTMLInputElement>("#checkInDate")?.value || "").trim();
-    //     const checkOutInput = (document.querySelector<HTMLInputElement>("#checkOutDate")?.value || "").trim();
-    //     const feeInput = (document.querySelector<HTMLInputElement>("#offerFee")?.value || "").trim();
-
-    //     if (!checkInInput || !checkOutInput || !feeInput) {
-    //         console.warn("⚠️ Offer missing required fields (dates or fee)");
-    //         return;
-    //     }
-
-    //     try {
-    //         // Convert string dates to Date objects
-    //         const checkInDate = new Date(checkInInput);
-    //         const checkOutDate = new Date(checkOutInput);
-
-    //         // Validate dates
-    //         if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
-    //             console.warn("⚠️ Invalid dates provided");
-    //             return;
-    //         }
-
-    //         console.log("📤 Sending offer:", {
-    //             propertyId: selectedProperty,
-    //             checkInDate: checkInDate,
-    //             checkOutDate: checkOutDate,
-    //             agreedFee: feeInput,
-    //         });
-
-    //         await sendMessage({
-    //             conversationId: selectedConversation,
-    //             sender: user._id,
-    //             type: "offer",
-    //             propertyId: selectedProperty,
-    //             checkInDate: checkInDate.toISOString(),
-    //             checkOutDate: checkOutDate.toISOString(),
-    //             agreedFee: feeInput,
-    //         }).unwrap();
-
-    //         console.log("✅ Offer sent successfully");
-
-    //         // Reset modal and inputs
-    //         setShowOfferModal(false);
-    //         setSelectedProperty(null);
-    //         setAgreed(false);
-
-    //         // Refetch latest data
-    //         setTimeout(() => {
-    //             refetchMessages();
-    //             refetchConversations();
-    //         }, 100);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
-
-    // Handle typing with proper debounce
 
     const handleSendOffer = async () => {
         if (!selectedProperty || !agreed || !user || !selectedConversation || !date?.from || !date?.to || calculatedPrice === 0) {
@@ -1085,22 +1014,138 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         );
     }
 
+    // if (message.type === "offer") {
+    //     // Format dates properly
+    //     const formatDate = (dateString: string) => {
+    //         if (!dateString) return "Not set";
+
+    //         const date = new Date(dateString);
+    //         if (isNaN(date.getTime())) return "Invalid date";
+
+    //         const day = String(date.getDate()).padStart(2, "0");
+    //         const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+    //         const year = date.getFullYear();
+
+    //         return `${day}/${month}/${year}`;
+    //     };
+
+    //     // Calculate total if not provided
+    //     const calculateTotal = () => {
+    //         const agreedFee = parseFloat(message.agreedFee) || 0;
+    //         const bookingFee = parseFloat(message.bookingFee) || 0;
+    //         return (agreedFee + bookingFee).toFixed(2);
+    //     };
+
+    //     const totalAmount = message.total || calculateTotal();
+
+    //     return (
+    //         <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+    //             {!isMe &&
+    //                 (message.sender?.profileImg ? (
+    //                     <Image
+    //                         src={`${backendURL}${message.sender.profileImg}`}
+    //                         alt={message.sender?.name}
+    //                         width={30}
+    //                         height={30}
+    //                         className="rounded-full mr-2 h-[30px] w-[30px]"
+    //                         onError={(e) => {
+    //                             e.currentTarget.style.display = "none";
+    //                         }}
+    //                     />
+    //                 ) : (
+    //                     <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+    //                 ))}
+    //             <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
+    //                 <p className="font-semibold text-sm mb-2 text-center">Nest Offer</p>
+
+    //                 {/* Property ID - show only first 8 characters for better display */}
+    //                 <p className="text-xs flex justify-between mb-1">
+    //                     <span className="text-gray-700">Property ID:</span>
+    //                     <span className="font-medium">{message.propertyId?.propertyNumber}</span>
+    //                 </p>
+
+    //                 {/* Dates with proper formatting */}
+    //                 <div className="text-xs mb-1 flex justify-between">
+    //                     <span className="text-gray-700 block mb-1">Agreed dates:</span>
+    //                     <div className="font-medium block text-right">
+    //                         <p>{formatDate(message.checkInDate)}</p> <p>{formatDate(message.checkOutDate)}</p>
+    //                     </div>
+    //                 </div>
+
+    //                 {message.guestNo && (
+    //                     <p className="text-xs flex justify-between mb-1">
+    //                         <span className="text-gray-700">Number of Guests:</span>
+    //                         <span className="font-medium">{message.guestNo}</span>
+    //                     </p>
+    //                 )}
+
+    //                 {/* Fees with currency formatting */}
+    //                 <p className="text-xs flex justify-between mb-1">
+    //                     <span className="text-gray-700">Agreed Fee:</span>
+    //                     <span className="font-medium">£{parseFloat(message.agreedFee || "0").toFixed(2)}</span>
+    //                 </p>
+
+    //                 <p className="text-xs flex justify-between mb-1">
+    //                     <span className="text-gray-700">Booking Fee:</span>
+    //                     <span className="font-medium">{message.bookingFee ? `£${parseFloat(message.bookingFee).toFixed(2)}` : "£0.00"}</span>
+    //                 </p>
+
+    //                 {/* Total */}
+    //                 <p className="text-xs font-semibold flex justify-between  pt-1 mt-1">
+    //                     <span>Total:</span>
+    //                     <span>£{totalAmount}</span>
+    //                 </p>
+
+    //                 {/* Action Buttons */}
+    //                 <div className="flex flex-col gap-2 mt-3">
+    //                     <div className="grid grid-cols-2 gap-2">
+    //                         {user?._id === message.propertyId?.createdBy?._id ? (
+    //                             // Disabled Pay button when message is from current user OR user is property creator
+    //                             <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
+    //                                 Pay
+    //                             </button>
+    //                         ) : (
+    //                             // Active Pay button when message is from other user AND user is not property creator
+    //                             <Link href={`/listings/${message._id}/pay`} className="w-full">
+    //                                 <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Pay</button>
+    //                             </Link>
+    //                         )}
+    //                         <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+    //                             {isRejecting ? "Cancelling..." : "Cancel"}
+    //                         </button>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //             {isMe &&
+    //                 (message.sender?.profileImg ? (
+    //                     <Image
+    //                         src={`${backendURL}${message.sender.profileImg}`}
+    //                         alt="Me"
+    //                         width={30}
+    //                         height={30}
+    //                         className="rounded-full ml-2 h-[30px] w-[30px]"
+    //                         onError={(e) => {
+    //                             e.currentTarget.style.display = "none";
+    //                         }}
+    //                     />
+    //                 ) : (
+    //                     <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+    //                 ))}
+    //         </div>
+    //     );
+    // }
+
     if (message.type === "offer") {
-        // Format dates properly
         const formatDate = (dateString: string) => {
             if (!dateString) return "Not set";
-
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return "Invalid date";
-
             const day = String(date.getDate()).padStart(2, "0");
-            const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+            const month = String(date.getMonth() + 1).padStart(2, "0");
             const year = date.getFullYear();
-
             return `${day}/${month}/${year}`;
         };
 
-        // Calculate total if not provided
         const calculateTotal = () => {
             const agreedFee = parseFloat(message.agreedFee) || 0;
             const bookingFee = parseFloat(message.bookingFee) || 0;
@@ -1126,67 +1171,46 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-                    <p className="font-semibold text-sm mb-2 text-center">Nest Offer</p>
 
-                    {/* Property ID - show only first 8 characters for better display */}
-                    <p className="text-xs flex justify-between mb-1">
-                        <span className="text-gray-700">Property ID:</span>
-                        <span className="font-medium">{message.propertyId?.propertyNumber}</span>
-                    </p>
+                <div className="bg-[#D4BA71] p-3 border-2 border-black w-64">
+                    <p className="font-semibold text-sm text-center">Nest Offer</p>
+                    <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
 
-                    {/* Dates with proper formatting */}
-                    <div className="text-xs mb-1 flex justify-between">
-                        <span className="text-gray-700 block mb-1">Agreed dates:</span>
-                        <div className="font-medium block text-right">
-                            <p>{formatDate(message.checkInDate)}</p> <p>{formatDate(message.checkOutDate)}</p>
-                        </div>
+                    <p className="text-center text-[12px] mb-2">Agreed Dates:</p>
+                    <div className="flex justify-center items-center gap-4 mb-2">
+                        <div className="border border-black bg-[#16223D] text-white px-3 py-1 text-[10px]">{formatDate(message.checkInDate)}</div>
+                        <div className="border border-black bg-[#16223D] text-white px-3 py-1 text-[10px]">{formatDate(message.checkOutDate)}</div>
                     </div>
 
                     {message.guestNo && (
-                        <p className="text-xs flex justify-between mb-1">
-                            <span className="text-gray-700">Number of Guests:</span>
-                            <span className="font-medium">{message.guestNo}</span>
-                        </p>
+                        <div>
+                            <p className="text-center text-[12px] mb-2">Guests:</p>
+                            <div className="flex justify-center items-center gap-4 mb-2">
+                                <div className="border border-black bg-[#16223D] text-white px-10 py-1 text-[10px]">{message.guestNo}</div>
+                            </div>
+                        </div>
                     )}
 
-                    {/* Fees with currency formatting */}
-                    <p className="text-xs flex justify-between mb-1">
-                        <span className="text-gray-700">Agreed Fee:</span>
-                        <span className="font-medium">£{parseFloat(message.agreedFee || "0").toFixed(2)}</span>
-                    </p>
+                    <div className="text-[12px] text-[#16223D] mb-1 text-center">
+                        <p>Agreed Fee: £{parseFloat(message.agreedFee || "0").toFixed(2)}</p>
+                        <p>Booking Fee: £{message.bookingFee ? parseFloat(message.bookingFee).toFixed(2) : "0.00"}</p>
+                        <p className="font-semibold mt-1">Total: £{totalAmount}</p>
+                    </div>
 
-                    <p className="text-xs flex justify-between mb-1">
-                        <span className="text-gray-700">Booking Fee:</span>
-                        <span className="font-medium">{message.bookingFee ? `£${parseFloat(message.bookingFee).toFixed(2)}` : "£0.00"}</span>
-                    </p>
-
-                    {/* Total */}
-                    <p className="text-xs font-semibold flex justify-between  pt-1 mt-1">
-                        <span>Total:</span>
-                        <span>£{totalAmount}</span>
-                    </p>
-
-                    {/* Action Buttons */}
                     <div className="flex flex-col gap-2 mt-3">
-                        <div className="grid grid-cols-2 gap-2">
-                            {user?._id === message.propertyId?.createdBy?._id ? (
-                                // Disabled Pay button when message is from current user OR user is property creator
-                                <button disabled className="bg-gray-400 text-white px-3 py-1 rounded text-xs font-bold w-full cursor-not-allowed opacity-60">
-                                    Pay
-                                </button>
-                            ) : (
-                                // Active Pay button when message is from other user AND user is not property creator
+                        <div className="flex justify-center items-center gap-4">
+                            {user?._id === message.propertyId?.createdBy?._id ? null : (
                                 <Link href={`/listings/${message._id}/pay`} className="w-full">
-                                    <button className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors">Pay</button>
+                                    <button className="border border-black bg-[#16223D] text-white px-10 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors">Pay</button>
                                 </Link>
                             )}
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-10 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isRejecting ? "Cancelling..." : "Cancel"}
                             </button>
                         </div>
                     </div>
                 </div>
+
                 {isMe &&
                     (message.sender?.profileImg ? (
                         <Image
@@ -1255,18 +1279,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                         </div>
                     )}
 
-                    {/* <div className="flex flex-col gap-2 mt-3">
-                        <div className="grid grid-cols-2 gap-2">
-                            {isMe ? null : (
-                                <button onClick={handleConvertToOffer} disabled={isConverting} className="bg-[#434D64] text-white px-3 py-1 rounded text-xs font-bold w-full hover:bg-[#363D4F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {isConverting ? "Converting..." : "Confirm Booking"}
-                                </button>
-                            )}
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="hover:bg-[#363D4F] text-white px-3 py-1 rounded text-xs font-bold bg-[#434D64] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                                {isRejecting ? "Rejecting..." : "Reject Booking"}
-                            </button>
-                        </div>
-                    </div> */}
                     <div className="flex flex-col gap-2 mt-3">
                         <div className="flex justify-center items-center gap-4">
                             {isMe ? (
@@ -1328,37 +1340,46 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 rounded-lg w-64">
-                    <p className="font-semibold text-sm mb-1 text-center">Offer Accepted</p>
-                    <div className="flex flex-col gap-2">
-                        <div className="text-xs flex justify-between flex-wrap items-start">
+                <div className="bg-[#D4BA71] p-3 border-2 border-black w-64">
+                    <p className="font-semibold text-sm text-center">Offer Accepted</p>
+                    <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+
+                    <div className="flex flex-col gap-3">
+                        <div className="text-[12px] flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
-                                <span>Property name:</span>
+                                <span>Property:</span>
                             </div>
-                            <span className="text-right flex-1">{message?.propertyId?.title}</span>
+                            <span className="font-semibold">{message?.propertyId?.title}</span>
                         </div>
-                        <div className="text-xs flex justify-between flex-wrap items-start">
+
+                        <div className="text-[12px] flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
                                 <span>Address:</span>
                             </div>
-                            <span className="text-right flex-1">{message?.propertyId?.location}</span>
+                            <span className="font-semibold text-right">{message?.propertyId?.location}</span>
                         </div>
-                        <div className="text-xs flex justify-between flex-wrap items-start">
+
+                        <div className="text-[12px] flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
-                                <span>Property Manager:</span>
+                                <span>Manager:</span>
                             </div>
-                            <span className="text-right flex-1">{message.propertyId?.createdBy?.name}</span>
+                            <span className="font-semibold">{message.propertyId?.createdBy?.name}</span>
                         </div>
-                        <div className="text-xs flex justify-between flex-wrap items-start">
+
+                        <div className="text-[12px] flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
                                 <span>Phone:</span>
                             </div>
-                            <span>{message.propertyId?.createdBy?.phone}</span>
+                            <span className="font-semibold">{message.propertyId?.createdBy?.phone}</span>
                         </div>
+                    </div>
+
+                    <div className="flex justify-center mt-3">
+                        <div className="border border-black bg-[#16223D] text-white px-6 py-1 text-[10px]">Booking Confirmed</div>
                     </div>
                 </div>
                 {isMe &&
