@@ -218,6 +218,53 @@ export const messageApi = baseApi.injectEndpoints({
             query: ({ searchTerm, page = 1, limit = 20 }) => `/messages/admin/conversations/search/users?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
             providesTags: ["Conversations"],
         }),
+        sendWelcomeMessage: builder.mutation({
+            query: (data?: { message?: string }) => ({
+                url: "/messages/welcome",
+                method: "POST",
+                body: data || {},
+            }),
+            invalidatesTags: (_result, _error, arg) => ["Conversations", "Messages"],
+            onQueryStarted: async (data, { dispatch, queryFulfilled }) => {
+                const tempId = `optimistic-${Date.now()}`;
+                const patchResult = dispatch(
+                    messageApi.util.updateQueryData("getUserConversations", undefined, (draft: any) => {
+                        // Handle both response formats (data array or direct array)
+                        const conversationsArray = draft?.data || draft || [];
+
+                        const optimisticConversation = {
+                            _id: tempId,
+                            participants: [
+                                { _id: "bot", name: "Letanest Bot", profileImg: "", isBot: true },
+                                { _id: "current-user", name: "You", profileImg: "" },
+                            ],
+                            lastMessage: {
+                                _id: tempId,
+                                text: data?.message || "Welcome to Letanest!",
+                                sender: { _id: "bot", name: "Letanest Bot" },
+                                createdAt: new Date().toISOString(),
+                            },
+                            unreadCount: 1,
+                            createdAt: new Date().toISOString(),
+                            isOptimistic: true,
+                        };
+
+                        if (Array.isArray(conversationsArray)) {
+                            conversationsArray.unshift(optimisticConversation);
+                        } else if (draft?.data) {
+                            draft.data.unshift(optimisticConversation);
+                        }
+                    })
+                );
+
+                try {
+                    await queryFulfilled;
+                    // The real conversation will come via socket and replace the optimistic one
+                } catch (error) {
+                    patchResult.undo();
+                }
+            },
+        }),
     }),
 });
 
@@ -241,4 +288,6 @@ export const {
     useGetConversationsByUserIdQuery,
     useGetAllConversationMessagesQuery,
     useSearchUserConversationsQuery,
+    // welcome message
+    useSendWelcomeMessageMutation,
 } = messageApi;

@@ -62,14 +62,14 @@ export default function MessagesLayout2() {
     // Connect socket when component mounts
     useEffect(() => {
         if (user?._id) {
-            console.log("🔗 [MessagesLayout2] Connecting socket for user:", user._id);
+            // console.log("🔗 [MessagesLayout2] Connecting socket for user:", user._id);
             connectSocket(user._id);
         } else {
             console.warn("⚠️ [MessagesLayout2] No user found, cannot connect socket");
         }
 
         return () => {
-            console.log("🔌 [MessagesLayout2] Cleaning up - disconnecting socket");
+            // console.log("🔌 [MessagesLayout2] Cleaning up - disconnecting socket");
             // disconnectSocket();
         };
     }, [user?._id, connectSocket]);
@@ -86,7 +86,7 @@ export default function MessagesLayout2() {
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 
     // Get messages for selected conversation
-    const { data: messagesResponse, isLoading: loadingMessages, error: messagesError, refetch: refetchMessages } = useGetConversationMessagesQuery({ conversationId: selectedConversation!, page: 1, limit: 50 }, { skip: !selectedConversation });
+    const { data: messagesResponse, isLoading: loadingMessages, error: messagesError, refetch: refetchMessages } = useGetConversationMessagesQuery({ conversationId: selectedConversation!, page: 1, limit: 150 }, { skip: !selectedConversation });
 
     const [showOfferModal, setShowOfferModal] = useState(false);
     const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
