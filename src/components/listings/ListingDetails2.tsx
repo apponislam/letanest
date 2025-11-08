@@ -660,10 +660,13 @@ export default function PropertyPage2() {
 
                                     {/* Nearby Places - Simple List */}
                                     {property.nearbyPlaces && property.nearbyPlaces.length > 0 ? (
-                                        <div className="space-y-2">
+                                        <div className="space-y-1">
                                             {property.nearbyPlaces.map((place, index) => (
-                                                <div key={index} className="flex items-center justify-between py-2">
-                                                    <span className="text-white text-[16px]">{place.name}</span>
+                                                <div key={index} className="flex items-center justify-between py-1 px-1 border-b border-[#C9A94D]/20 last:border-b-0">
+                                                    <div className="flex flex-col gap-0">
+                                                        <span className="text-white text-[16px] font-medium">{place.name}</span>
+                                                        <p className="text-[#B6BAC3] text-sm -mt-0.5 capitalize">{place.type}</p>
+                                                    </div>
                                                     <span className="text-[#C9A94D] font-semibold text-[16px]">
                                                         {place.distance} mile{place.distance !== 1 ? "s" : ""}
                                                     </span>
