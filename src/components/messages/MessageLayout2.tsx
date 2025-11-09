@@ -8,7 +8,7 @@ import { Star, MessagesSquare, Loader2, MessageCircle, CalendarIcon } from "luci
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSocket } from "@/redux/features/socket/socketHooks";
-import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation, useConvertRequestToOfferMutation } from "@/redux/features/messages/messageApi";
+import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation, useConvertRequestToOfferMutation, useSendWelcomeMessageMutation } from "@/redux/features/messages/messageApi";
 import { useGetMyPublishedPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
@@ -371,12 +371,10 @@ export default function MessagesLayout2() {
         try {
             const result = await markConversationAsReads(conversationId).unwrap();
             console.log("mark all message read", result);
-            // const result2 = await markConversationAsRead(conversationId).unwrap();
-            // console.log(result2);
+
             console.log("✅ Conversation marked as read");
         } catch (error) {
             console.log(error);
-            // console.error("❌ Failed to mark conversation as read:", error);
         }
     };
 
