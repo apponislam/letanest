@@ -162,6 +162,35 @@ export const messageApi = baseApi.injectEndpoints({
                 }
             },
         }),
+        editOffer: builder.mutation({
+            query: ({ messageId, conversationId, agreedFee, checkInDate, checkOutDate, guestNo }) => ({
+                url: `/messages/${messageId}/edit-offer`,
+                method: "PATCH",
+                body: { conversationId, agreedFee, checkInDate, checkOutDate, guestNo },
+            }),
+            invalidatesTags: (_result, _error, arg) => [{ type: "Messages", id: arg.conversationId }, "Messages", "Conversations"],
+            onQueryStarted: async ({ messageId, conversationId, agreedFee, checkInDate, checkOutDate, guestNo }, { dispatch, queryFulfilled }) => {
+                // Optimistically update message locally
+                const patch = dispatch(
+                    messageApi.util.updateQueryData("getConversationMessages", { conversationId }, (draft: any) => {
+                        const messages = draft?.data || draft || [];
+                        const msg = messages.find((m: any) => m._id === messageId);
+                        if (msg) {
+                            if (agreedFee !== undefined) msg.agreedFee = agreedFee;
+                            if (checkInDate !== undefined) msg.checkInDate = checkInDate;
+                            if (checkOutDate !== undefined) msg.checkOutDate = checkOutDate;
+                            if (guestNo !== undefined) msg.guestNo = guestNo;
+                        }
+                    })
+                );
+
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patch.undo();
+                }
+            },
+        }),
         convertRequestToOffer: builder.mutation({
             query: ({ messageId, conversationId }) => ({
                 url: `/messages/${messageId}/convert-to-offer`,
@@ -251,4 +280,6 @@ export const {
     useSearchUserConversationsQuery,
     // welcome message
     useSendWelcomeMessageMutation,
+    //edit offer
+    useEditOfferMutation,
 } = messageApi;
