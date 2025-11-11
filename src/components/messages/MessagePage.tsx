@@ -11,14 +11,15 @@ import { useEffect, useRef } from "react";
 
 const MessageViews = () => {
     const { user } = useSelector((state: RootState) => state.auth);
+    console.log(user);
 
     const [sendWelcomeMessage] = useSendWelcomeMessageMutation();
 
     const welcomeSentRef = useRef(false);
 
     useEffect(() => {
-        // Only send if user exists and welcome hasn't been sent yet
-        if (!user?._id || welcomeSentRef.current) return;
+        // if (!user?._id || welcomeSentRef.current) return;
+        if (!user?._id || welcomeSentRef.current || user.role === "ADMIN") return;
 
         const welcomeKey = `welcomeTime_${user._id}`;
         const lastWelcome = localStorage.getItem(welcomeKey);
