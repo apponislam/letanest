@@ -25,6 +25,7 @@ import ReportModal from "./RepostHost";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import EditOfferModal from "./EditOfferModal";
+import SuggestNewOfferModal from "./SuggestNewOffer";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -861,6 +862,11 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
     const isMe = message.sender?._id === currentUserId;
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
+    const { refetch: refetchMessages } = useGetConversationMessagesQuery({ conversationId: message.conversationId!, page: 1, limit: 150 }, { skip: !message.conversationId });
+    const { refetch: refetchConversations } = useGetUserConversationsQuery({});
+    const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
+    const [showSuggestOfferModal, setShowSuggestOfferModal] = useState(false);
+
     const [rejectOffer, { isLoading: isRejecting }] = useRejectOfferMutation();
 
     const handleRejectOffer = async () => {
@@ -872,6 +878,36 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
         } catch (error) {
             console.log(error);
             console.error("Failed to reject offer:", error);
+        }
+    };
+
+    const handleSuggestNewOffer = async (offerData: any) => {
+        if (!user || !message.conversationId) {
+            console.error("User or conversation not available");
+            return;
+        }
+
+        try {
+            await sendMessage({
+                conversationId: message.conversationId,
+                sender: user._id,
+                type: "offer",
+                propertyId: offerData.propertyId,
+                checkInDate: offerData.checkInDate,
+                checkOutDate: offerData.checkOutDate,
+                agreedFee: offerData.agreedFee.toString(),
+                guestNo: offerData.guestNo,
+            }).unwrap();
+
+            setShowSuggestOfferModal(false);
+
+            // Refetch messages
+            setTimeout(() => {
+                refetchMessages();
+                refetchConversations();
+            }, 100);
+        } catch (error) {
+            console.error("Failed to send new offer:", error);
         }
     };
 
@@ -904,6 +940,8 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
             console.log(error);
         }
     };
+
+    console.log(message);
 
     // Handle optimistic messages
     if (message.isOptimistic) {
@@ -1050,7 +1088,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                         // If bookingFeePaid false - Pay By Card | Withdraw Offer
                         <div className="grid grid-cols-2 gap-4 mt-3 w-full items-stretch">
                             <Link href={`/listings/${message._id}/pay`} className="w-full flex">
-                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full flex-1">Pay By Card</button>
+                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full flex-1 cursor-pointer">Pay By Card</button>
                             </Link>
                             <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
                                 {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
@@ -1060,7 +1098,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                         // If bookingFeePaid true - Pay By Card | Pay By Bank Transfer | Withdraw Offer
                         <div className="grid grid-cols-2 gap-2 mt-3 w-full items-stretch">
                             <Link href={`/listings/${message._id}/pay`} className="w-full flex">
-                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full">Pay By Card</button>
+                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Pay By Card</button>
                             </Link>
                             <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full">Pay By Bank Transfer</button>
                             <div></div> {/* Empty space */}
@@ -1168,7 +1206,9 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                             <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
                                 {isRejecting ? "Rejecting..." : "Reject Offer"}
                             </button>
-                            <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">Suggest New Offer</button>
+                            <button onClick={() => setShowSuggestOfferModal(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                Suggest New Offer
+                            </button>
                             <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">Message Guest</button>
                         </div>
                     ) : (
@@ -1185,6 +1225,8 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     {user?._id === message.propertyId?.createdBy?._id ? <p className="text-center mt-1 text-[9px]">You've received a new offer. Please response within 48 hours - after that, the offer will automatically expire.</p> : <p className="text-center mt-1 text-[9px]">Thank you! Your offer has been sent to the host for review</p>}
                     <EditOfferModal message={message} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleEditOffer} isEditing={isEditing} />
                 </div>
+
+                <SuggestNewOfferModal message={message} isOpen={showSuggestOfferModal} onClose={() => setShowSuggestOfferModal(false)} onSend={handleSuggestNewOffer} isSending={isSending} />
 
                 {isMe &&
                     (message.sender?.profileImg ? (

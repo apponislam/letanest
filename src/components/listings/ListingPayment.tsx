@@ -26,7 +26,8 @@ const ListingPayment = () => {
     const { data: messageData, isLoading: messageLoading } = useGetMessageByIdQuery(id as string);
     const { data, refetch: refetchPaymentMethods } = useGetPaymentMethodsQuery();
 
-    const [enabled, setEnabled] = useState(false);
+    // ✅ Change this line - set enabled to true by default
+    const [enabled, setEnabled] = useState(true); // Changed from false to true
 
     // Auto-select default card when data loads
     useEffect(() => {
@@ -64,11 +65,9 @@ const ListingPayment = () => {
     const [confirmPayment, { isLoading: confirming }] = useConfirmPaymentMutation();
 
     // Payment handler function
-    // Payment handler function
     const handleCheckout = async () => {
         if (!selectedCardId) {
             showWarning("Payment Required", "Please select a card to proceed with checkout");
-            // alert("Please select a card to proceed with checkout");
             return;
         }
 
@@ -81,13 +80,13 @@ const ListingPayment = () => {
                 return;
             }
 
-            const stripePaymentMethodId = selectedCard.paymentMethodId; // This is the Stripe ID like "pm_1SIFZXBAT7h26LydFuctJG80"
+            const stripePaymentMethodId = selectedCard.paymentMethodId;
 
             // 1️⃣ Create payment
             const paymentResponse = await createPayment({
                 agreedFee,
                 bookingFee,
-                extraFee: enabled ? peaceOfMindFee : 0,
+                extraFee: enabled ? peaceOfMindFee : 0, // This will now include the £5 since enabled is true by default
                 totalAmount: total,
                 propertyId: property._id,
                 conversationId: messageData.data.conversationId,
@@ -114,13 +113,12 @@ const ListingPayment = () => {
             // 2️⃣ Confirm payment with the actual Stripe paymentMethodId
             const confirmResponse = await confirmPayment({
                 paymentIntentId,
-                paymentMethodId: stripePaymentMethodId, // Use the Stripe ID, not MongoDB _id
+                paymentMethodId: stripePaymentMethodId,
             }).unwrap();
 
             if (confirmResponse.success) {
                 showSuccess("Payment Successful", "Your payment has been confirmed successfully!", () => {
                     console.log("Confirmed payment:", confirmResponse.data);
-                    // Optional: Redirect or update UI
                     router.push("/messages");
                 });
             } else {
@@ -128,8 +126,6 @@ const ListingPayment = () => {
             }
         } catch (error: any) {
             showError("Payment Failed", error?.data?.message || error.message || "Payment failed. Please try again.");
-            // console.error("Checkout error:", error);
-            // alert(error?.data?.message || error.message || "Payment failed");
         }
     };
 
@@ -161,19 +157,18 @@ const ListingPayment = () => {
                                     <h1>Booking Fee</h1>
                                     <h1>£{bookingFee}</h1>
                                 </div>
-                                {enabled && (
-                                    <div className="flex items-center justify-between">
-                                        <h1>Peace of Mind Guarantee</h1>
-                                        <h1>£{peaceOfMindFee}</h1>
-                                    </div>
-                                )}
+                                {/* ✅ This section will now always show since enabled is true by default */}
+                                <div className="flex items-center justify-between">
+                                    <h1>Peace of Mind Guarantee</h1>
+                                    <h1>£{peaceOfMindFee}</h1>
+                                </div>
                                 <div className="flex items-center justify-between">
                                     <h1>Total</h1>
                                     <h1>£{total}</h1>
                                 </div>
                             </div>
                         </div>
-                        {/* ... rest of your existing JSX remains the same ... */}
+
                         <div className=" bg-[#2D3546] mb-6 p-[10px] rounded-[8px]">
                             <div className="flex md:items-center justify-between mb-8 flex-col md:flex-row gap-3">
                                 <div className="flex items-center gap-3">
@@ -211,14 +206,18 @@ const ListingPayment = () => {
                                     </div>
                                 </div>
                                 <div>
+                                    {/* ✅ Switch will now be checked by default */}
                                     <Switch checked={enabled} onCheckedChange={setEnabled} className="scale-110 p-1 h-auto w-10 bg-[#626A7D]" />
                                 </div>
                             </div>
+                            {/* ✅ This section will now always show since enabled is true by default */}
                             <div className="flex bg-[#626A7D] rounded-[8px] px-5 py-2 gap-5 flex-col md:flex-row">
                                 <Image alt="Property id" src="/listing/pay/shield.png" height={24} width={24}></Image>
-                                <p className="text-black">Peach of Mind Guarantee added to your booking</p>
+                                <p className="text-black">Peace of Mind Guarantee added to your booking</p>
                             </div>
                         </div>
+
+                        {/* ... rest of your JSX remains the same ... */}
                         <div className="rounded-[4px] border border-[#C9A94D] p-5 mb-20">
                             <div>
                                 <h1 className="text-center font-medium text-xl md:text-3xl mb-8 py-3 border-b border-[#414652]">Payment Method</h1>
@@ -240,7 +239,6 @@ const ListingPayment = () => {
                         {selected && (
                             <div className="flex items-center gap-4 flex-col md:flex-row">
                                 <div className="max-w-[540px] w-full bg-[#2D3546] mb-6 p-5 mx-auto">
-                                    {/* Scenario 1: User has cards and is not adding a new one */}
                                     {hasCards && !showAddForm ? (
                                         <div className="space-y-4">
                                             <div className="space-y-3">
@@ -285,22 +283,20 @@ const ListingPayment = () => {
                                             </div>
                                         </div>
                                     ) : (
-                                        /* Scenario 2: User has no cards OR is adding a new card */
                                         <div>
                                             <PaymentMethodForm
                                                 onSuccess={() => {
                                                     setShowAddForm(false);
-                                                    // Refresh the payment methods list after successful payment/card save
                                                     refetchPaymentMethods();
                                                 }}
                                                 onCancel={hasCards ? () => setShowAddForm(false) : undefined}
-                                                showCheckout={!hasCards} // Show checkout when user has no cards
+                                                showCheckout={!hasCards}
                                                 paymentData={
                                                     !hasCards
                                                         ? {
                                                               agreedFee,
                                                               bookingFee,
-                                                              extraFee: enabled ? peaceOfMindFee : 0,
+                                                              extraFee: enabled ? peaceOfMindFee : 0, // This will now include £5 by default
                                                               totalAmount: total,
                                                               propertyId: property._id,
                                                               conversationId: messageData.data.conversationId,
@@ -308,7 +304,7 @@ const ListingPayment = () => {
                                                               checkInDate: messageData.data.checkInDate,
                                                               checkOutDate: messageData.data.checkOutDate,
                                                           }
-                                                        : undefined // Don't pass payment data when just adding a card
+                                                        : undefined
                                                 }
                                             />
                                         </div>
