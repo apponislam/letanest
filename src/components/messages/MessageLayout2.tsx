@@ -26,6 +26,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import EditOfferModal from "./EditOfferModal";
 import SuggestNewOfferModal from "./SuggestNewOffer";
+import BankTransferModal from "./BankTransferModal";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -139,7 +140,7 @@ export default function MessagesLayout2() {
         return () => {
             if (selectedConversation) {
                 console.log("🚪 [MessagesLayout2] Leaving conversation:", selectedConversation);
-                leaveConversation(selectedConversation);
+                // leaveConversation(selectedConversation);
             }
         };
     }, [selectedConversation, isConnected, joinConversation, leaveConversation]);
@@ -866,6 +867,13 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
     const { refetch: refetchConversations } = useGetUserConversationsQuery({});
     const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
     const [showSuggestOfferModal, setShowSuggestOfferModal] = useState(false);
+    const [showBankModal, setShowBankModal] = useState(false);
+    const [bankModalUserId, setBankModalUserId] = useState<string | null>(null);
+
+    const handleBankTransferClick = (userId: string) => {
+        setBankModalUserId(userId);
+        setShowBankModal(true);
+    };
 
     const [rejectOffer, { isLoading: isRejecting }] = useRejectOfferMutation();
 
@@ -940,8 +948,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
             console.log(error);
         }
     };
-
-    console.log(message);
 
     // Handle optimistic messages
     if (message.isOptimistic) {
@@ -1037,7 +1043,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-
                 <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
                     <p className="font-semibold text-sm text-center">Nest Offer</p>
                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
@@ -1100,7 +1105,9 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                             <Link href={`/listings/${message._id}/pay`} className="w-full flex">
                                 <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Pay By Card</button>
                             </Link>
-                            <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full">Pay By Bank Transfer</button>
+                            <button onClick={() => handleBankTransferClick(message.propertyId?.createdBy?._id)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">
+                                Pay By Bank Transfer
+                            </button>
                             <div></div> {/* Empty space */}
                             <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
                                 {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
@@ -1113,7 +1120,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                         <p className="text-center mt-1 text-[9px]">Last one last step — pay the host and your nest for your next stay is all yours!</p>
                     )}
                 </div>
-
                 {isMe &&
                     (message.sender?.profileImg ? (
                         <Image
@@ -1129,6 +1135,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
                     ))}
+                <BankTransferModal isOpen={showBankModal} onClose={() => setShowBankModal(false)} userId={bankModalUserId ?? ""} />;
             </div>
         );
     }

@@ -22,8 +22,14 @@ export interface IPayment {
     status: "pending" | "completed" | "failed" | "canceled" | "processing" | "requires_action";
     stripePaymentStatus?: string;
 
-    checkInDate?: string; // ISO string for frontend
-    checkOutDate?: string; // ISO string for frontend
+    paymentType?: "Stripe" | "Bank";
+    isBookingFeePaidOnly?: boolean;
+    bookingFeePaidDone?: number;
+    comissionPaidDone?: number;
+    commissionPaid?: boolean;
+
+    checkInDate?: string;
+    checkOutDate?: string;
     createdAt?: string;
     paidAt?: string;
 }
@@ -174,6 +180,27 @@ export const paymentApi = baseApi.injectEndpoints({
         confirmPayment: builder.mutation<ApiResponse<IPayment>, ConfirmPaymentRequest>({
             query: ({ paymentIntentId, paymentMethodId }) => ({
                 url: "/property-payment/confirm",
+                method: "POST",
+                body: { paymentIntentId, paymentMethodId },
+                credentials: "include",
+            }),
+            invalidatesTags: ["propertyPayments", "Messages", "Conversations"],
+        }),
+
+        // NEW BOOKING FEE ENDPOINTS
+        createBookingFeePayment: builder.mutation<CreatePaymentResponse, CreatePaymentRequest>({
+            query: (body) => ({
+                url: "/property-payment/create-booking-fee",
+                method: "POST",
+                body,
+                credentials: "include",
+            }),
+            invalidatesTags: ["propertyPayments"],
+        }),
+
+        confirmBookingFeePayment: builder.mutation<ApiResponse<IPayment>, ConfirmPaymentRequest>({
+            query: ({ paymentIntentId, paymentMethodId }) => ({
+                url: "/property-payment/confirm-booking-fee",
                 method: "POST",
                 body: { paymentIntentId, paymentMethodId },
                 credentials: "include",
@@ -382,6 +409,11 @@ export const paymentApi = baseApi.injectEndpoints({
 export const {
     useCreatePaymentMutation,
     useConfirmPaymentMutation,
+
+    // NEW BOOKING FEE HOOKS
+    useCreateBookingFeePaymentMutation,
+    useConfirmBookingFeePaymentMutation,
+
     useGetMyPaymentsQuery,
     useGetPaymentByIdQuery,
     useGetAllPaymentsQuery,
