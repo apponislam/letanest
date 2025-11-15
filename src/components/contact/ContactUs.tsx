@@ -30,21 +30,21 @@ const ContactUs = () => {
                                 <div>
                                     <h3 className="md:text-[18px] font-bold mb-6">Email Address</h3>
                                     <span className="relative block h-1 w-7 bg-[#C9A94D] mb-6" />
-                                    <a href="mailto:help@info.com" className="md:text-[18px] hover:underline">
-                                        help@info.com
+                                    <a href="hello@letanest.com" className="md:text-[18px] hover:underline">
+                                        hello@letanest.com
                                     </a>
                                     <p className="md:text-[18px]">
-                                        Assistance hours: <br /> Monday - Friday 6 am to 8 pm EST
+                                        Assistance hours: <br /> Monday - Friday 8am to 10pm
                                     </p>
                                 </div>
                                 <div>
                                     <h3 className="md:text-[18px] font-bold mb-6">Number</h3>
                                     <span className="relative block h-1 w-7 bg-[#C9A94D] mb-6" />
-                                    <a href="tel:+180899834256" className="md:text-[18px] hover:underline">
-                                        (808) 998-34256
+                                    <a href="tel:+01312033042" className="md:text-[18px] hover:underline">
+                                        0131 203 3042
                                     </a>
                                     <p className="md:text-[18px]">
-                                        Assistance hours: <br /> Monday - Friday 6 am to 8 pm EST
+                                        Assistance hours: <br /> Monday - Friday 9am to 6pm
                                     </p>
                                 </div>
                             </div>

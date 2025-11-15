@@ -876,7 +876,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
     const { refetch: refetchMessages } = useGetConversationMessagesQuery({ conversationId: message.conversationId!, page: 1, limit: 150 }, { skip: !message.conversationId });
     const { refetch: refetchConversations } = useGetUserConversationsQuery({});
-    const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
+    // const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
     const [showSuggestOfferModal, setShowSuggestOfferModal] = useState(false);
     const [showBankModal, setShowBankModal] = useState(false);
     const [bankModalUserId, setBankModalUserId] = useState<string | null>(null);
@@ -900,35 +900,35 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         }
     };
 
-    const handleSuggestNewOffer = async (offerData: any) => {
-        if (!user || !message.conversationId) {
-            console.error("User or conversation not available");
-            return;
-        }
+    // const handleSuggestNewOffer = async (offerData: any) => {
+    //     if (!user || !message.conversationId) {
+    //         console.error("User or conversation not available");
+    //         return;
+    //     }
 
-        try {
-            await sendMessage({
-                conversationId: message.conversationId,
-                sender: user._id,
-                type: "offer",
-                propertyId: offerData.propertyId,
-                checkInDate: offerData.checkInDate,
-                checkOutDate: offerData.checkOutDate,
-                agreedFee: offerData.agreedFee.toString(),
-                guestNo: offerData.guestNo,
-            }).unwrap();
+    //     try {
+    //         await sendMessage({
+    //             conversationId: message.conversationId,
+    //             sender: user._id,
+    //             type: "offer",
+    //             propertyId: offerData.propertyId,
+    //             checkInDate: offerData.checkInDate,
+    //             checkOutDate: offerData.checkOutDate,
+    //             agreedFee: offerData.agreedFee.toString(),
+    //             guestNo: offerData.guestNo,
+    //         }).unwrap();
 
-            setShowSuggestOfferModal(false);
+    //         setShowSuggestOfferModal(false);
 
-            // Refetch messages
-            setTimeout(() => {
-                refetchMessages();
-                refetchConversations();
-            }, 100);
-        } catch (error) {
-            console.error("Failed to send new offer:", error);
-        }
-    };
+    //         // Refetch messages
+    //         setTimeout(() => {
+    //             refetchMessages();
+    //             refetchConversations();
+    //         }, 100);
+    //     } catch (error) {
+    //         console.error("Failed to send new offer:", error);
+    //     }
+    // };
 
     const [convertRequestToOffer, { isLoading: isConverting }] = useConvertRequestToOfferMutation();
 
@@ -957,6 +957,26 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             setIsEditModalOpen(false);
         } catch (error) {
             console.log(error);
+        }
+    };
+
+    const handleSuggestNewOffer = async (offerData: any) => {
+        try {
+            await editOffer({
+                messageId: message._id,
+                conversationId: message.conversationId,
+                ...offerData,
+            }).unwrap();
+            setShowSuggestOfferModal(false);
+
+            // Refetch messages
+            setTimeout(() => {
+                refetchMessages();
+                refetchConversations();
+            }, 100);
+        } catch (error) {
+            console.log(error);
+            console.error("Failed to send new offer:", error);
         }
     };
 
@@ -1082,15 +1102,24 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         </div>
                     )}
 
-                    {!message?.bookingFeePaid ? <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p> : <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>}
+                    {/* {!message?.bookingFeePaid ? <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p> : <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>} */}
+                    {user?._id === message.propertyId?.createdBy?._id ? (
+                        !message?.bookingFeePaid ? (
+                            <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
+                        ) : (
+                            <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.agreedFee}</p>
+                        )
+                    ) : !message?.bookingFeePaid ? (
+                        <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p>
+                    ) : (
+                        <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>
+                    )}
 
                     {user?._id === message.propertyId?.createdBy?._id ? (
-                        // Property Owner View
                         !message?.bookingFeePaid ? (
-                            // If bookingFeePaid false - Show only Reject Offer
                             <div className="flex justify-center mt-3 w-full">
                                 <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-[120px] cursor-pointer">
-                                    {isRejecting ? "Rejecting..." : "Reject Offer"}
+                                    {isRejecting ? "Rejecting..." : "Withdraw Offer"}
                                 </button>
                             </div>
                         ) : (
@@ -1251,7 +1280,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     <EditOfferModal message={message} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleEditOffer} isEditing={isEditing} />
                 </div>
 
-                <SuggestNewOfferModal message={message} isOpen={showSuggestOfferModal} onClose={() => setShowSuggestOfferModal(false)} onSend={handleSuggestNewOffer} isSending={isSending} />
+                <SuggestNewOfferModal message={message} isOpen={showSuggestOfferModal} onClose={() => setShowSuggestOfferModal(false)} onSend={handleSuggestNewOffer} isSending={isEditing} />
 
                 {isMe &&
                     (message.sender?.profileImg ? (

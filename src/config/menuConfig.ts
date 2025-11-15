@@ -26,6 +26,7 @@ export const menuItems = {
         { title: "Property Listing", url: "/dashboard/property-listing", icon: Home },
         { title: "Terms & Conditions", url: "/dashboard/terms-conditions", icon: FileText },
         { title: "Saved Cards", url: "/dashboard/payment-methods", icon: Bookmark },
+        { title: "Get Verified", url: "/dashboard/profile/verify", icon: BadgeCheck },
     ],
     [roles.GUEST]: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
