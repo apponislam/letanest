@@ -485,12 +485,12 @@ export default function PropertyPage2() {
                                     </div>
 
                                     {/* Bedroom info */}
-                                    <div className="mt-4 text-center">
+                                    {/* <div className="mt-4 text-center">
                                         <h3 className="text-white text-[32px]">
                                             {property.bedrooms} Bedroom{property.bedrooms !== 1 ? "s" : ""}
                                         </h3>
                                         <p className="text-[#B6BAC3] text-lg">Comfortable sleeping space</p>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
