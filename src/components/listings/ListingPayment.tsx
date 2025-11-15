@@ -346,6 +346,7 @@ const ListingPayment = () => {
 
     // Get real message data
     const { data: messageData, isLoading: messageLoading } = useGetMessageByIdQuery(id as string);
+    console.log(messageData);
     const { data, refetch: refetchPaymentMethods } = useGetPaymentMethodsQuery();
 
     const [enabled, setEnabled] = useState(true);
@@ -519,67 +520,88 @@ const ListingPayment = () => {
                 <div className="mx-4 md:mx-0">
                     <PageHeader title={isBookingFeePaid ? "Complete Payment" : "Pay Booking Fee"}></PageHeader>
                     <div className="text-[#C9A94D]">
-                        <div className="max-w-[466px] bg-[#2D3546] mb-6 py-3 md:py-5 px-4 md:px-14 rounded-[12px] mx-auto">
-                            <h1 className="font-bold text-center mb-2 text-[18px]">
-                                {isBookingFeePaid ? "Complete Payment" : "Booking Fee"} {!isBookingFeePaid && <span className="text-sm text-yellow-400">(Pay booking fee first)</span>}
-                            </h1>
-                            <div className="flex items-center justify-center mb-2">
-                                <Image alt="Property id" src="/listing/pay/home-roof.png" height={24} width={24}></Image>
-                                <p>Property ID : {property.propertyNumber}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center mb-6 items-stretch max-w-[966px] mx-auto">
+                            <div className="bg-[#2D3546] py-3 md:py-5 px-4 md:px-14 rounded-[12px]">
+                                <h1 className="font-bold text-center mb-2 text-[18px]">
+                                    {isBookingFeePaid ? "Complete Payment" : "Booking Fee"} {!isBookingFeePaid && <span className="text-sm text-yellow-400">(Pay booking fee first)</span>}
+                                </h1>
+                                <div className="flex items-center justify-center mb-2">
+                                    <Image alt="Property id" src="/listing/pay/home-roof.png" height={24} width={24}></Image>
+                                    <p>Property ID : {property.propertyNumber}</p>
+                                </div>
+                                <div className="flex flex-col gap-2 font-bold text-[18px]">
+                                    <div className="flex items-center justify-between ">
+                                        <h1>Agreed dates</h1>
+                                        <h1>{formattedDates}</h1>
+                                    </div>
+
+                                    {/* ALWAYS SHOW FULL BREAKDOWN */}
+                                    <div className="flex items-center justify-between ">
+                                        <h1>Agreed Fee (Host)</h1>
+                                        <h1>£{agreedFee}</h1>
+                                    </div>
+
+                                    {!isBookingFeePaid ? (
+                                        // BOOKING FEE ONLY VIEW - Show all data but only charge booking fee
+                                        <>
+                                            <div className="flex items-center justify-between text-yellow-400">
+                                                <h1>Booking Fee (Letanest)</h1>
+                                                <h1>£{bookingFee}</h1>
+                                            </div>
+                                            {enabled && (
+                                                <div className="flex items-center justify-between text-gray-400">
+                                                    <h1>Peace of Mind Guarantee</h1>
+                                                    <h1>£{peaceOfMindFee}</h1>
+                                                </div>
+                                            )}
+                                            <div className="flex items-center justify-between border-t border-[#C9A94D] pt-2">
+                                                <h1>Total to Pay Now</h1>
+                                                <h1>£{total}</h1>
+                                            </div>
+                                            <div className="text-xs text-yellow-400 text-center mt-2">You'll pay the remaining £{agreedFee + (enabled ? peaceOfMindFee : 0) - bookingFee} after booking fee</div>
+                                        </>
+                                    ) : (
+                                        // COMMISSION BASED VIEW (Booking fee already paid)
+                                        <>
+                                            <div className="flex items-center justify-between text-green-400">
+                                                <h1>Booking Fee</h1>
+                                                <h1>✓ Paid</h1>
+                                            </div>
+                                            {enabled && (
+                                                <div className="flex items-center justify-between">
+                                                    <h1>Peace of Mind Guarantee</h1>
+                                                    <h1>£{peaceOfMindFee}</h1>
+                                                </div>
+                                            )}
+                                            <div className="flex items-center justify-between border-t border-[#C9A94D] pt-2">
+                                                <h1>Total to Pay Now</h1>
+                                                <h1>£{total}</h1>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            <div className="flex flex-col gap-2 font-bold text-[18px]">
-                                <div className="flex items-center justify-between ">
-                                    <h1>Agreed dates</h1>
-                                    <h1>{formattedDates}</h1>
-                                </div>
 
-                                {/* ALWAYS SHOW FULL BREAKDOWN */}
-                                <div className="flex items-center justify-between ">
-                                    <h1>Agreed Fee</h1>
-                                    <h1>£{agreedFee}</h1>
-                                </div>
-
-                                {!isBookingFeePaid ? (
-                                    // BOOKING FEE ONLY VIEW - Show all data but only charge booking fee
-                                    <>
-                                        <div className="flex items-center justify-between text-yellow-400">
-                                            <h1>
-                                                Booking Fee <span className="text-sm">(Pay now)</span>
-                                            </h1>
-                                            <h1>£{bookingFee}</h1>
-                                        </div>
-                                        {enabled && (
-                                            <div className="flex items-center justify-between text-gray-400">
-                                                <h1>Peace of Mind Guarantee</h1>
-                                                <h1>
-                                                    £{peaceOfMindFee} <span className="text-sm">(Pay later)</span>
-                                                </h1>
+                            {/* Image Container - Automatically matches content height with CSS Grid */}
+                            <div className="relative rounded-[12px] bg-gray-100 min-h-[300px] md:min-h-0">
+                                {messageData?.data?.propertyId?.coverPhoto ? (
+                                    <div className="relative w-full h-full">
+                                        <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${messageData.data.propertyId.coverPhoto}`} alt={messageData.data.propertyId.title} fill className="object-cover rounded-[12px]" />
+                                        {/* Overlay with property info */}
+                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 rounded-b-[12px]">
+                                            <div className="text-white">
+                                                <h3 className="font-bold text-lg">{messageData.data.propertyId.title}</h3>
+                                                <p className="text-sm text-gray-300">#{messageData.data.propertyId.propertyNumber}</p>
                                             </div>
-                                        )}
-                                        <div className="flex items-center justify-between border-t border-[#C9A94D] pt-2">
-                                            <h1>Total to Pay Now</h1>
-                                            <h1>£{total}</h1>
                                         </div>
-                                        <div className="text-xs text-yellow-400 text-center mt-2">You'll pay the remaining £{agreedFee + (enabled ? peaceOfMindFee : 0) - bookingFee} after booking fee</div>
-                                    </>
+                                    </div>
                                 ) : (
-                                    // COMMISSION BASED VIEW (Booking fee already paid)
-                                    <>
-                                        <div className="flex items-center justify-between text-green-400">
-                                            <h1>Booking Fee</h1>
-                                            <h1>✓ Paid</h1>
+                                    <div className="w-full h-full flex items-center justify-center text-gray-500 min-h-[300px]">
+                                        <div className="text-center">
+                                            <Image src="/placeholder-image.png" alt="No image" width={80} height={80} className="mx-auto mb-2 opacity-50" />
+                                            <p>No Image Available</p>
                                         </div>
-                                        {enabled && (
-                                            <div className="flex items-center justify-between">
-                                                <h1>Peace of Mind Guarantee</h1>
-                                                <h1>£{peaceOfMindFee}</h1>
-                                            </div>
-                                        )}
-                                        <div className="flex items-center justify-between border-t border-[#C9A94D] pt-2">
-                                            <h1>Total to Pay Now</h1>
-                                            <h1>£{total}</h1>
-                                        </div>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
