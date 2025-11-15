@@ -62,6 +62,16 @@ export default function MessagesLayout2() {
     const [date, setDate] = React.useState<DateRange | undefined>();
     const [calculatedPrice, setCalculatedPrice] = useState(0);
 
+    const messageInputRef = useRef<HTMLInputElement>(null);
+
+    // Add this function to handle focusing the input
+    const focusMessageInput = () => {
+        if (messageInputRef.current) {
+            messageInputRef.current.focus();
+            messageInputRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    };
+
     // Connect socket when component mounts
     useEffect(() => {
         if (user?._id) {
@@ -419,7 +429,7 @@ export default function MessagesLayout2() {
 
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
-    // console.log(publishedProperties);
+    // console.log(otherParticipant);
 
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">
@@ -456,8 +466,8 @@ export default function MessagesLayout2() {
                         filteredConversations.map((conversation: any) => {
                             const otherParticipant = conversation.participants.find((p: any) => p._id !== user?._id);
                             const unreadCount = getUnreadCount(conversation);
-                            const isOnline = isUserOnline(otherParticipant?._id);
-                            // console.log(otherParticipant);
+                            // const isOnline = isUserOnline(otherParticipant?._id);
+                            console.log(otherParticipant);
 
                             return (
                                 <div key={conversation._id} className={`flex flex-col p-3 cursor-pointer hover:bg-[#9399A6] rounded-lg transition-colors ${selectedConversation === conversation._id ? "bg-[#9399A6] shadow-md" : ""}`} onClick={() => handleConversationClick(conversation._id)}>
@@ -601,7 +611,7 @@ export default function MessagesLayout2() {
                                             </div>
                                         </div>
                                     ) : (
-                                        messagesData.map((msg: any) => <MessageBubble key={msg._id} message={msg} currentUserId={user?._id} />)
+                                        messagesData.map((msg: any) => <MessageBubble key={msg._id} message={msg} currentUserId={user?._id} focusMessageInput={focusMessageInput} />)
                                     )}
 
                                     {/* Typing Indicator - AT THE BOTTOM */}
@@ -623,7 +633,7 @@ export default function MessagesLayout2() {
 
                             {/* Input Box */}
                             <div className="border-t border-[#C9A94D] p-4 bg-[#B6BAC3]">
-                                {user?.role === "GUEST" ? null : (
+                                {user?.role === "GUEST" || otherParticipant?.role === "ADMIN" ? null : (
                                     <div className="relative">
                                         {/* Stripe Connection Check */}
                                         {stripeLoading ? (
@@ -831,6 +841,7 @@ export default function MessagesLayout2() {
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="text"
+                                        ref={messageInputRef}
                                         placeholder="Type a message..."
                                         value={inputText}
                                         onChange={handleInputChange}
@@ -857,7 +868,7 @@ export default function MessagesLayout2() {
     );
 }
 
-const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId?: string }) => {
+const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message: any; currentUserId?: string; focusMessageInput?: () => void }) => {
     const user = useAppSelector(currentUser);
 
     const isMe = message.sender?._id === currentUserId;
@@ -1024,8 +1035,6 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };
 
-        console.log(message);
-
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 {!isMe &&
@@ -1050,7 +1059,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
 
                     {!message?.bookingFeePaid && (
                         <p className="text-center font-bold mb-2 text-[14px]">
-                            Booking Fee - £{message?.bookingFee} (${((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
+                            Booking Fee - £{message?.bookingFee} (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
                         </p>
                     )}
 
@@ -1115,7 +1124,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                         </div>
                     )}
                     {user?._id === message.propertyId?.createdBy?._id ? null : !message?.bookingFeePaid ? ( // Property Owner - Show nothing // Guest
-                        <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (${((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
+                        <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
                     ) : (
                         <p className="text-center mt-1 text-[9px]">Last one last step — pay the host and your nest for your next stay is all yours!</p>
                     )}
@@ -1135,7 +1144,7 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
                     ))}
-                <BankTransferModal isOpen={showBankModal} onClose={() => setShowBankModal(false)} userId={bankModalUserId ?? ""} />;
+                <BankTransferModal isOpen={showBankModal} onClose={() => setShowBankModal(false)} userId={bankModalUserId ?? ""} />
             </div>
         );
     }
@@ -1216,7 +1225,16 @@ const MessageBubble = ({ message, currentUserId }: { message: any; currentUserId
                             <button onClick={() => setShowSuggestOfferModal(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
                                 Suggest New Offer
                             </button>
-                            <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">Message Guest</button>
+                            <button
+                                onClick={() => {
+                                    if (focusMessageInput) {
+                                        focusMessageInput();
+                                    }
+                                }}
+                                className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
+                            >
+                                Message Guest
+                            </button>
                         </div>
                     ) : (
                         // Other User View - Show only Make Offer and Withdraw Offer
