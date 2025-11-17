@@ -37,7 +37,7 @@ export default function PropertyPage2() {
 
     const user = useSelector(currentUser);
 
-    const [question, setQuestion] = useState("");
+    // const [question, setQuestion] = useState("");
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -155,17 +155,16 @@ export default function PropertyPage2() {
             if (conversationResult.success && conversationResult.data?._id) {
                 const conversationId = conversationResult.data._id;
 
-                // Step 2: Send the REQUEST type message with dates, guest number, and agreedFee
                 console.log("📤 Sending booking request message...");
                 await sendMessage({
                     conversationId: conversationId,
                     sender: user._id,
-                    type: "request", // REQUEST type
+                    type: "request",
                     propertyId: property._id,
                     checkInDate: selectedDates.from.toISOString(),
                     checkOutDate: selectedDates.to.toISOString(),
                     guestNo: guestNumber.toString(),
-                    agreedFee: agreedFee, // Add calculated agreedFee
+                    agreedFee: agreedFee,
                     skip: true,
                 }).unwrap();
 
@@ -210,9 +209,19 @@ export default function PropertyPage2() {
                 participants: [property.createdBy._id],
                 propertyId: property._id,
             }).unwrap();
-
-            console.log("✅ Conversation created:", result);
-
+            if (result.success && result.data?._id) {
+                const conversationId = result.data._id;
+                await sendMessage({
+                    conversationId: conversationId,
+                    sender: user?._id,
+                    type: "makeoffer",
+                    propertyId: property._id,
+                    skip: true,
+                }).unwrap();
+                router.push("/messages");
+            } else {
+                console.error("❌ Conversation creation failed:", result.message);
+            }
             router.push("/messages");
         } catch (error) {
             console.error("❌ Failed to start chat:", error);
@@ -221,80 +230,80 @@ export default function PropertyPage2() {
         }
     };
 
-    const handleAskQuestion = () => {
-        if (!user) {
-            dispatch(setRedirectPath(`/listings/${id}`));
-            setIsDialogOpen(true);
-        } else {
-            handleAskQuestion2();
-        }
-    };
+    // const handleAskQuestion = () => {
+    //     if (!user) {
+    //         dispatch(setRedirectPath(`/listings/${id}`));
+    //         setIsDialogOpen(true);
+    //     } else {
+    //         handleAskQuestion2();
+    //     }
+    // };
 
-    const handleAskQuestion2 = async () => {
-        if (!property?.createdBy?._id) {
-            console.error("❌ Host information not available");
-            return;
-        }
+    // const handleAskQuestion2 = async () => {
+    //     if (!property?.createdBy?._id) {
+    //         console.error("❌ Host information not available");
+    //         return;
+    //     }
 
-        if (!question.trim()) {
-            console.warn("⚠️ No question provided");
-            return;
-        }
+    //     if (!question.trim()) {
+    //         console.warn("⚠️ No question provided");
+    //         return;
+    //     }
 
-        if (!user) {
-            // Save the current path for redirect after login
-            dispatch(setRedirectPath(`/listings/${id}`));
-            setIsDialogOpen(true);
-            return;
-        }
+    //     if (!user) {
+    //         // Save the current path for redirect after login
+    //         dispatch(setRedirectPath(`/listings/${id}`));
+    //         setIsDialogOpen(true);
+    //         return;
+    //     }
 
-        setIsChatLoading(true);
+    //     setIsChatLoading(true);
 
-        try {
-            console.log("🚀 Creating conversation with question...");
+    //     try {
+    //         console.log("🚀 Creating conversation with question...");
 
-            // Step 1: Create the conversation
-            const conversationResult = await createConversation({
-                participants: [property.createdBy._id],
-                propertyId: property._id,
-            }).unwrap();
+    //         // Step 1: Create the conversation
+    //         const conversationResult = await createConversation({
+    //             participants: [property.createdBy._id],
+    //             propertyId: property._id,
+    //         }).unwrap();
 
-            console.log("✅ Conversation created:", conversationResult);
+    //         console.log("✅ Conversation created:", conversationResult);
 
-            // Check if conversation was created successfully
-            if (conversationResult.success && conversationResult.data?._id) {
-                const conversationId = conversationResult.data._id;
+    //         // Check if conversation was created successfully
+    //         if (conversationResult.success && conversationResult.data?._id) {
+    //             const conversationId = conversationResult.data._id;
 
-                // Step 2: Send the initial message with the question
-                console.log("📤 Sending question...");
-                await sendMessage({
-                    conversationId: conversationId,
-                    sender: user._id,
-                    type: "text",
-                    text: question.trim(),
-                }).unwrap();
+    //             // Step 2: Send the initial message with the question
+    //             console.log("📤 Sending question...");
+    //             await sendMessage({
+    //                 conversationId: conversationId,
+    //                 sender: user._id,
+    //                 type: "text",
+    //                 text: question.trim(),
+    //             }).unwrap();
 
-                console.log("✅ Question sent successfully");
+    //             console.log("✅ Question sent successfully");
 
-                // Clear the textarea
-                setQuestion("");
+    //             // Clear the textarea
+    //             setQuestion("");
 
-                // Navigate to messages page
-                console.log("🔀 Redirecting to messages...");
-                router.push("/messages");
-            } else {
-                console.error("❌ Conversation creation failed:", conversationResult.message);
-            }
-        } catch (error: any) {
-            console.error("❌ Failed to send question:", error);
+    //             // Navigate to messages page
+    //             console.log("🔀 Redirecting to messages...");
+    //             router.push("/messages");
+    //         } else {
+    //             console.error("❌ Conversation creation failed:", conversationResult.message);
+    //         }
+    //     } catch (error: any) {
+    //         console.error("❌ Failed to send question:", error);
 
-            if (error?.data?.message) {
-                console.error("Error details:", error.data.message);
-            }
-        } finally {
-            setIsChatLoading(false);
-        }
-    };
+    //         if (error?.data?.message) {
+    //             console.error("Error details:", error.data.message);
+    //         }
+    //     } finally {
+    //         setIsChatLoading(false);
+    //     }
+    // };
 
     if (isLoading) {
         return (
@@ -483,14 +492,6 @@ export default function PropertyPage2() {
                                             </div>
                                         ))}
                                     </div>
-
-                                    {/* Bedroom info */}
-                                    {/* <div className="mt-4 text-center">
-                                        <h3 className="text-white text-[32px]">
-                                            {property.bedrooms} Bedroom{property.bedrooms !== 1 ? "s" : ""}
-                                        </h3>
-                                        <p className="text-[#B6BAC3] text-lg">Comfortable sleeping space</p>
-                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -753,7 +754,7 @@ export default function PropertyPage2() {
                             </div>
 
                             {/* Ask a Question Section - Updated */}
-                            <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
+                            {/* <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
                                 <h1 className="text-[32px] font-bold mb-8">Ask a Question?</h1>
                                 <textarea className="border border-[#C9A94D] placeholder:text-[#14213D] text-[#14213D] p-3 w-full h-32 mb-8 resize-none focus:outline-none focus:ring-2 focus:ring-[#C9A94D]" placeholder="Contact the host - they'll be happy to help." value={question} onChange={(e) => setQuestion(e.target.value)} disabled={isChatLoading} />
                                 <button onClick={handleAskQuestion} disabled={!question.trim() || isChatLoading || !property?.createdBy?._id} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition flex items-center gap-3 justify-center disabled:bg-gray-400 disabled:cursor-not-allowed">
@@ -769,7 +770,7 @@ export default function PropertyPage2() {
                                         </>
                                     )}
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

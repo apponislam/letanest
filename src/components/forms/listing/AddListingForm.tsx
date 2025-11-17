@@ -402,10 +402,8 @@ const AddListingForm: React.FC = () => {
             const result = await createProperty(formData).unwrap();
             console.log("Property created successfully:", result);
 
-            // ✅ Clear form data only after successful submission
             clearFormData();
 
-            // Redirect based on user role
             if (mainuser?.role === "ADMIN") {
                 router.push("/dashboard/property-management");
             } else if (mainuser?.role === "HOST") {
