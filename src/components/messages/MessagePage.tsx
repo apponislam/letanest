@@ -24,7 +24,7 @@ const MessageViews = () => {
         const welcomeKey = `welcomeTime_${user._id}`;
         const lastWelcome = localStorage.getItem(welcomeKey);
         const now = Date.now();
-        const tenMinutes = 10 * 60 * 1000;
+        const tenMinutes = 60 * 1000;
 
         if (!lastWelcome || now - parseInt(lastWelcome) > tenMinutes) {
             console.log("🎉 Sending welcome message");

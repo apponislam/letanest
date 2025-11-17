@@ -8,7 +8,7 @@ import { Star, MessagesSquare, Loader2, MessageCircle, CalendarIcon } from "luci
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSocket } from "@/redux/features/socket/socketHooks";
-import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation, useConvertRequestToOfferMutation, useSendWelcomeMessageMutation, useEditOfferMutation } from "@/redux/features/messages/messageApi";
+import { useGetUserConversationsQuery, useSendMessageMutation, useGetConversationMessagesQuery, useRejectOfferMutation, useMarkConversationAsReadsMutation, useCreateConversationMutation, useSendMessageAutoMutation, useConvertRequestToOfferMutation, useSendWelcomeMessageMutation, useEditOfferMutation, useConvertMakeOfferToRequestMutation } from "@/redux/features/messages/messageApi";
 import { useGetMyPublishedPropertiesQuery } from "@/redux/features/property/propertyApi";
 import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
@@ -27,6 +27,9 @@ import { currentUser } from "@/redux/features/auth/authSlice";
 import EditOfferModal from "./EditOfferModal";
 import SuggestNewOfferModal from "./SuggestNewOffer";
 import BankTransferModal from "./BankTransferModal";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -367,6 +370,8 @@ export default function MessagesLayout2() {
                 return `Rejected: ${lastMessage.propertyId.propertyNumber || ""}`;
             case "request":
                 return `Request: ${lastMessage.propertyId.propertyNumber || ""}`;
+            case "makeoffer":
+                return `New Conversation For: ${lastMessage.propertyId.propertyNumber || ""}`;
             default:
                 return lastMessage.text || "";
         }
@@ -467,7 +472,7 @@ export default function MessagesLayout2() {
                             const otherParticipant = conversation.participants.find((p: any) => p._id !== user?._id);
                             const unreadCount = getUnreadCount(conversation);
                             // const isOnline = isUserOnline(otherParticipant?._id);
-                            console.log(otherParticipant);
+                            // console.log(otherParticipant);
 
                             return (
                                 <div key={conversation._id} className={`flex flex-col p-3 cursor-pointer hover:bg-[#9399A6] rounded-lg transition-colors ${selectedConversation === conversation._id ? "bg-[#9399A6] shadow-md" : ""}`} onClick={() => handleConversationClick(conversation._id)}>
@@ -980,6 +985,114 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         }
     };
 
+    // Make offer to request
+    // Make offer to request
+    const [convertMakeOfferToRequest, { isLoading: isConvertingToRequest }] = useConvertMakeOfferToRequestMutation();
+    const [checkInDate, setCheckInDate] = useState("");
+    const [checkOutDate, setCheckOutDate] = useState("");
+    const [guestNo, setGuestNo] = useState("");
+    const [agreedFee, setAgreedFee] = useState(0);
+
+    // Calculate price whenever dates change
+    useEffect(() => {
+        if (checkInDate && checkOutDate) {
+            calculatePrice();
+        }
+    }, [checkInDate, checkOutDate]);
+
+    // Handlers at top level
+    const handleDateChange = (field: "checkInDate" | "checkOutDate", value: string) => {
+        if (field === "checkInDate") {
+            setCheckInDate(value);
+            if (checkOutDate && value > checkOutDate) {
+                setCheckOutDate("");
+            }
+        } else {
+            setCheckOutDate(value);
+        }
+    };
+
+    const handleGuestChange = (value: string) => {
+        setGuestNo(value);
+    };
+
+    const calculatePrice = () => {
+        if (!checkInDate || !checkOutDate) {
+            console.log("❌ Missing dates:", { checkInDate, checkOutDate });
+            return 0;
+        }
+
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+
+        if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+            console.log("❌ Invalid dates:", { checkIn, checkOut });
+            return 0;
+        }
+
+        const timeDiff = checkOut.getTime() - checkIn.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+        const propertyPrice = message.propertyId?.price || 100;
+
+        console.log("🔍 Price calculation:", {
+            checkInDate,
+            checkOutDate,
+            daysDiff,
+            propertyPrice,
+            propertyData: message.propertyId,
+        });
+
+        const totalPrice = daysDiff * propertyPrice;
+
+        console.log("💰 Total price calculated:", totalPrice);
+
+        setAgreedFee(totalPrice);
+        return totalPrice;
+    };
+
+    const getNumberOfNights = () => {
+        if (!checkInDate || !checkOutDate) return 0;
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        const timeDiff = checkOut.getTime() - checkIn.getTime();
+        return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    };
+
+    const handleRequestAvailability = async () => {
+        if (!checkInDate || !checkOutDate || !guestNo) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        console.log("🚀 Sending request with agreedFee:", agreedFee); // Check this value
+
+        try {
+            await convertMakeOfferToRequest({
+                messageId: message._id,
+                conversationId: message.conversationId,
+                checkInDate,
+                checkOutDate,
+                agreedFee: agreedFee,
+                guestNo,
+            }).unwrap();
+
+            setCheckInDate("");
+            setCheckOutDate("");
+            setGuestNo("");
+            setAgreedFee(0);
+
+            setTimeout(() => {
+                refetchMessages();
+                refetchConversations();
+            }, 100);
+        } catch (error) {
+            console.error("Failed to send availability request:", error);
+        }
+    };
+
+    // console.log(message);
+
     // Handle optimistic messages
     if (message.isOptimistic) {
         return (
@@ -1022,6 +1135,79 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         );
     }
 
+    if (message.type === "makeoffer") {
+        const isPropertyOwner = user?._id === message.propertyId?.createdBy?._id;
+
+        // If property owner, show waiting message
+        if (isPropertyOwner) {
+            return (
+                <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                    {!isMe && <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />}
+                    <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+                        <p className="font-semibold text-sm text-center">Availability Request</p>
+                        <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                        <p className="text-center text-[12px] mb-3">Waiting for guest to send availability request...</p>
+                    </div>
+                    {isMe && <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />}
+                </div>
+            );
+        }
+
+        // If guest, show the input form
+        const nights = getNumberOfNights();
+        const propertyPrice = message.propertyId?.price || 100;
+
+        return (
+            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="mr-2" />}
+                <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+                    <p className="font-semibold text-sm text-center">Request Availability</p>
+                    <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+
+                    <p className="text-center text-[12px] mb-2">Requested Dates</p>
+
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                            <label className="block text-[10px] font-medium mb-1">Check In</label>
+                            <input type="date" value={checkInDate} onChange={(e) => handleDateChange("checkInDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={new Date().toISOString().split("T")[0]} />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-medium mb-1">Check Out</label>
+                            <input type="date" value={checkOutDate} onChange={(e) => handleDateChange("checkOutDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={checkInDate || new Date().toISOString().split("T")[0]} />
+                        </div>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="block text-[10px] font-medium mb-1">Guests</label>
+                        <input type="number" min="1" value={guestNo} onChange={(e) => handleGuestChange(e.target.value)} className="w-full p-1 border border-black text-[10px]" placeholder="Number of guests" />
+                    </div>
+
+                    {/* Price Display */}
+                    {nights > 0 && agreedFee > 0 && (
+                        <div className="bg-yellow-50 p-2 border border-yellow-200 rounded mb-3">
+                            <div className="flex justify-between text-[10px]">
+                                <span>Estimated Price:</span>
+                                <span className="font-bold">£{agreedFee}</span>
+                            </div>
+                            <div className="flex justify-between text-[9px] text-gray-600">
+                                <span>
+                                    {nights} night{nights !== 1 ? "s" : ""} × £{propertyPrice}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-center mt-3">
+                        <button onClick={handleRequestAvailability} disabled={isConvertingToRequest || !checkInDate || !checkOutDate || !guestNo} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isConvertingToRequest ? "Sending..." : "Request Availability"}
+                        </button>
+                    </div>
+                </div>
+                {isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="ml-2" />}
+            </div>
+        );
+    }
+
     if (message.type === "offer") {
         const formatDate = (dateString: string) => {
             if (!dateString) return "Not set";
@@ -1039,7 +1225,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             return (agreedFee + bookingFee).toFixed(2);
         };
 
-        const totalAmount = message.total || calculateTotal();
+        // const totalAmount = message.total || calculateTotal();
 
         const calculateDays = () => {
             if (!message.checkInDate || !message.checkOutDate) return "0 Night";

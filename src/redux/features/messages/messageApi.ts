@@ -215,6 +215,38 @@ export const messageApi = baseApi.injectEndpoints({
                 }
             },
         }),
+        convertMakeOfferToRequest: builder.mutation({
+            query: ({ messageId, conversationId, checkInDate, checkOutDate, agreedFee, guestNo }) => ({
+                url: `/messages/${messageId}/convert-makeoffer-to-request`,
+                method: "PATCH",
+                body: { conversationId, checkInDate, checkOutDate, agreedFee, guestNo },
+            }),
+            invalidatesTags: (_result, _error, arg) => [{ type: "Messages", id: arg.conversationId }, "Messages", "Conversations"],
+            onQueryStarted: async ({ messageId, conversationId, checkInDate, checkOutDate, agreedFee, guestNo }, { dispatch, queryFulfilled }) => {
+                // Optimistically update message to request type locally
+                const patch = dispatch(
+                    messageApi.util.updateQueryData("getConversationMessages", { conversationId }, (draft: any) => {
+                        const messages = draft?.data || draft || [];
+                        const msg = messages.find((m: any) => m._id === messageId);
+                        if (msg) {
+                            msg.type = "request";
+                            msg.checkInDate = checkInDate;
+                            msg.checkOutDate = checkOutDate;
+                            msg.agreedFee = agreedFee;
+                            msg.guestNo = guestNo;
+                            msg.bookingFee = 0;
+                            msg.bookingFeePaid = false;
+                        }
+                    })
+                );
+
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patch.undo();
+                }
+            },
+        }),
         // NEW: Mark conversation as read
         markConversationAsReads: builder.mutation({
             query: (conversationId) => ({
@@ -271,6 +303,7 @@ export const {
     useMarkAsReadMutation,
     useRejectOfferMutation,
     useConvertRequestToOfferMutation,
+    useConvertMakeOfferToRequestMutation,
     useMarkConversationAsReadsMutation,
     // my unread message count
     useGetTotalUnreadCountQuery,

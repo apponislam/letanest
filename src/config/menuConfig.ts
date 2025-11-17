@@ -1,5 +1,5 @@
 import { roles } from "@/redux/features/auth/authSlice";
-import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck, Flag, Bookmark, ShieldCheck, Bot } from "lucide-react";
+import { LayoutDashboard, MessageSquare, User, CreditCard, Star, FileText, Home, Mail, Users, Lock, Layers, BadgeCheck, Flag, Bookmark, ShieldCheck, Bot, Locate } from "lucide-react";
 
 export const menuItems = {
     [roles.ADMIN]: [
@@ -15,6 +15,7 @@ export const menuItems = {
         { title: "Privacy Policy", url: "/dashboard/privacy-policy", icon: ShieldCheck },
         { title: "Property Management", url: "/dashboard/property-management", icon: Home },
         { title: "Membership", url: "/dashboard/memberships", icon: Users },
+        { title: "Locations", url: "/dashboard/locations", icon: Locate },
         { title: "Authentication", url: "/dashboard/authentication", icon: Lock },
         { title: "Host Verify", url: "/dashboard/host-verify", icon: BadgeCheck },
     ],
@@ -59,5 +60,6 @@ export const roleRoutes: Record<string, string[]> = {
         "/dashboard/payment-methods",
         "/dashboard/active-listings",
         "/dashboard/privacy-policy",
+        "/dashboard/locations",
     ],
 };
