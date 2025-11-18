@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import StripeAccountManager from "../payments/StripeAccountManager";
 import BankDetailsManager from "../payments/BankDetailsManager";
+import { useCreateOrUpdateFeeMutation, useGetFeeQuery } from "@/redux/features/peaceofmindfee/peaceOfMindFeeApi";
 
 const TransectionView = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +29,20 @@ const TransectionView = () => {
     });
 
     const { data: totalsData } = useGetPaymentTotalsQuery();
+
+    const { data: extraFeeData } = useGetFeeQuery();
+    const [updateFee] = useCreateOrUpdateFeeMutation();
+    const [isEditing, setIsEditing] = useState(false);
+    const [newFee, setNewFee] = useState("");
+
+    const peaceOfMindFee = extraFeeData?.data?.fee || 5;
+
+    const handleSave = async () => {
+        if (newFee) {
+            await updateFee({ fee: Number(newFee) });
+            setIsEditing(false);
+        }
+    };
 
     // Use real API data instead of mock data
     const transactions = transectionData?.data || [];
@@ -93,7 +108,7 @@ const TransectionView = () => {
             <PageHeader title={"Transactions"}></PageHeader>
 
             {/* Welcome Text */}
-            <div className="flex items-center justify-between mb-8 flex-col md:flex-row gap-3">
+            <div className="flex items-center justify-between mb-4 flex-col md:flex-row gap-3">
                 <div className="text-[#C9A94D] ">
                     <h1 className="font-bold text-[30px] mb-4">Transactions</h1>
                     <p>Here's the latest transaction data for your account.</p>
@@ -102,6 +117,30 @@ const TransectionView = () => {
                     <BankDetailsManager></BankDetailsManager>
                     <StripeAccountManager></StripeAccountManager>
                 </div>
+            </div>
+
+            <div className="mb-4 flex items-center gap-2 text-white">
+                {isEditing ? (
+                    <>
+                        <input type="number" value={newFee} onChange={(e) => setNewFee(e.target.value)} className="w-20 px-2 py-1  rounded border border-[#C9A94D]" placeholder={peaceOfMindFee.toString()} />
+                        <button onClick={handleSave} className="bg-[#C9A94D] text-white px-3 py-1 rounded">
+                            Save
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <h1>Peace Of Mind Fee £{peaceOfMindFee}</h1>
+                        <button
+                            onClick={() => {
+                                setIsEditing(true);
+                                setNewFee(peaceOfMindFee.toString());
+                            }}
+                            className="bg-[#C9A94D] text-white px-3 py-1 rounded"
+                        >
+                            Change
+                        </button>
+                    </>
+                )}
             </div>
 
             <div className="bg-[#2D3546] p-5 rounded-[4px] mb-4">
@@ -140,7 +179,7 @@ const TransectionView = () => {
                                 <th className="py-3 px-6 text-left font-normal">Guest</th>
                                 <th className="py-3 px-6 text-left font-normal">Host</th>
                                 <th className="py-3 px-6 text-left font-normal">Agreed Fee</th>
-                                <th className="py-3 px-6 text-left font-normal">Total Paid</th>
+                                <th className="py-3 px-6 text-left font-normal">Total Amount</th>
                                 <th className="py-3 px-6 text-left font-normal">Commission</th>
                                 <th className="py-3 px-6 text-left font-normal">Host Earnings</th>
                                 <th className="py-3 px-6 text-left font-normal">Platform Fee</th>
