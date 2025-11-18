@@ -4,6 +4,9 @@ import React from "react";
 import { ArrowLeft } from "lucide-react";
 
 const Custom404 = () => {
+
+    //test push
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#14213D] px-4">
             <h1 className="text-8xl font-bold text-[#C9A94D] mb-6">404</h1>
