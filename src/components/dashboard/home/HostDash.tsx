@@ -125,16 +125,8 @@ const HostDash = () => {
                         <h1 className="font-bold text-[30px] mb-4">Host Dashboard</h1>
                         <p>Welcome back, {hostuser?.name} ! Here's what's happening with your account.</p>
                     </div>
-                    {/* <div className="flex items-center justify-center flex-col gap-2">
-                        <Image src={host.image} alt={host.name} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                        <p>contact Letanest</p>
-                        <button className="bg-[#C9A94D] rounded-[10px] px-4 py-1 text-white flex items-center gap-2">
-                            <Image src="/dashboard/host/message-activity.png" alt="Message Icon" width={24} height={24} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
-                            Message
-                        </button>
-                    </div> */}
                     <div className="flex items-center justify-center flex-col gap-2">
-                        <Image src={randomAdminData?.data?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${randomAdminData.data.profileImg}` : "/home/avatar.jpg"} alt={randomAdminData?.data?.name || "Admin"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
+                        <Image src={randomAdminData?.data?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${randomAdminData.data.profileImg}` : "/home/avatar.jpg"} alt={randomAdminData?.data?.name || "Admin"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover h-8 w-8" />
                         <p>Contact {randomAdminData?.data?.name || "Admin"}</p>
                         <button onClick={handleSupport} disabled={isSending} className="bg-[#C9A94D] rounded-[10px] px-4 py-1 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                             <Image src="/dashboard/host/message-activity.png" alt="Message Icon" width={24} height={24} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover" />
