@@ -24,7 +24,13 @@ export function AppSidebar() {
                 </div>
 
                 {/* Scrollable Menu */}
-                <SidebarContent className="flex-1 max-h-[800px] overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-[#C9A94D] scrollbar-track-transparent">
+                <SidebarContent
+                    className="flex-1 max-h-[800px] overflow-y-auto p-0 !scrollbar-thin !scrollbar-thumb-[#C9A94D] !scrollbar-track-transparent"
+                    style={{
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "#C9A94D transparent",
+                    }}
+                >
                     <SidebarGroup className="p-0">
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-4">

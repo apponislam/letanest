@@ -703,7 +703,7 @@ export default function PropertyPage2() {
                     <div className="md:w-2/8">
                         <div className="md:sticky top-24 z-10">
                             <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
-                                <h1 className="text-[32px] mb-2 font-bold">£{property.price}</h1>
+                                <h1 className="text-[24px] mb-2 font-bold">From £{property.price}/night</h1>
 
                                 <DateSelectionWithPrice property={property} onDateSelect={(dates) => setSelectedDates(dates)} onGuestNumberChange={(guests) => setGuestNumber(guests)} />
                                 <Button onClick={handleBookNow} disabled={isChatLoading || !selectedDates?.from || !selectedDates?.to} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition disabled:bg-gray-400">

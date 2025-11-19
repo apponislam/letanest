@@ -59,57 +59,92 @@ type Step2Data = z.infer<typeof step2Schema>;
 type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
 
-const amenitiesList = [
-    // Essentials
-    "Wifi",
-    "Towels Included",
-    "Heating",
-    "Air Conditioning",
-    "Kitchen",
-    "Washing Machine",
-    "Dryer",
-    "Tv",
+// const amenitiesList = [
+//     // Essentials
+//     "Wifi",
+//     "Towels Included",
+//     "Heating",
+//     "Air Conditioning",
+//     "Kitchen",
+//     "Washing Machine",
+//     "Dryer",
+//     "Tv",
 
-    // Parking & Transport
-    "Parking",
-    "EV Charging Point",
+//     // Parking & Transport
+//     "Parking",
+//     "EV Charging Point",
 
-    // Safety & Security
-    "Smoke Alarm",
-    "Carbon Monoxide Alarm",
-    "First Aid Kit",
-    "CCTV / Security Lighting",
+//     // Safety & Security
+//     "Smoke Alarm",
+//     "Carbon Monoxide Alarm",
+//     "First Aid Kit",
+//     "CCTV / Security Lighting",
 
-    // Outdoor & Leisure
-    "Garden",
-    "Balcony / Terrace",
-    "BBQ Facilities",
-    "Outdoor Furniture",
-    "Pool",
-    "Hot Tub",
-    "Beach Access",
+//     // Outdoor & Leisure
+//     "Garden",
+//     "Balcony / Terrace",
+//     "BBQ Facilities",
+//     "Outdoor Furniture",
+//     "Pool",
+//     "Hot Tub",
+//     "Beach Access",
 
-    // Family-Friendly
-    "High Chair",
-    "Cot / Travel Cot",
-    "Playground Nearby",
+//     // Family-Friendly
+//     "High Chair",
+//     "Cot / Travel Cot",
+//     "Playground Nearby",
 
-    // Extras
-    "Gym",
-    "Coffee Machine / Kettle",
-    "Hairdryer",
-    "Iron / Ironing Board",
+//     // Extras
+//     "Gym",
+//     "Coffee Machine / Kettle",
+//     "Hairdryer",
+//     "Iron / Ironing Board",
 
-    // Accessibility
-    "Disability Access",
-    "Disability Parking",
-    "Lift Access",
-    "Step-free Entrance",
+//     // Accessibility
+//     "Disability Access",
+//     "Disability Parking",
+//     "Lift Access",
+//     "Step-free Entrance",
 
-    // Pet & Smoking Policies
-    "Pet Friendly",
-    "Smoking Allowed",
-] as const;
+//     // Pet & Smoking Policies
+//     "Pet Friendly",
+//     "Smoking Allowed",
+// ] as const;
+
+const amenityCategories = [
+    {
+        title: "Essentials",
+        amenities: ["Wifi", "Towels Included", "Heating", "Air Conditioning", "Kitchen", "Washing Machine", "Dryer", "Tv"],
+    },
+    {
+        title: "Parking & Transport",
+        amenities: ["Parking", "EV Charging Point"],
+    },
+    {
+        title: "Safety & Security",
+        amenities: ["Smoke Alarm", "Carbon Monoxide Alarm", "First Aid Kit", "CCTV / Security Lighting"],
+    },
+    {
+        title: "Outdoor & Leisure",
+        amenities: ["Garden", "Balcony / Terrace", "BBQ Facilities", "Outdoor Furniture", "Pool", "Hot Tub", "Beach Access"],
+    },
+    {
+        title: "Family-Friendly",
+        amenities: ["High Chair", "Cot / Travel Cot", "Playground Nearby"],
+    },
+    {
+        title: "Accessibility",
+        amenities: ["Disability Access", "Disability Parking", "Lift Access", "Step-free Entrance"],
+    },
+    {
+        title: "Pet & Smoking Policies",
+        amenities: ["Pet Friendly", "Smoking Allowed"],
+    },
+    {
+        title: "Extras",
+        amenities: ["Gym", "Coffee Machine / Kettle", "Hairdryer", "Iron / Ironing Board"],
+    },
+];
 
 const propertyTypeOptions = ["Hotel", "Apartment", "Aparthotel", "Bed & Breakfast", "Hostel", "Guesthouse", "Entire Home", "Room Only", "Student Accommodation", "Unique Stays", "Caravan"];
 
@@ -430,31 +465,6 @@ const EditPropertyPage = () => {
                             </div>
                         ))}
 
-                        {/* <div>
-                            <label className="block text-sm font-medium">Property Type</label>
-                            <DropdownMenu open={open} onOpenChange={setOpen}>
-                                <DropdownMenuTrigger asChild>
-                                    <button type="button" className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 text-left focus:ring-2 focus:ring-[#C9A94D] focus:outline-none">
-                                        {selectedType || "Select Type"}
-                                    </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-[#C9A94D] z-50 p-0">
-                                    {propertyTypeOptions.map((option, i) => (
-                                        <DropdownMenuItem
-                                            key={i}
-                                            className="border-b border-[#C9A94D] last:border-b-0 justify-center cursor-pointer"
-                                            onClick={() => {
-                                                setValue("propertyType", option, { shouldValidate: true });
-                                                setOpen(false);
-                                            }}
-                                        >
-                                            {option}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            {formState.errors.propertyType && <p className="text-red-500 text-sm mt-1">{formState.errors.propertyType?.message as string}</p>}
-                        </div> */}
                         <div>
                             <label className="block text-sm font-medium mb-2">Property Type</label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg ">
@@ -514,7 +524,7 @@ const EditPropertyPage = () => {
                         </div>
 
                         {/* Amenities */}
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-medium mb-2">Amenities</label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">
                                 {amenitiesList.map((amenity) => (
@@ -526,6 +536,43 @@ const EditPropertyPage = () => {
                                 ))}
                             </div>
                             {step2Form.formState.errors.amenities && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.amenities.message}</p>}
+                        </div> */}
+                        <div>
+                            <label className="block text-sm font-medium mb-4">Amenities</label>
+                            <div className="space-y-8">
+                                {amenityCategories.map((category, categoryIdx) => (
+                                    <div key={categoryIdx} className="mb-6">
+                                        <h3 className="text-[#C9A94D] text-lg font-medium mb-3">{category.title}</h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {category.amenities.map((amenity, amenityIdx) => (
+                                                <div
+                                                    key={amenityIdx}
+                                                    className="flex items-center gap-2 cursor-pointer"
+                                                    onClick={() => {
+                                                        const currentAmenities = step2Form.getValues("amenities") || [];
+                                                        const isSelected = currentAmenities.includes(amenity);
+
+                                                        if (isSelected) {
+                                                            step2Form.setValue(
+                                                                "amenities",
+                                                                currentAmenities.filter((a) => a !== amenity)
+                                                            );
+                                                        } else {
+                                                            step2Form.setValue("amenities", [...currentAmenities, amenity]);
+                                                        }
+                                                    }}
+                                                >
+                                                    <button type="button" className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${step2Form.watch("amenities")?.includes(amenity) ? "bg-[#14213D]" : "bg-transparent"}`}>
+                                                        {step2Form.watch("amenities")?.includes(amenity) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}
+                                                    </button>
+                                                    <span className="text-[#C9A94D]">{amenity}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            {step2Form.formState.errors.amenities && <p className="text-red-500 text-sm mt-3">{step2Form.formState.errors.amenities.message}</p>}
                         </div>
 
                         <div className="flex justify-between mt-4">
