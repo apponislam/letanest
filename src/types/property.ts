@@ -98,8 +98,9 @@ export interface IPropertyStep2 {
     bedrooms: number;
     bathrooms: number;
     price: number;
-    availableFrom: string; // ISO string from backend
-    availableTo: string; // ISO string from backend
+    availableFrom: string;
+    availableTo: string;
+    calendarEnabled?: boolean;
     amenities: Amenity[];
 }
 
