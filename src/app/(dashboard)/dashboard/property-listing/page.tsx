@@ -6,8 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
-import { useDeleteHostPropertyMutation, useGetHostPropertiesQuery } from "@/redux/features/property/propertyApi";
+import { useDeleteHostPropertyMutation, useGetHostPropertiesQuery, useTogglePropertyCalendarMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 const PropertyListing = () => {
     const [open, setOpen] = useState(false);
@@ -23,6 +24,71 @@ const PropertyListing = () => {
 
     const { data, isLoading, refetch } = useGetHostPropertiesQuery(filters);
     const [deleteProperty] = useDeleteHostPropertyMutation();
+
+    const [toggleCalendar] = useTogglePropertyCalendarMutation();
+
+    const handleToggleCalendar = async (propertyId: string, calendarEnabled: boolean) => {
+        try {
+            const result = await Swal.fire({
+                title: `Calendar ${calendarEnabled ? "Open" : "Close"}`,
+                text: `Are you sure you want to ${calendarEnabled ? "open" : "close"} the calendar for this property?`,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#C9A94D",
+                cancelButtonColor: "#14213D",
+                confirmButtonText: `Yes, ${calendarEnabled ? "Open" : "Close"}`,
+                cancelButtonText: "Cancel",
+                background: "#14213D",
+                color: "#C9A94D",
+                customClass: {
+                    popup: "rounded-[20px] border border-[#C9A94D]",
+                    title: "text-[#C9A94D] text-xl font-bold",
+                    htmlContainer: "text-[#C9A94D]",
+                    confirmButton: "bg-[#C9A94D] text-[#14213D] px-6 py-2 rounded-[10px] font-medium hover:bg-[#b8973e] transition-colors",
+                    cancelButton: "bg-[#14213D] text-[#C9A94D] border border-[#C9A94D] px-6 py-2 rounded-[10px] font-medium hover:bg-[#1a2a4a] transition-colors",
+                },
+            });
+
+            if (result.isConfirmed) {
+                await toggleCalendar({
+                    id: propertyId,
+                    calendarEnabled,
+                }).unwrap();
+
+                Swal.fire({
+                    title: "Success!",
+                    text: `Calendar ${calendarEnabled ? "opened" : "closed"} successfully`,
+                    icon: "success",
+                    confirmButtonColor: "#C9A94D",
+                    background: "#14213D",
+                    color: "#C9A94D",
+                    customClass: {
+                        popup: "rounded-[20px] border border-[#C9A94D]",
+                        title: "text-[#C9A94D] text-xl font-bold",
+                        htmlContainer: "text-[#C9A94D]",
+                        confirmButton: "bg-[#C9A94D] text-[#14213D] px-6 py-2 rounded-[10px] font-medium hover:bg-[#b8973e] transition-colors",
+                    },
+                });
+            }
+        } catch (error) {
+            console.error("Failed to toggle calendar:", error);
+
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to update calendar. Please try again.",
+                icon: "error",
+                confirmButtonColor: "#C9A94D",
+                background: "#14213D",
+                color: "#C9A94D",
+                customClass: {
+                    popup: "rounded-[20px] border border-[#C9A94D]",
+                    title: "text-[#C9A94D] text-xl font-bold",
+                    htmlContainer: "text-[#C9A94D]",
+                    confirmButton: "bg-[#C9A94D] text-[#14213D] px-6 py-2 rounded-[10px] font-medium hover:bg-[#b8973e] transition-colors",
+                },
+            });
+        }
+    };
 
     const properties = data?.data || [];
     const meta = data?.meta || {
@@ -163,6 +229,7 @@ const PropertyListing = () => {
                             showStatusFilter={true}
                             getStatusColor={getStatusColor}
                             formatDate={formatDate}
+                            handleToggleCalendar={handleToggleCalendar}
                         />
                     </TabsContent>
 
@@ -188,6 +255,7 @@ const PropertyListing = () => {
                             showStatusFilter={false}
                             getStatusColor={getStatusColor}
                             formatDate={formatDate}
+                            handleToggleCalendar={handleToggleCalendar}
                         />
                     </TabsContent>
 
@@ -213,6 +281,7 @@ const PropertyListing = () => {
                             showStatusFilter={false}
                             getStatusColor={getStatusColor}
                             formatDate={formatDate}
+                            handleToggleCalendar={handleToggleCalendar}
                         />
                     </TabsContent>
                 </Tabs>
@@ -256,7 +325,7 @@ const PropertyListing = () => {
 };
 
 // Property List Component to avoid code duplication
-const PropertyList = ({ properties, isLoading, filters, meta, title, totalPages, currentPage, totalProperties, showingFrom, showingTo, onSearch, onStatusFilter, onClearFilters, onPrevPage, onNextPage, onDeleteClick, showStatusFilter, getStatusColor, formatDate }: any) => {
+const PropertyList = ({ properties, isLoading, filters, meta, title, totalPages, currentPage, totalProperties, showingFrom, showingTo, onSearch, onStatusFilter, onClearFilters, onPrevPage, onNextPage, onDeleteClick, showStatusFilter, getStatusColor, formatDate, handleToggleCalendar }: any) => {
     const totalRevenue = properties.reduce((sum: number, property: any) => sum + (property.price || 0), 0);
 
     return (
@@ -339,7 +408,7 @@ const PropertyList = ({ properties, isLoading, filters, meta, title, totalPages,
                                         />
                                     </div>
                                     <div className="flex-1 w-full">
-                                        <div className="flex items-start justify-between flex-col md:flex-row w-full md:w-auto gap-2">
+                                        <div className="flex items-center justify-between flex-col md:flex-row w-full md:w-auto gap-2">
                                             <div>
                                                 <p className="font-semibold text-white text-lg">{property.title}</p>
                                                 <p className="text-sm text-gray-300">
@@ -352,9 +421,18 @@ const PropertyList = ({ properties, isLoading, filters, meta, title, totalPages,
                                                     {property.maxGuests} Guest{property.maxGuests !== 1 ? "s" : ""} · £{property.price}
                                                 </p>
                                             </div>
-                                            <div className="flex items-center gap-2">
+                                            {/* <div className="flex items-center gap-2">
                                                 <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${getStatusColor(property.status)}`}>{property.status}</span>
                                                 <span className="text-xs bg-[#2D3546] px-2 py-1 rounded">#{property.propertyNumber}</span>
+                                            </div> */}
+                                            <div className="flex items-center flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${getStatusColor(property.status)}`}>{property.status}</span>
+                                                    <span className="text-xs bg-[#2D3546] px-2 py-1 rounded">#{property.propertyNumber}</span>
+                                                </div>
+                                                <button onClick={() => handleToggleCalendar(property._id, !property.calendarEnabled)} className={`mt-2 px-3 py-1 rounded text-xs font-medium transition-colors ${property.calendarEnabled ? "bg-red-500 hover:bg-red-600 text-white" : "bg-green-500 hover:bg-green-600 text-white"}`}>
+                                                    {property.calendarEnabled ? "Close Calendar" : "Open Calendar"}
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

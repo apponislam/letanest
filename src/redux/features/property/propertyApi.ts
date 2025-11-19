@@ -220,6 +220,23 @@ export const propertyApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Properties"],
         }),
+
+        togglePropertyCalendar: build.mutation<
+            IProperty,
+            {
+                id: string;
+                calendarEnabled: boolean;
+                availableFrom?: string;
+                availableTo?: string;
+            }
+        >({
+            query: ({ id, calendarEnabled, availableFrom, availableTo }) => ({
+                url: `/property/${id}/calendar`,
+                method: "PATCH",
+                body: { calendarEnabled, availableFrom, availableTo },
+            }),
+            invalidatesTags: ["Properties"],
+        }),
     }),
 });
 
@@ -243,4 +260,5 @@ export const {
     // Toggles
     useTogglePropertyFeaturedMutation,
     useTogglePropertyTrendingMutation,
+    useTogglePropertyCalendarMutation,
 } = propertyApi;

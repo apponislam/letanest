@@ -34,12 +34,9 @@ const step2Schema = z.object({
     bedrooms: z.number().min(1, { message: "At least 1 bedroom is required" }),
     bathrooms: z.number().min(1, { message: "At least 1 bathroom is required" }),
     price: z.number().min(0, { message: "Price must be 0 or greater" }),
-    availableFrom: z.date().refine((val) => val instanceof Date, {
-        message: "Start date is required",
-    }),
-    availableTo: z.date().refine((val) => val instanceof Date, {
-        message: "End date is required",
-    }),
+    availableFrom: z.date().optional(),
+    availableTo: z.date().optional(),
+    calendarEnabled: z.boolean().default(true).optional(),
     amenities: z.array(z.string()).min(1, { message: "Please select at least 1 amenity" }),
 });
 
@@ -58,58 +55,6 @@ type Step1Data = z.infer<typeof step1Schema>;
 type Step2Data = z.infer<typeof step2Schema>;
 type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
-
-// const amenitiesList = [
-//     // Essentials
-//     "Wifi",
-//     "Towels Included",
-//     "Heating",
-//     "Air Conditioning",
-//     "Kitchen",
-//     "Washing Machine",
-//     "Dryer",
-//     "Tv",
-
-//     // Parking & Transport
-//     "Parking",
-//     "EV Charging Point",
-
-//     // Safety & Security
-//     "Smoke Alarm",
-//     "Carbon Monoxide Alarm",
-//     "First Aid Kit",
-//     "CCTV / Security Lighting",
-
-//     // Outdoor & Leisure
-//     "Garden",
-//     "Balcony / Terrace",
-//     "BBQ Facilities",
-//     "Outdoor Furniture",
-//     "Pool",
-//     "Hot Tub",
-//     "Beach Access",
-
-//     // Family-Friendly
-//     "High Chair",
-//     "Cot / Travel Cot",
-//     "Playground Nearby",
-
-//     // Extras
-//     "Gym",
-//     "Coffee Machine / Kettle",
-//     "Hairdryer",
-//     "Iron / Ironing Board",
-
-//     // Accessibility
-//     "Disability Access",
-//     "Disability Parking",
-//     "Lift Access",
-//     "Step-free Entrance",
-
-//     // Pet & Smoking Policies
-//     "Pet Friendly",
-//     "Smoking Allowed",
-// ] as const;
 
 const amenityCategories = [
     {
@@ -182,10 +127,6 @@ const EditPropertyPage = () => {
         },
     });
 
-    const { setValue, watch, formState } = step1Form;
-    const selectedType = watch("propertyType");
-    const [open, setOpen] = useState(false);
-
     const step2Form = useForm<Step2Data>({
         resolver: zodResolver(step2Schema),
         defaultValues: {
@@ -195,6 +136,7 @@ const EditPropertyPage = () => {
             price: 1,
             availableFrom: new Date(),
             availableTo: new Date(),
+            calendarEnabled: true,
             amenities: [],
         },
     });
@@ -213,6 +155,7 @@ const EditPropertyPage = () => {
     });
 
     // Set form values when property data is loaded
+    // Set form values when property data is loaded
     useEffect(() => {
         if (property) {
             // Step 1 data
@@ -224,26 +167,33 @@ const EditPropertyPage = () => {
                 propertyType: property.propertyType || "",
             });
 
-            // Step 2 data
+            // Step 2 data - Handle calendarEnabled with proper boolean conversion
+            const currentYear = new Date().getFullYear();
+            const startOfYear = new Date(currentYear, 0, 1);
+            const endOfYear = new Date(currentYear, 11, 31);
+
+            // Fix: Ensure calendarEnabled is always a boolean
+            const calendarEnabled = property.calendarEnabled !== undefined ? Boolean(property.calendarEnabled) : true;
+
             step2Form.reset({
                 maxGuests: property.maxGuests || 1,
                 bedrooms: property.bedrooms || 1,
                 bathrooms: property.bathrooms || 1,
                 price: property.price || 1,
-                availableFrom: property.availableFrom ? new Date(property.availableFrom) : new Date(),
-                availableTo: property.availableTo ? new Date(property.availableTo) : new Date(),
+                availableFrom: property.availableFrom ? new Date(property.availableFrom) : startOfYear,
+                availableTo: property.availableTo ? new Date(property.availableTo) : endOfYear,
+                calendarEnabled: calendarEnabled,
                 amenities: property.amenities || [],
             });
 
-            // Step 3 data - set existing images
+            // Step 3 data - set existing images (just store the paths, not full URLs)
             if (property.coverPhoto) {
-                setExistingCoverPhoto(`${process.env.NEXT_PUBLIC_BACKEND_URL}${property.coverPhoto}`);
-                setCoverPreview(`${process.env.NEXT_PUBLIC_BACKEND_URL}${property.coverPhoto}`);
+                setExistingCoverPhoto(property.coverPhoto); // Store just the path
+                setCoverPreview(getImageUrl(property.coverPhoto)); // Generate full URL for preview
             }
             if (property.photos && property.photos.length > 0) {
-                const photoUrls = property.photos.map((photo) => `${process.env.NEXT_PUBLIC_BACKEND_URL}${photo}`);
-                setExistingPhotos(photoUrls);
-                setPhotosPreview(photoUrls);
+                setExistingPhotos(property.photos); // Store just the paths
+                setPhotosPreview(property.photos.map((photo) => getImageUrl(photo))); // Generate full URLs for preview
             }
 
             // Mark steps as completed
@@ -257,22 +207,6 @@ const EditPropertyPage = () => {
     const [updateProperty, { isLoading, error }] = useUpdatePropertyMutation();
     const { data: defaultTermsResponse, isLoading: termsLoading } = useGetMyDefaultHostTermsQuery();
 
-    useEffect(() => {
-        if (property) {
-            if (property.coverPhoto) {
-                setExistingCoverPhoto(property.coverPhoto);
-                setCoverPreview(`${process.env.NEXT_PUBLIC_BASE_API}${property.coverPhoto}`);
-            }
-            if (property.photos && property.photos.length > 0) {
-                setExistingPhotos(property.photos);
-                setPhotosPreview(property.photos.map((photo) => `${process.env.NEXT_PUBLIC_BASE_API}${photo}`));
-            }
-
-            // Mark steps as completed
-            setCompletedSteps(["step1", "step2", "step3"]);
-        }
-    }, [property, step1Form, step2Form]);
-
     const handleConnectStripe = async () => {
         try {
             const result = await connectStripeAccount().unwrap();
@@ -284,6 +218,22 @@ const EditPropertyPage = () => {
             toast.error(errorMessage);
             console.log("Failed to connect Stripe:", error);
         }
+    };
+
+    // Function to handle calendar toggle
+    const handleCalendarToggle = (enabled: boolean) => {
+        if (enabled) {
+            const currentYear = new Date().getFullYear();
+            const startOfYear = new Date(currentYear, 0, 1);
+            const endOfYear = new Date(currentYear, 11, 31);
+
+            step2Form.setValue("availableFrom", startOfYear);
+            step2Form.setValue("availableTo", endOfYear);
+        } else {
+            step2Form.setValue("availableFrom", undefined);
+            step2Form.setValue("availableTo", undefined);
+        }
+        step2Form.setValue("calendarEnabled", enabled);
     };
 
     const onSubmitStep1 = (data: Step1Data) => {
@@ -410,6 +360,22 @@ const EditPropertyPage = () => {
         }
     };
 
+    const getImageUrl = (url: string | null) => {
+        if (!url) return "";
+
+        // If URL is already absolute, return as is
+        if (url.startsWith("http")) return url;
+
+        // If URL starts with /, it's a relative path from backend
+        if (url.startsWith("/")) {
+            return `${process.env.NEXT_PUBLIC_BASE_API || process.env.NEXT_PUBLIC_BACKEND_URL || ""}${url}`;
+        }
+
+        // If it's just a filename without path, construct the full URL
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_API || process.env.NEXT_PUBLIC_BACKEND_URL || "";
+        return `${baseUrl}/${url}`;
+    };
+
     const StepIndicator = ({ step, label }: { step: string; label: string }) => {
         const isCompleted = isStepCompleted(step);
         const isActive = activeTab === step;
@@ -503,40 +469,82 @@ const EditPropertyPage = () => {
 
                     <form onSubmit={step2Form.handleSubmit(onSubmitStep2)} className="space-y-5">
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                            {["maxGuests", "bedrooms", "bathrooms", "price"].map((field) => (
-                                <div key={field}>
-                                    <label className="block text-sm font-medium">{field === "maxGuests" ? "Maximum Guests" : field === "price" ? "Price (Per night)" : field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                                    <input type="number" {...step2Form.register(field as keyof Step2Data, { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
-                                    {step2Form.formState.errors[field as keyof Step2Data] && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors[field as keyof Step2Data]?.message}</p>}
-                                </div>
-                            ))}
-
-                            {/* Date Pickers */}
-                            <div className="w-full">
-                                <label className="block text-sm font-medium mb-1">From</label>
-                                <Controller control={step2Form.control} name="availableFrom" render={({ field }) => <DatePicker placeholderText="From" selected={field.value} onChange={(date: Date | null) => field.onChange(date ?? undefined)} wrapperClassName="w-full" className="w-full mt-1 block rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />} />
+                            {/* maxGuests */}
+                            <div>
+                                <label className="block text-sm font-medium">Maximum Guests</label>
+                                <input type="number" {...step2Form.register("maxGuests", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                                {step2Form.formState.errors.maxGuests && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.maxGuests?.message}</p>}
                             </div>
 
-                            <div className="w-full">
-                                <label className="block text-sm font-medium mb-1">To</label>
-                                <Controller control={step2Form.control} name="availableTo" render={({ field }) => <DatePicker placeholderText="To" selected={field.value} onChange={(date: Date | null) => field.onChange(date ?? undefined)} wrapperClassName="w-full" className="w-full mt-1 block rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />} />
+                            {/* bedrooms */}
+                            <div>
+                                <label className="block text-sm font-medium">Bedrooms</label>
+                                <input type="number" {...step2Form.register("bedrooms", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                                {step2Form.formState.errors.bedrooms && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.bedrooms?.message}</p>}
+                            </div>
+
+                            {/* bathrooms */}
+                            <div>
+                                <label className="block text-sm font-medium">Bathrooms</label>
+                                <input type="number" {...step2Form.register("bathrooms", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                                {step2Form.formState.errors.bathrooms && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.bathrooms?.message}</p>}
+                            </div>
+
+                            {/* price */}
+                            <div>
+                                <label className="block text-sm font-medium">Price (Per night)</label>
+                                <input type="number" {...step2Form.register("price", { valueAsNumber: true })} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                                {step2Form.formState.errors.price && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.price?.message}</p>}
+                            </div>
+
+                            {/* 5th Field - From/To Dates */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Availability Period</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <Controller
+                                            control={step2Form.control}
+                                            name="availableFrom"
+                                            render={({ field }) => (
+                                                <div className="w-full">
+                                                    <DatePicker placeholderText="Start Date" selected={field.value} onChange={(date: Date | null) => field.onChange(date ?? undefined)} wrapperClassName="w-full" className="w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none text-sm" />
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Controller
+                                            control={step2Form.control}
+                                            name="availableTo"
+                                            render={({ field }) => (
+                                                <div className="w-full">
+                                                    <DatePicker placeholderText="End Date" selected={field.value} onChange={(date: Date | null) => field.onChange(date ?? undefined)} wrapperClassName="w-full" className="w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none text-sm" />
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 6th Field - Dropdown for Calendar Status */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Open/Close Calendar</label>
+                                <select
+                                    {...step2Form.register("calendarEnabled", {
+                                        setValueAs: (value) => {
+                                            if (value === "true") return true;
+                                            if (value === "false") return false;
+                                            return Boolean(value);
+                                        },
+                                    })}
+                                    className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none"
+                                >
+                                    <option value="true">Open Calendar</option>
+                                    <option value="false">Close Calendar</option>
+                                </select>
                             </div>
                         </div>
 
-                        {/* Amenities */}
-                        {/* <div>
-                            <label className="block text-sm font-medium mb-2">Amenities</label>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 rounded-lg p-3">
-                                {amenitiesList.map((amenity) => (
-                                    <label key={amenity} className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" value={amenity} {...step2Form.register("amenities")} className="hidden" />
-                                        <div className={`w-5 h-5 border rounded-xs border-[#C9A94D] flex items-center justify-center transition-all ${step2Form.watch("amenities")?.includes(amenity) ? "bg-[#14213D]" : "bg-transparent"}`}>{step2Form.watch("amenities")?.includes(amenity) && <div className="w-[14px] h-[14px] bg-[#C9A94D] rounded-xs" />}</div>
-                                        <span>{amenity}</span>
-                                    </label>
-                                ))}
-                            </div>
-                            {step2Form.formState.errors.amenities && <p className="text-red-500 text-sm mt-1">{step2Form.formState.errors.amenities.message}</p>}
-                        </div> */}
                         <div>
                             <label className="block text-sm font-medium mb-4">Amenities</label>
                             <div className="space-y-8">
@@ -620,17 +628,27 @@ const EditPropertyPage = () => {
                                             <X
                                                 className="w-6 h-6 absolute top-3 right-3 text-[#D00000] cursor-pointer"
                                                 onClick={() => {
-                                                    setCoverPreview(existingCoverPhoto);
+                                                    setCoverPreview(existingCoverPhoto ? getImageUrl(existingCoverPhoto) : null);
                                                     step3Form.setValue("coverPhoto", null);
                                                 }}
                                             />
                                         </>
                                     ) : existingCoverPhoto ? (
                                         <>
-                                            <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${existingCoverPhoto}`} alt="Existing Cover" fill className="object-cover rounded-lg" unoptimized />
+                                            <Image
+                                                src={getImageUrl(existingCoverPhoto)}
+                                                alt="Existing Cover"
+                                                fill
+                                                className="object-cover rounded-lg"
+                                                unoptimized
+                                                onError={(e) => {
+                                                    console.error("Failed to load cover image:", existingCoverPhoto);
+                                                    // You can set a fallback image here if needed
+                                                }}
+                                            />
                                             <div className="absolute top-3 right-3 flex gap-2">
                                                 <X
-                                                    className="w-6 h-6 text-[#D00000] cursor-pointer"
+                                                    className="w-6 h-6 text-[#D00000] cursor-pointer bg-white rounded-full p-1"
                                                     onClick={() => {
                                                         setCoverPreview(null);
                                                         setExistingCoverPhoto(null);
@@ -673,9 +691,18 @@ const EditPropertyPage = () => {
                                         <>
                                             {existingPhotos.map((url, i) => (
                                                 <div key={`existing-${i}`} className="w-28 h-28 relative rounded-lg overflow-hidden">
-                                                    <Image src={`${process.env.NEXT_PUBLIC_BASE_API}${url}`} alt={`Existing Photo ${i + 1}`} fill className="object-cover" unoptimized />
+                                                    <Image
+                                                        src={getImageUrl(url)}
+                                                        alt={`Existing Photo ${i + 1}`}
+                                                        fill
+                                                        className="object-cover"
+                                                        unoptimized
+                                                        onError={(e) => {
+                                                            console.error("Failed to load image:", url);
+                                                        }}
+                                                    />
                                                     <X
-                                                        className="w-5 h-5 absolute top-1 right-1 text-[#D00000] cursor-pointer"
+                                                        className="w-5 h-5 absolute top-1 right-1 text-[#D00000] cursor-pointer bg-white rounded-full p-0.5"
                                                         onClick={() => {
                                                             const newExisting = existingPhotos.filter((_, idx) => idx !== i);
                                                             setExistingPhotos(newExisting);
@@ -687,19 +714,23 @@ const EditPropertyPage = () => {
                                                 <div key={`new-${i}`} className="w-28 h-28 relative rounded-lg overflow-hidden">
                                                     <Image src={url} alt={`New Photo ${i + 1}`} fill className="object-cover" unoptimized />
                                                     <X
-                                                        className="w-5 h-5 absolute top-1 right-1 text-[#D00000] cursor-pointer"
+                                                        className="w-5 h-5 absolute top-1 right-1 text-[#D00000] cursor-pointer bg-white rounded-full p-0.5"
                                                         onClick={() => {
                                                             const newPreviews = photosPreview.filter((_, idx) => idx !== i);
-                                                            const newFiles = (step3Form.getValues("photos") as File[]).filter((_, idx) => idx !== i);
                                                             setPhotosPreview(newPreviews);
+
+                                                            const currentFiles = step3Form.getValues("photos") || [];
+                                                            const newFiles = currentFiles.filter((_, idx) => idx !== i);
                                                             step3Form.setValue("photos", newFiles);
+
+                                                            URL.revokeObjectURL(url);
                                                         }}
                                                     />
                                                 </div>
                                             ))}
                                         </>
                                     ) : (
-                                        <p className="text-white">Photos</p>
+                                        <p className="text-white">No photos added yet</p>
                                     )}
                                 </div>
                             </div>
@@ -725,7 +756,7 @@ const EditPropertyPage = () => {
                     <div className="space-y-4 mb-6 border border-[#C9A94D] p-3 md:p-5 rounded-[20px] text-[#C9A94D]">
                         <div className="flex items-center justify-between gap-3 flex-col md:flex-row">
                             <div className="flex gap-5 flex-col md:flex-row">
-                                <div className="relative w-40 h-32 flex items-center justify-center rounded-lg overflow-hidden border border-[#C9A94D] bg-[#2D3546]">{coverPreview || existingCoverPhoto ? <Image src={coverPreview || existingCoverPhoto!} alt="Cover Preview" fill className="object-cover rounded-lg" unoptimized /> : <p className="text-white text-sm">Cover</p>}</div>
+                                <div className="relative w-40 h-32 flex items-center justify-center rounded-lg overflow-hidden border border-[#C9A94D] bg-[#2D3546]">{coverPreview || existingCoverPhoto ? <Image src={coverPreview || getImageUrl(existingCoverPhoto!)} alt="Cover Preview" fill className="object-cover rounded-lg" unoptimized /> : <p className="text-white text-sm">Cover</p>}</div>
                                 <div className="gap-1">
                                     <p className="text-xl font-bold mb-2">Name: {step1Data?.title || property?.title}</p>
                                     <p className="mb-2">Location: {step1Data?.location || property?.location}</p>
@@ -749,6 +780,8 @@ const EditPropertyPage = () => {
                                 <span>{step2Data?.bathrooms || property?.bathrooms || "N/A"} Bathrooms</span>
                             </div>
                         </div>
+
+                        {/* Calendar Status Display */}
 
                         {/* Bank Details */}
                         <div onClick={!accountStatus || accountStatus !== "verified" ? handleConnectStripe : undefined} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe || accountStatus === "verified" ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>

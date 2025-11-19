@@ -620,30 +620,6 @@ export default function PropertyPage2() {
                             )}
                         </div>
 
-                        {/* Location section */}
-                        {/* <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
-                            <h1 className="text-[32px] text-white mb-4 font-bold">Location</h1>
-                            <div className="p-5 bg-[#434D64]">
-                                <div className="mb-6">
-                                    {property.coordinates ? (
-                                        <iframe width="100%" height="300" loading="lazy" style={{ border: 0 }} allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${property.coordinates.lat},${property.coordinates.lng}&hl=es;z=14&output=embed`} />
-                                    ) : (
-                                        <div className="h-[300px] bg-gray-700 flex items-center justify-center">
-                                            <p className="text-white">Location map not available</p>
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <h1 className="text-[32px] text-white mb-4 font-bold">What's nearby</h1>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[18px] text-white">{property.location}</span>
-                                            {property.postCode && <span className="text-[16px] text-gray-300">Post Code: {property.postCode}</span>}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Location</h1>
                             <div className="p-5 bg-[#434D64]">

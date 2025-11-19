@@ -12,6 +12,7 @@ interface DateSelectionWithPriceProps {
         price: number;
         availableFrom: string;
         availableTo: string;
+        calendarEnabled?: boolean;
     };
     onDateSelect?: (dates: DateRange | undefined) => void;
     onGuestNumberChange?: (guestNumber: number) => void;
@@ -71,12 +72,10 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
                 </PopoverContent>
             </Popover>
 
-            <p className="text-xs mt-1">
-                Available: {new Date(property.availableFrom).toLocaleDateString()} - {new Date(property.availableTo).toLocaleDateString()}
-            </p>
+            <p className={`text-xs mt-2 font-medium ${property?.calendarEnabled ? "text-green-600" : "text-red-600"}`}>{property?.calendarEnabled ? "Available for bookings" : "Not available for bookings"}</p>
 
             {/* Guest Number Input */}
-            <div className="mt-4">
+            <div className="mt-3">
                 <p className="mb-2 text-xs">Guests</p>
                 <Input
                     type="number"
