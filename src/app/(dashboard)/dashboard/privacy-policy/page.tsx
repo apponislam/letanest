@@ -122,7 +122,7 @@ const EditPrivacyPolicy = () => {
                         ) : (
                             <>
                                 <div
-                                    className="rich-text-content self-stretch text-justify justify-start md:leading-7 tracking-tight whitespace-pre-line min-h-[200px]"
+                                    className="rich-text-content self-stretch text-justify justify-start md:leading-7 tracking-tight min-h-[200px]"
                                     dangerouslySetInnerHTML={{
                                         __html:
                                             content ||
