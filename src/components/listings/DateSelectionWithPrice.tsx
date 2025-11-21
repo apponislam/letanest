@@ -72,7 +72,7 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
                 </PopoverContent>
             </Popover>
 
-            <p className={`text-xs mt-2 font-medium ${property?.calendarEnabled ? "text-green-600" : "text-red-600"}`}>{property?.calendarEnabled ? "Available for bookings" : "Not available for bookings"}</p>
+            <p className={`text-xs mt-2 font-medium ${property?.calendarEnabled ? "text-green-600" : "text-red-600"}`}>{property?.calendarEnabled ? "Host Accepting Bookings" : " Host Not Accepting Bookings"}</p>
 
             {/* Guest Number Input */}
             <div className="mt-3">

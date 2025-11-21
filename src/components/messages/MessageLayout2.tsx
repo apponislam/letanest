@@ -243,16 +243,19 @@ export default function MessagesLayout2() {
         }
     };
 
+    const [manualPrice, setManualPrice] = useState("");
+
     const handleSendOffer = async () => {
-        if (!selectedProperty || !agreed || !user || !selectedConversation || !date?.from || !date?.to || calculatedPrice === 0) {
+        // Calculate final price - manual price takes priority if both are provided
+        const finalPrice = manualPrice ? parseFloat(manualPrice) : calculatedPrice;
+
+        if (!selectedProperty || !agreed || !user || !selectedConversation || finalPrice === 0) {
             console.warn("⚠️ Cannot send offer - missing requirements:", {
                 selectedProperty,
                 agreed,
                 user: !!user,
                 conversation: !!selectedConversation,
-                dateFrom: !!date?.from,
-                dateTo: !!date?.to,
-                calculatedPrice,
+                finalPrice,
             });
             return;
         }
@@ -260,10 +263,11 @@ export default function MessagesLayout2() {
         try {
             console.log("📤 Sending offer:", {
                 propertyId: selectedProperty,
-                checkInDate: date.from,
-                checkOutDate: date.to,
-                agreedFee: calculatedPrice,
-                nights: Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24)),
+                checkInDate: date?.from,
+                checkOutDate: date?.to,
+                agreedFee: finalPrice,
+                nights: date?.from && date?.to ? Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24)) : null,
+                offerType: manualPrice ? "manual" : "calculated",
             });
 
             await sendMessage({
@@ -271,9 +275,10 @@ export default function MessagesLayout2() {
                 sender: user._id,
                 type: "offer",
                 propertyId: selectedProperty,
-                checkInDate: date.from.toISOString(),
-                checkOutDate: date.to.toISOString(),
-                agreedFee: calculatedPrice.toString(), // Convert to string if your API expects string
+                agreedFee: finalPrice.toString(),
+                // Include dates if available (even for manual offers)
+                ...(date?.from && { checkInDate: date.from.toISOString() }),
+                ...(date?.to && { checkOutDate: date.to.toISOString() }),
             }).unwrap();
 
             console.log("✅ Offer sent successfully");
@@ -284,6 +289,7 @@ export default function MessagesLayout2() {
             setAgreed(false);
             setDate(undefined);
             setCalculatedPrice(0);
+            setManualPrice("");
 
             // Refetch latest data
             setTimeout(() => {
@@ -682,7 +688,7 @@ export default function MessagesLayout2() {
                                                     Make an Offer
                                                 </button>
                                                 {showOfferModal && (
-                                                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]">
+                                                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]  overflow-y-auto">
                                                         <div className="flex justify-between items-center mb-3">
                                                             <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
                                                             <button onClick={() => setShowOfferModal(false)} className="text-gray-500 hover:text-gray-700">
@@ -691,17 +697,17 @@ export default function MessagesLayout2() {
                                                         </div>
 
                                                         {/* Property Selection */}
-                                                        <div className="mb-4">
-                                                            <label className="block text-sm font-medium text-[#14213D] mb-2">Select Property</label>
+                                                        <div className="mb-3">
+                                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Select Property</label>
                                                             {isLoading ? (
-                                                                <div className="text-center py-2">
+                                                                <div className="text-center py-1">
                                                                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                                                                     <span className="text-xs text-gray-600">Loading properties...</span>
                                                                 </div>
                                                             ) : publishedProperties?.data ? (
-                                                                <div className="space-y-2 max-h-20 overflow-y-auto">
+                                                                <div className="space-y-1 max-h-16 overflow-y-auto">
                                                                     {publishedProperties.data.map((property: any) => (
-                                                                        <label key={property._id} className="flex items-center space-x-2 cursor-pointer">
+                                                                        <label key={property._id} className="flex items-center space-x-2 cursor-pointer text-xs">
                                                                             <input
                                                                                 type="radio"
                                                                                 name="property"
@@ -709,20 +715,20 @@ export default function MessagesLayout2() {
                                                                                 checked={selectedProperty === property._id}
                                                                                 onChange={(e) => {
                                                                                     setSelectedProperty(e.target.value);
-                                                                                    // Reset dates when property changes
                                                                                     setDate(undefined);
                                                                                     setCalculatedPrice(0);
+                                                                                    setManualPrice("");
                                                                                 }}
-                                                                                className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]"
+                                                                                className="accent-[#C9A94D] w-3 h-3"
                                                                             />
-                                                                            <span className="text-sm">
-                                                                                Property No: <span className="text-[#C9A94D] font-bold">{property.propertyNumber}</span> - Price: <span className="text-[#C9A94C] font-bold">£{property.price}</span>/night
+                                                                            <span className="text-xs">
+                                                                                Property {property.propertyNumber} - £{property.price}/night
                                                                             </span>
                                                                         </label>
                                                                     ))}
                                                                 </div>
                                                             ) : (
-                                                                <p className="text-sm text-gray-600">No published properties found</p>
+                                                                <p className="text-xs text-gray-600">No properties found</p>
                                                             )}
                                                         </div>
 
@@ -730,20 +736,18 @@ export default function MessagesLayout2() {
                                                         {(() => {
                                                             const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
                                                             const propertyPrice = selectedPropertyData?.price || 0;
-                                                            const availableFrom = selectedPropertyData?.availableFrom ? new Date(selectedPropertyData.availableFrom) : new Date();
-                                                            const availableTo = selectedPropertyData?.availableTo ? new Date(selectedPropertyData.availableTo) : new Date();
 
                                                             return (
                                                                 selectedPropertyData && (
                                                                     <>
                                                                         {/* Date Range Picker */}
-                                                                        <div className="space-y-3 mb-4">
+                                                                        <div className="space-y-2 mb-3">
                                                                             <div>
-                                                                                <label className="block text-sm font-medium text-[#14213D] mb-2">Select Dates</label>
+                                                                                <label className="block text-sm font-medium text-[#14213D] mb-1">Select Dates</label>
                                                                                 <Popover>
                                                                                     <PopoverTrigger asChild>
-                                                                                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal border-[#C9A94D] hover:bg-[#C9A94D]/10", !date && "text-muted-foreground")}>
-                                                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal border-[#C9A94D] hover:bg-[#C9A94D]/10 text-xs h-8", !date && "text-muted-foreground")}>
+                                                                                            <CalendarIcon className="mr-2 h-3 w-3" />
                                                                                             {date?.from ? (
                                                                                                 date.to ? (
                                                                                                     <>
@@ -753,7 +757,7 @@ export default function MessagesLayout2() {
                                                                                                     format(date.from, "LLL dd, y")
                                                                                                 )
                                                                                             ) : (
-                                                                                                <span>Pick a date range</span>
+                                                                                                <span>Pick dates</span>
                                                                                             )}
                                                                                         </Button>
                                                                                     </PopoverTrigger>
@@ -766,34 +770,34 @@ export default function MessagesLayout2() {
                                                                                             onSelect={(newDate) => {
                                                                                                 setDate(newDate);
                                                                                                 if (newDate?.from && newDate?.to) {
-                                                                                                    const nights = Math.ceil((newDate.to.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                                    // FIXED: Add +1 day to checkout for correct night calculation
+                                                                                                    const checkoutDate = new Date(newDate.to);
+                                                                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
+                                                                                                    const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
                                                                                                     setCalculatedPrice(nights * propertyPrice);
                                                                                                 } else {
                                                                                                     setCalculatedPrice(0);
                                                                                                 }
                                                                                             }}
                                                                                             numberOfMonths={2}
-                                                                                            // disabled={(day) => {
-                                                                                            //     return day < new Date(day.setHours(0, 0, 0, 0)) || day < availableFrom || day > availableTo;
-                                                                                            // }}
                                                                                         />
                                                                                     </PopoverContent>
                                                                                 </Popover>
-                                                                                <p className="text-xs text-gray-500 mt-2">
-                                                                                    Available: {availableFrom.toLocaleDateString()} - {availableTo.toLocaleDateString()}
-                                                                                </p>
                                                                             </div>
 
                                                                             {/* Price Calculation Display */}
                                                                             {calculatedPrice > 0 && date?.from && date?.to && (
-                                                                                <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-3">
-                                                                                    <div className="flex justify-between items-center text-sm">
-                                                                                        <span className="text-[#14213D] font-medium">Your Offer:</span>
-                                                                                        <span className="text-[#C9A94D] font-bold text-lg">£{calculatedPrice}</span>
+                                                                                <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-2">
+                                                                                    <div className="flex justify-between items-center text-xs">
+                                                                                        <span className="text-[#14213D] font-medium">Calculated Price:</span>
+                                                                                        <span className="text-[#C9A94D] font-bold">£{calculatedPrice}</span>
                                                                                     </div>
                                                                                     <div className="text-xs text-gray-600 mt-1">
                                                                                         {(() => {
-                                                                                            const nights = Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                            // FIXED: Add +1 day to checkout for correct night calculation
+                                                                                            const checkoutDate = new Date(date.to);
+                                                                                            checkoutDate.setDate(checkoutDate.getDate() + 1);
+                                                                                            const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
                                                                                             return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
                                                                                         })()}
                                                                                     </div>
@@ -803,6 +807,26 @@ export default function MessagesLayout2() {
                                                                                 </div>
                                                                             )}
                                                                         </div>
+
+                                                                        {/* Manual Price Input */}
+                                                                        <div className="mb-3">
+                                                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Or Enter Manual Price</label>
+                                                                            <div className="relative">
+                                                                                <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs">£</span>
+                                                                                <input type="number" value={manualPrice} onChange={(e) => setManualPrice(e.target.value)} placeholder="Custom amount" className="w-full pl-6 pr-2 py-1 border border-[#C9A94D] rounded text-xs" min="0" step="0.01" />
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Final Offer Display */}
+                                                                        {(calculatedPrice > 0 || manualPrice) && (
+                                                                            <div className="bg-[#14213D] text-white rounded-lg p-2 mb-3">
+                                                                                <div className="flex justify-between items-center text-xs">
+                                                                                    <span className="font-medium">Final Offer:</span>
+                                                                                    <span className="font-bold">£{manualPrice ? parseFloat(manualPrice).toLocaleString() : calculatedPrice}</span>
+                                                                                </div>
+                                                                                <div className="text-xs text-gray-300 mt-1">{manualPrice ? "Custom offer" : "Based on selected dates"}</div>
+                                                                            </div>
+                                                                        )}
                                                                     </>
                                                                 )
                                                             );
@@ -810,9 +834,9 @@ export default function MessagesLayout2() {
 
                                                         {/* ✅ Agree to T&Cs */}
                                                         <div className="flex items-center gap-2 mb-3">
-                                                            <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-4 h-4 focus:ring-[#C9A94D]" />
-                                                            <label htmlFor="agree" className="text-sm text-gray-700 cursor-pointer select-none">
-                                                                I agree to the{" "}
+                                                            <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-3 h-3" />
+                                                            <label htmlFor="agree" className="text-xs text-gray-700 cursor-pointer">
+                                                                I agree to{" "}
                                                                 <Link href="/terms-of-conditions" target="_blank" className="text-[#C9A94D] hover:underline">
                                                                     T&Cs
                                                                 </Link>
@@ -821,7 +845,7 @@ export default function MessagesLayout2() {
 
                                                         {/* Action Buttons */}
                                                         <div className="flex gap-2">
-                                                            <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || !date?.from || !date?.to || calculatedPrice === 0} className="flex-1 bg-[#14213D] text-white py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                                                            <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
                                                                 Send Offer
                                                             </button>
                                                             <button
@@ -831,8 +855,9 @@ export default function MessagesLayout2() {
                                                                     setAgreed(false);
                                                                     setDate(undefined);
                                                                     setCalculatedPrice(0);
+                                                                    setManualPrice("");
                                                                 }}
-                                                                className="px-4 py-2 border border-gray-300 rounded-lg text-[#14213D] text-sm"
+                                                                className="px-3 py-1 border border-gray-300 rounded text-xs text-[#14213D]"
                                                             >
                                                                 Cancel
                                                             </button>
@@ -1219,11 +1244,11 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             return `${day}/${month}/${year}`;
         };
 
-        const calculateTotal = () => {
-            const agreedFee = parseFloat(message.agreedFee) || 0;
-            const bookingFee = parseFloat(message.bookingFee) || 0;
-            return (agreedFee + bookingFee).toFixed(2);
-        };
+        // const calculateTotal = () => {
+        //     const agreedFee = parseFloat(message.agreedFee) || 0;
+        //     const bookingFee = parseFloat(message.bookingFee) || 0;
+        //     return (agreedFee + bookingFee).toFixed(2);
+        // };
 
         // const totalAmount = message.total || calculateTotal();
 
@@ -1235,7 +1260,11 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
 
-            const timeDiff = checkOut.getTime() - checkIn.getTime();
+            // FIXED: Add +1 day to checkout date for correct night calculation
+            const adjustedCheckOut = new Date(checkOut);
+            adjustedCheckOut.setDate(adjustedCheckOut.getDate() + 1);
+
+            const timeDiff = adjustedCheckOut.getTime() - checkIn.getTime();
             const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;

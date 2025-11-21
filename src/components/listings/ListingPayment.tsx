@@ -204,7 +204,7 @@ const ListingPayment = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center mb-6 items-stretch max-w-[966px] mx-auto">
                             <div className="bg-[#2D3546] py-3 md:py-5 px-4 md:px-14 rounded-[12px]">
                                 <h1 className="font-bold text-center mb-2 text-[18px]">
-                                    {isBookingFeePaid ? "Complete Payment" : "Booking Fee"} {!isBookingFeePaid && <span className="text-sm text-yellow-400">(Pay booking fee first)</span>}
+                                    {isBookingFeePaid ? "Complete Payment" : "Booking Fee"} {!isBookingFeePaid && <span className="text-sm text-yellow-400">(Pay to Proceed with Booking)</span>}
                                 </h1>
                                 <div className="flex items-center justify-center mb-2">
                                     <Image alt="Property id" src="/listing/pay/home-roof.png" height={24} width={24}></Image>

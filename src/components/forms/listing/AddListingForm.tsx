@@ -1757,22 +1757,6 @@ const AddListingForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Calendar Status Display */}
-                    {/* <div className="flex items-center gap-2">
-                        <Image src="/listing/add/calendar.png" alt="Calendar" width={24} height={24} />
-                        <span>Calendar: {step2Data?.calendarEnabled ? "Open (Available for bookings)" : "Closed (Not available for bookings)"}</span>
-                    </div> */}
-
-                    {/* Date Range Display - Only show when calendar is enabled */}
-                    {/* {step2Data?.calendarEnabled && step2Data?.availableFrom && step2Data?.availableTo && (
-                        <div className="flex items-center gap-2">
-                            <Image src="/listing/add/calendar-range.png" alt="Calendar Range" width={24} height={24} />
-                            <span>
-                                Available: {step2Data.availableFrom.toLocaleDateString()} - {step2Data.availableTo.toLocaleDateString()}
-                            </span>
-                        </div>
-                    )} */}
-
                     <BankDetailsModal></BankDetailsModal>
                     <div onClick={!accountStatus || accountStatus !== "verified" ? handleConnectStripe : undefined} className={`flex items-center gap-2 cursor-pointer transition ${isConnectingStripe || accountStatus === "verified" ? "opacity-60 pointer-events-none" : "hover:text-[#C9A94D]"}`}>
                         <Image src="/listing/add/plus-circle.png" alt="Set Up Stripe Account" width={24} height={24} />
