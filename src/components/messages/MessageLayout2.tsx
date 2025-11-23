@@ -1370,7 +1370,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     {user?._id === message.propertyId?.createdBy?._id ? null : !message?.bookingFeePaid ? ( // Property Owner - Show nothing // Guest
                         <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
                     ) : (
-                        <p className="text-center mt-1 text-[9px]">Last one last step — pay the host and your nest for your next stay is all yours!</p>
+                        <p className="text-center mt-1 text-[9px]">One last step — pay the host and your nest for your next stay is all yours!</p>
                     )}
                 </div>
                 {isMe &&
