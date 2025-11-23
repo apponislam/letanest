@@ -340,11 +340,13 @@ export default function PropertyPage2() {
         return `${process.env.NEXT_PUBLIC_BASE_API || ""}${imagePath}`;
     };
 
-    const calculateTotalPrice = (dates: any, pricePerNight: any) => {
-        if (!dates?.from || !dates?.to) return pricePerNight;
-        const days = differenceInDays(dates.to, dates.from) + 1;
-        return days * pricePerNight;
-    };
+    // const calculateTotalPrice = (dates: any, pricePerNight: any) => {
+    //     if (!dates?.from || !dates?.to) return pricePerNight;
+    //     const days = differenceInDays(dates.to, dates.from) + 1;
+    //     return days * pricePerNight;
+    // };
+
+    // console.log(property);
 
     return (
         <div className="container mx-auto py-10">
@@ -502,7 +504,7 @@ export default function PropertyPage2() {
                                 <h1 className="text-[32px] text-white mb-4 font-bold">Meet The Host</h1>
                                 <div className="flex md:items-center gap-6 md:gap-12 flex-col md:flex-row">
                                     <div className="flex items-center gap-5">
-                                        <Image
+                                        {/* <Image
                                             src={property?.createdBy?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${property.createdBy.profileImg}` : "/listing/avatar.jpg"}
                                             alt="Host"
                                             height={100}
@@ -511,7 +513,33 @@ export default function PropertyPage2() {
                                             onError={(e) => {
                                                 (e.target as HTMLImageElement).src = "/listing/avatar.jpg";
                                             }}
-                                        />
+                                        /> */}
+                                        <div className="flex items-center gap-5">
+                                            <div className="relative">
+                                                {property?.createdBy?.profileImg ? (
+                                                    <>
+                                                        <Image
+                                                            src={`${process.env.NEXT_PUBLIC_BASE_API}${property.createdBy.profileImg}`}
+                                                            alt="Host"
+                                                            height={100}
+                                                            width={100}
+                                                            className={`object-cover w-[100px] h-[100px] rounded-full border-2 ${property?.createdBy?.isVerifiedByAdmin ? "border-green-500" : "border-white"}`}
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = "none";
+                                                            }}
+                                                        />
+                                                        {property?.createdBy?.name && (
+                                                            <div className="absolute top-0 left-0 hidden">
+                                                                <Avatar name={property.createdBy.name} size={100} className="border-2" isVerified={property?.createdBy?.isVerifiedByAdmin} />
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <Avatar name={property?.createdBy?.name || "Host"} size={100} className="border-2" isVerified={property?.createdBy?.isVerifiedByAdmin} />
+                                                )}
+                                                {property?.createdBy?.isVerifiedByAdmin && <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-1 rounded-[4px] whitespace-nowrap text-sm">verified</div>}
+                                            </div>
+                                        </div>
                                         <div>
                                             {/* Host Info */}
                                             <p className="text-2xl text-white">{property.createdBy.name?.split(/\s+/)[0] || "Host"}</p>
@@ -560,7 +588,10 @@ export default function PropertyPage2() {
                                             ) : (
                                                 <>
                                                     <MessagesSquare className="md:h-6 md:w-6 h-5 w-5" />
-                                                    Chat with Host
+                                                    <div>
+                                                        Chat with Host
+                                                        <p className="text-xs text-[#14213D]">Got questions before booking?</p>
+                                                    </div>
                                                 </>
                                             )}
                                         </button>
@@ -754,3 +785,26 @@ export default function PropertyPage2() {
         </div>
     );
 }
+
+const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
+    const getInitials = (fullName: string) => {
+        return fullName
+            .split(" ")
+            .map((part) => part.charAt(0))
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
+    const getBackgroundColor = (fullName: string) => {
+        const colors = ["bg-[#C9A94D]", "bg-[#14213D]", "bg-[#9399A6]", "bg-[#434D64]", "bg-[#B89A45]", "bg-[#080E1A]"];
+        const index = fullName.length % colors.length;
+        return colors[index];
+    };
+
+    return (
+        <div className={`rounded-full border-2 flex items-center justify-center text-white font-semibold ${getBackgroundColor(name)} ${className} ${isVerified ? "border-green-500" : "border-white"}`} style={{ width: size, height: size }}>
+            {getInitials(name)}
+        </div>
+    );
+};

@@ -2,7 +2,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, X } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -20,12 +20,32 @@ interface DateSelectionWithPriceProps {
 
 const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }: DateSelectionWithPriceProps) => {
     const [selectedDate, setSelectedDate] = useState<DateRange | undefined>();
+    const [tempDate, setTempDate] = useState<DateRange | undefined>();
     const [guestNumber, setGuestNumber] = useState<number>(1);
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleDateSelect = (date: DateRange | undefined) => {
-        setSelectedDate(date);
+        setTempDate(date);
+    };
+
+    const handleConfirmDates = () => {
+        setSelectedDate(tempDate);
+        setIsOpen(false);
         if (onDateSelect) {
-            onDateSelect(date);
+            onDateSelect(tempDate);
+        }
+    };
+
+    const handleCancelSelection = () => {
+        setTempDate(selectedDate);
+        setIsOpen(false);
+    };
+
+    const handleClearDates = () => {
+        setSelectedDate(undefined);
+        setTempDate(undefined);
+        if (onDateSelect) {
+            onDateSelect(undefined);
         }
     };
 
@@ -39,40 +59,68 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
 
     const calculateTotalPrice = () => {
         if (!selectedDate?.from || !selectedDate?.to) return 0;
-        const days = differenceInDays(selectedDate.to, selectedDate.from) + 1;
-        return days * property.price;
+        const nights = differenceInDays(selectedDate.to, selectedDate.from) + 1;
+        return nights * property.price;
     };
 
     const getNumberOfNights = () => {
         if (!selectedDate?.from || !selectedDate?.to) return 0;
-        return differenceInDays(selectedDate.to, selectedDate.from);
+        return differenceInDays(selectedDate.to, selectedDate.from) + 1;
+    };
+
+    const formatDateRange = (date: DateRange | undefined) => {
+        if (!date?.from) return "Pick your dates";
+        if (!date?.to) return format(date.from, "LLL dd, y");
+        return `${format(date.from, "LLL dd, y")} - ${format(date.to, "LLL dd, y")}`;
     };
 
     return (
         <div className="mb-6">
             <p className="text-sm font-bold mb-2">Select Dates</p>
 
-            <Popover>
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
                 <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate?.from ? (selectedDate.to ? `${format(selectedDate.from, "LLL dd, y")} - ${format(selectedDate.to, "LLL dd, y")}` : format(selectedDate.from, "LLL dd, y")) : "Pick your dates"}
+                        {formatDateRange(selectedDate)}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        mode="range"
-                        selected={selectedDate}
-                        onSelect={handleDateSelect}
-                        // disabled={{
-                        //     before: new Date(property.availableFrom),
-                        //     after: new Date(property.availableTo),
-                        // }}
-                    />
+                    <div className="flex flex-col">
+                        <Calendar
+                            mode="range"
+                            selected={tempDate}
+                            onSelect={handleDateSelect}
+                            numberOfMonths={1}
+                            // disabled={{
+                            //     before: new Date(property.availableFrom),
+                            //     after: new Date(property.availableTo),
+                            // }}
+                        />
+                        <div className="flex justify-end gap-2 p-3 border-t">
+                            <Button variant="outline" size="sm" onClick={handleCancelSelection}>
+                                <X className="h-4 w-4 mr-1" />
+                                Cancel
+                            </Button>
+                            <Button size="sm" onClick={handleConfirmDates} disabled={!tempDate?.from || !tempDate?.to}>
+                                <Check className="h-4 w-4 mr-1" />
+                                Confirm
+                            </Button>
+                        </div>
+                    </div>
                 </PopoverContent>
             </Popover>
 
-            <p className={`text-xs mt-2 font-medium ${property?.calendarEnabled ? "text-green-600" : "text-red-600"}`}>{property?.calendarEnabled ? "Host Accepting Bookings" : " Host Not Accepting Bookings"}</p>
+            {selectedDate && (
+                <div className="mt-2 flex items-center justify-between">
+                    <span className="text-sm text-green-600">✓ Dates selected</span>
+                    <Button variant="ghost" size="sm" onClick={handleClearDates} className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50">
+                        Clear
+                    </Button>
+                </div>
+            )}
+
+            <p className={`text-xs mt-2 font-medium ${property?.calendarEnabled ? "text-green-600" : "text-red-600"}`}>{property?.calendarEnabled ? "Host Accepting Bookings" : "Host Not Accepting Bookings"}</p>
 
             {/* Guest Number Input */}
             <div className="mt-3">
