@@ -1011,7 +1011,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
     };
 
     // Make offer to request
-    // Make offer to request
     const [convertMakeOfferToRequest, { isLoading: isConvertingToRequest }] = useConvertMakeOfferToRequestMutation();
     const [checkInDate, setCheckInDate] = useState("");
     const [checkOutDate, setCheckOutDate] = useState("");
@@ -1041,6 +1040,29 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         setGuestNo(value);
     };
 
+    // const getNumberOfNights = () => {
+    //     if (!checkInDate || !checkOutDate) return 0;
+    //     const checkIn = new Date(checkInDate);
+    //     const checkOut = new Date(checkOutDate);
+    //     const timeDiff = checkOut.getTime() - checkIn.getTime();
+    //     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    // };
+
+    const [tempDate, setTempDate] = useState<DateRange | undefined>();
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const propertyPrice = message.propertyId?.price || 100;
+
+    const getNumberOfNights = () => {
+        if (!checkInDate || !checkOutDate) return 0;
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        const timeDiff = checkOut.getTime() - checkIn.getTime();
+        const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+        return nights;
+    };
+
+    const nights = getNumberOfNights();
+
     const calculatePrice = () => {
         if (!checkInDate || !checkOutDate) {
             console.log("❌ Missing dates:", { checkInDate, checkOutDate });
@@ -1056,7 +1078,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         }
 
         const timeDiff = checkOut.getTime() - checkIn.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
 
         const propertyPrice = message.propertyId?.price || 100;
 
@@ -1076,12 +1098,24 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         return totalPrice;
     };
 
-    const getNumberOfNights = () => {
-        if (!checkInDate || !checkOutDate) return 0;
-        const checkIn = new Date(checkInDate);
-        const checkOut = new Date(checkOutDate);
-        const timeDiff = checkOut.getTime() - checkIn.getTime();
-        return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    const handleDateSelect = (dates: DateRange | undefined) => {
+        setTempDate(dates);
+    };
+
+    const handleConfirmDates = () => {
+        if (tempDate?.from && tempDate?.to) {
+            handleDateChange("checkInDate", format(tempDate.from, "yyyy-MM-dd"));
+            handleDateChange("checkOutDate", format(tempDate.to, "yyyy-MM-dd"));
+            setIsCalendarOpen(false);
+
+            // CORRECT PRICE CALCULATION
+            const checkIn = new Date(tempDate.from);
+            const checkOut = new Date(tempDate.to);
+            const timeDiff = checkOut.getTime() - checkIn.getTime();
+            const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+            const totalPrice = nights * propertyPrice;
+            setAgreedFee(totalPrice);
+        }
     };
 
     const handleRequestAvailability = async () => {
@@ -1160,6 +1194,79 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         );
     }
 
+    // if (message.type === "makeoffer") {
+    //     const isPropertyOwner = user?._id === message.propertyId?.createdBy?._id;
+
+    //     // If property owner, show waiting message
+    //     if (isPropertyOwner) {
+    //         return (
+    //             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+    //                 {!isMe && <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />}
+    //                 <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+    //                     <p className="font-semibold text-sm text-center">Availability Request</p>
+    //                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+    //                     <p className="text-center text-[12px] mb-3">Waiting for guest to send availability request...</p>
+    //                 </div>
+    //                 {isMe && <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />}
+    //             </div>
+    //         );
+    //     }
+
+    //     // If guest, show the input form - USING YOUR ORIGINAL WORKING SYSTEM
+    //     const nights = getNumberOfNights();
+    //     const propertyPrice = message.propertyId?.price || 100;
+
+    //     return (
+    //         <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+    //             {!isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="mr-2" />}
+    //             <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+    //                 <p className="font-semibold text-sm text-center">Request Availability</p>
+    //                 <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+
+    //                 <p className="text-center text-[12px] mb-2">Requested Dates</p>
+
+    //                 {/* KEEP YOUR ORIGINAL DATE INPUTS THAT WORK */}
+    //                 <div className="grid grid-cols-2 gap-2 mb-3">
+    //                     <div>
+    //                         <label className="block text-[10px] font-medium mb-1">Check In</label>
+    //                         <input type="date" value={checkInDate} onChange={(e) => handleDateChange("checkInDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={new Date().toISOString().split("T")[0]} />
+    //                     </div>
+    //                     <div>
+    //                         <label className="block text-[10px] font-medium mb-1">Check Out</label>
+    //                         <input type="date" value={checkOutDate} onChange={(e) => handleDateChange("checkOutDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={checkInDate || new Date().toISOString().split("T")[0]} />
+    //                     </div>
+    //                 </div>
+
+    //                 <div className="mb-3">
+    //                     <label className="block text-[10px] font-medium mb-1">Guests</label>
+    //                     <input type="number" min="1" value={guestNo} onChange={(e) => handleGuestChange(e.target.value)} className="w-full p-1 border border-black text-[10px]" placeholder="Number of guests" />
+    //                 </div>
+
+    //                 {/* Price Display */}
+    //                 {nights > 0 && agreedFee > 0 && (
+    //                     <div className="bg-yellow-50 p-2 border border-yellow-200 rounded mb-3">
+    //                         <div className="flex justify-between text-[10px]">
+    //                             <span>Estimated Price:</span>
+    //                             <span className="font-bold">£{agreedFee}</span>
+    //                         </div>
+    //                         <div className="flex justify-between text-[9px] text-gray-600">
+    //                             <span>
+    //                                 {nights} night{nights !== 1 ? "s" : ""} × £{propertyPrice}
+    //                             </span>
+    //                         </div>
+    //                     </div>
+    //                 )}
+
+    //                 <div className="flex justify-center mt-3">
+    //                     <button onClick={handleRequestAvailability} disabled={isConvertingToRequest || !checkInDate || !checkOutDate || !guestNo} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+    //                         {isConvertingToRequest ? "Sending..." : "Request Availability"}
+    //                     </button>
+    //                 </div>
+    //             </div>
+    //             {isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="ml-2" />}
+    //         </div>
+    //     );
+    // }
     if (message.type === "makeoffer") {
         const isPropertyOwner = user?._id === message.propertyId?.createdBy?._id;
 
@@ -1178,49 +1285,60 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             );
         }
 
-        // If guest, show the input form
-        const nights = getNumberOfNights();
+        // If guest, show the input form with shadcn calendar
         const propertyPrice = message.propertyId?.price || 100;
+
+        // State for calendar
 
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 {!isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="mr-2" />}
-                <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+                <div className="bg-[#D4BA71] p-3 border-2 border-black w-80">
                     <p className="font-semibold text-sm text-center">Request Availability</p>
                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
 
-                    <p className="text-center text-[12px] mb-2">Requested Dates</p>
+                    {/* Date Picker with Confirm Button */}
+                    <div className="mb-3">
+                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                            <PopoverTrigger asChild>
+                                <button className="w-full p-2 border border-black bg-white text-left text-[12px] flex items-center justify-between">
+                                    <span>{checkInDate && checkOutDate ? `${format(new Date(checkInDate), "MMM dd")} - ${format(new Date(checkOutDate), "MMM dd")}` : "Select dates"}</span>
+                                    <CalendarIcon className="h-4 w-4" />
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <div className="flex flex-col">
+                                    <Calendar mode="range" selected={tempDate} onSelect={handleDateSelect} numberOfMonths={1} className="rounded-md border" />
+                                    <div className="flex justify-end gap-2 p-3 border-t">
+                                        <Button variant="outline" size="sm" onClick={() => setIsCalendarOpen(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button size="sm" onClick={handleConfirmDates} disabled={!tempDate?.from || !tempDate?.to}>
+                                            Confirm
+                                        </Button>
+                                    </div>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
 
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div>
-                            <label className="block text-[10px] font-medium mb-1">Check In</label>
-                            <input type="date" value={checkInDate} onChange={(e) => handleDateChange("checkInDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={new Date().toISOString().split("T")[0]} />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-medium mb-1">Check Out</label>
-                            <input type="date" value={checkOutDate} onChange={(e) => handleDateChange("checkOutDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={checkInDate || new Date().toISOString().split("T")[0]} />
-                        </div>
+                        {/* Show selected dates summary */}
+                        {checkInDate && checkOutDate && (
+                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                                <div className="flex justify-between text-[10px]">
+                                    <span>
+                                        {nights} nights × £{propertyPrice}
+                                    </span>
+                                    <span className="font-bold">£{agreedFee}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
+                    {/* Guest Input */}
                     <div className="mb-3">
                         <label className="block text-[10px] font-medium mb-1">Guests</label>
-                        <input type="number" min="1" value={guestNo} onChange={(e) => handleGuestChange(e.target.value)} className="w-full p-1 border border-black text-[10px]" placeholder="Number of guests" />
+                        <input type="number" min="1" value={guestNo} onChange={(e) => handleGuestChange(e.target.value)} className="w-full p-2 border border-black text-[12px]" placeholder="Number of guests" />
                     </div>
-
-                    {/* Price Display */}
-                    {nights > 0 && agreedFee > 0 && (
-                        <div className="bg-yellow-50 p-2 border border-yellow-200 rounded mb-3">
-                            <div className="flex justify-between text-[10px]">
-                                <span>Estimated Price:</span>
-                                <span className="font-bold">£{agreedFee}</span>
-                            </div>
-                            <div className="flex justify-between text-[9px] text-gray-600">
-                                <span>
-                                    {nights} night{nights !== 1 ? "s" : ""} × £{propertyPrice}
-                                </span>
-                            </div>
-                        </div>
-                    )}
 
                     <div className="flex justify-center mt-3">
                         <button onClick={handleRequestAvailability} disabled={isConvertingToRequest || !checkInDate || !checkOutDate || !guestNo} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1416,7 +1534,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
 
             const timeDiff = checkOut.getTime() - checkIn.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
 
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };
