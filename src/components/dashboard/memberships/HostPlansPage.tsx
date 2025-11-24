@@ -11,10 +11,7 @@ const HostPlansPage = () => {
     const [createCheckoutSession, { isLoading: isCreatingCheckout }] = useCreateCheckoutSessionMutation();
     const [activateFreeTier, { isLoading: isActivatingFreeTier }] = useActivateFreeTierMutation();
     const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
-
-    // Type assertion to handle the actual response structure
     const userSubscriptionsData = (userSubscribedResponse as any)?.data;
-
     const formatPrice = (cost: number, currency: string, billingPeriod: string) => {
         const currencySymbol = currency === "gbp" ? "£" : currency === "usd" ? "$" : currency === "eur" ? "€" : currency;
         const period = billingPeriod === "monthly" ? "/month" : billingPeriod === "annual" ? "/year" : "";
@@ -53,27 +50,17 @@ const HostPlansPage = () => {
     // Get subscription status for a specific plan
     const getSubscriptionStatus = (planId: string) => {
         if (!userSubscriptionsData?.subscriptions) return null;
-
         const userSubscription = userSubscriptionsData.subscriptions.find((sub: any) => {
             const subscriptionData = sub.subscription;
-            // Add null check for subscriptionData
             if (!subscriptionData) return false;
-
             const subscriptionId = subscriptionData.subscription;
-            // Add null check for subscriptionId
             if (!subscriptionId) return false;
-
             return subscriptionId === planId;
         });
-
         if (!userSubscription) return null;
-
         const subscriptionData = userSubscription.subscription;
-        // Add null check for subscriptionData and its properties
         if (!subscriptionData || !subscriptionData.status || !subscriptionData.currentPeriodEnd) return null;
-
         const isActive = subscriptionData.status === "active" && new Date(subscriptionData.currentPeriodEnd) > new Date();
-
         return {
             status: subscriptionData.status,
             currentPeriodEnd: subscriptionData.currentPeriodEnd,
@@ -83,21 +70,13 @@ const HostPlansPage = () => {
 
     const handleSubscribe = async (plan: ISubscription) => {
         try {
-            // For free tiers, handle differently
             if (plan.cost === 0 || plan.paymentLink.startsWith("free-tier-")) {
-                console.log("Free tier selected:", plan.name);
-
-                // Activate free tier
                 try {
                     const result = await activateFreeTier({
                         subscriptionId: plan._id!,
                     }).unwrap();
-
-                    console.log(result);
-
                     if (result.success) {
                         console.log("Free tier activated successfully:", result.data);
-                        // Redirect to the free tier success page
                         window.location.href = `/${plan.paymentLink}`;
                     } else {
                         alert(result.message || "Failed to activate free tier");
@@ -108,18 +87,12 @@ const HostPlansPage = () => {
                 }
                 return;
             }
-
-            // For paid subscriptions, create checkout session
             const result = await createCheckoutSession({
                 subscriptionId: plan._id!,
             }).unwrap();
-
-            // Redirect to Stripe checkout
             window.location.href = result.data.url;
         } catch (error: any) {
             console.error("Failed to create checkout session:", error);
-            // Handle error (show toast, etc.)
-            alert(error?.data?.message || "Failed to process subscription");
         }
     };
 
@@ -140,8 +113,6 @@ const HostPlansPage = () => {
     }
 
     const plans = hostSubscriptions || [];
-
-    console.log(plans);
 
     return (
         <div>
@@ -211,89 +182,13 @@ const HostPlansPage = () => {
                                             )}
                                         </div>
                                     </div>
-
-                                    {/* Conditional Button */}
-                                    {/* {isSubscribed ? (
-                                    <div className="text-center">
-                                        <button className="bg-[#C9A94D] text-white font-bold py-3 rounded-lg border border-[#C9A94D] w-full cursor-default" disabled>
-                                            Currently Active
-                                        </button>
-                                        {subscriptionStatus?.currentPeriodEnd && <p className="text-xs mt-2 text-gray-400">Renews on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}</p>}
-                                    </div>
-                                ) : userSubscriptionsData?.freeTireUsed && userSubscriptionsData?.freeTireExpiry && new Date(userSubscriptionsData.freeTireExpiry) > new Date() && plan.cost === 0 ? (
-                                    <div className="text-center">
-                                        <button className="bg-[#C9A94D] text-white font-bold py-3 rounded-lg border border-[#C9A94D] w-full cursor-default" disabled>
-                                            Free Tier Active
-                                        </button>
-                                        {userSubscriptionsData.freeTireExpiry && <p className="text-xs mt-2 text-gray-400">Expires on {new Date(userSubscriptionsData.freeTireExpiry).toLocaleDateString()}</p>}
-                                    </div>
-                                ) : subscriptionStatus ? (
-                                    <button className="bg-gray-600 text-gray-300 font-bold py-3 rounded-lg border border-gray-600 w-full cursor-not-allowed" disabled>
-                                        {subscriptionStatus.status === "canceled" ? "Subscription Canceled" : "Subscription Expired"}
-                                    </button>
-                                ) : (
-                                    <button className={`bg-transparent text-[#C9A94D] font-bold py-3 rounded-lg transition-all border border-[#C9A94D] ${plan.cost === 0 ? "hover:bg-[#C9A94D] hover:text-white" : "hover:bg-[#C9A94D] hover:text-white"} ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`} onClick={() => handleSubscribe(plan)} disabled={isProcessing}>
-                                        {isProcessing ? (
-                                            <div className="flex items-center justify-center gap-2">
-                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                                {isActivatingFreeTier ? "Activating..." : "Processing..."}
-                                            </div>
-                                        ) : plan.cost === 0 ? (
-                                            "Get Started Free"
-                                        ) : (
-                                            "Subscribe Now"
-                                        )}
-                                    </button>
-                                )} */}
-                                    {/* {isSubscribed ? (
-                                    // --- Active Paid Subscription ---
-                                    <div className="text-center">
-                                        <button className="bg-[#C9A94D] text-white font-bold py-3 rounded-lg border border-[#C9A94D] w-full cursor-default" disabled>
-                                            Currently Active
-                                        </button>
-                                        {subscriptionStatus?.currentPeriodEnd && <p className="text-xs mt-2 text-gray-400">Renews on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}</p>}
-                                    </div>
-                                ) : userSubscriptionsData?.freeTireUsed && userSubscriptionsData?.freeTireExpiry && new Date(userSubscriptionsData.freeTireExpiry) > new Date() && plan.cost === 0 ? (
-                                    // --- Free Tier Active ---
-                                    <div className="text-center">
-                                        <button className="bg-[#C9A94D] text-white font-bold py-3 rounded-lg border border-[#C9A94D] w-full cursor-default" disabled>
-                                            Free Tier Active
-                                        </button>
-                                        <p className="text-xs mt-2 text-gray-400">Expires on {new Date(userSubscriptionsData.freeTireExpiry).toLocaleDateString()}</p>
-                                    </div>
-                                ) : userSubscriptionsData?.freeTireUsed && userSubscriptionsData?.freeTireExpiry && new Date(userSubscriptionsData.freeTireExpiry) <= new Date() && plan.cost === 0 ? (
-                                    // --- Free Tier Expired ---
-                                    <div className="text-center">
-                                        <button className="bg-gray-600 text-gray-300 font-bold py-3 rounded-lg border border-gray-600 w-full cursor-not-allowed" disabled>
-                                            Free Tier Expired
-                                        </button>
-                                    </div>
-                                ) : subscriptionStatus ? (
-                                    // --- Paid Subscription Canceled or Expired ---
-                                    <button className="bg-gray-600 text-gray-300 font-bold py-3 rounded-lg border border-gray-600 w-full cursor-not-allowed" disabled>
-                                        {subscriptionStatus.status === "canceled" ? "Subscription Canceled" : "Subscription Expired"}
-                                    </button>
-                                ) : (
-                                    // --- Available to Subscribe or Activate Free Tier ---
-                                    <button className={`bg-transparent text-[#C9A94D] font-bold py-3 rounded-lg transition-all border border-[#C9A94D] ${plan.cost === 0 ? "hover:bg-[#C9A94D] hover:text-white" : "hover:bg-[#C9A94D] hover:text-white"} ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`} onClick={() => handleSubscribe(plan)} disabled={isProcessing}>
-                                        {isProcessing ? (
-                                            <div className="flex items-center justify-center gap-2">
-                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                                {isActivatingFreeTier ? "Activating..." : "Processing..."}
-                                            </div>
-                                        ) : plan.cost === 0 ? (
-                                            "Get Started Free"
-                                        ) : (
-                                            "Subscribe Now"
-                                        )}
-                                    </button>
-                                )} */}
                                     {isSubscribed ? (
                                         // --- Active Paid Subscription ---
                                         <div className="text-center">
                                             <button className="bg-[#C9A94D] text-white font-bold py-3 rounded-lg border border-[#C9A94D] w-full cursor-default" disabled>
                                                 Currently Active
                                             </button>
+                                            {/* <button className="bg-[#C9A94D] text-white font-bold py-3 rounded-lg border border-[#C9A94D] w-full cursor-pointer mt-2">Cancel Subscription</button> */}
                                             {subscriptionStatus?.currentPeriodEnd && <p className="text-xs mt-2 text-gray-400">Renews on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}</p>}
                                         </div>
                                     ) : userSubscriptionsData?.freeTireUsed && userSubscriptionsData?.freeTireExpiry && new Date(userSubscriptionsData.freeTireExpiry) > new Date() && plan.cost === 0 ? (
@@ -308,9 +203,9 @@ const HostPlansPage = () => {
                                         // --- Free Tier Used/Expired (only show on free plans) ---
                                         <div className="text-center">
                                             <button className="bg-gray-600 text-gray-300 font-bold py-3 rounded-lg border border-gray-600 w-full cursor-not-allowed" disabled>
-                                                Free Tier Used
+                                                Free Tier Active
                                             </button>
-                                            <p className="text-xs mt-2 text-gray-400">Cannot activate again</p>
+                                            {/* <p className="text-xs mt-2 text-gray-400">Cannot activate again</p> */}
                                         </div>
                                     ) : (
                                         // --- Available to Subscribe or Activate Free Tier ---

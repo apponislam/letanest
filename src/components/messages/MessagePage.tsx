@@ -11,16 +11,13 @@ import { useEffect, useRef } from "react";
 
 const MessageViews = () => {
     const { user } = useSelector((state: RootState) => state.auth);
-    console.log(user);
 
     const [sendWelcomeMessage] = useSendWelcomeMessageMutation();
 
     const welcomeSentRef = useRef(false);
 
     useEffect(() => {
-        // if (!user?._id || welcomeSentRef.current) return;
         if (!user?._id || welcomeSentRef.current || user.role === "ADMIN") return;
-
         const welcomeKey = `welcomeTime_${user._id}`;
         const lastWelcome = localStorage.getItem(welcomeKey);
         const now = Date.now();
@@ -28,7 +25,7 @@ const MessageViews = () => {
 
         if (!lastWelcome || now - parseInt(lastWelcome) > tenMinutes) {
             console.log("🎉 Sending welcome message");
-            welcomeSentRef.current = true; // Mark as sent immediately
+            welcomeSentRef.current = true;
 
             sendWelcomeMessage({})
                 .unwrap()
@@ -37,7 +34,6 @@ const MessageViews = () => {
                     console.log("✅ Welcome message sent");
                 })
                 .catch((error) => {
-                    // Reset the ref if there's an error so it can retry
                     welcomeSentRef.current = false;
                     if (error?.data?.message?.includes("duplicate key error")) {
                         console.log("✅ Conversation already exists (this is expected)");

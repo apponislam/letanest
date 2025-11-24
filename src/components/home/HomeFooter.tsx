@@ -179,7 +179,10 @@ const HomeFooter = () => {
                 <div className={`grid gap-4 py-6 md:py-10 ${!user || user?.role !== "GUEST" ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"}`}>
                     <div>
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">LETANEST</h1>
-                        <p className="text-[14px] md:text-[18px] text-[#C9A94D]">Your trusted platform for unique accommodations worldwide.</p>
+                        <p className="text-[14px] md:text-[18px] text-[#C9A94D]">
+                            The UK’s trusted hub for short-term
+                            <br /> stays and festival accommodations.
+                        </p>
                     </div>
                     <div>
                         <h1 className="text-xl md:text-[24px] text-[#C9A94D] mb-2 uppercase font-bold">For Guests</h1>
