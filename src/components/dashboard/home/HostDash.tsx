@@ -9,9 +9,10 @@ import { useGetHostPaymentsQuery } from "@/redux/features/propertyPayment/proper
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useCreateConversationMutation, useGetTotalUnreadCountQuery, useSendMessageAutoMutation, useSendMessageMutation } from "@/redux/features/messages/messageApi";
-import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+
 import { useGetRandomAdminQuery } from "@/redux/features/users/usersApi";
 import { useRouter } from "next/navigation";
+import { useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 const HostDash = () => {
     const hostuser = useAppSelector(currentUser);
@@ -38,7 +39,7 @@ const HostDash = () => {
         limit: paymentsLimit,
     });
 
-    const { data: ratingStats } = useGetHostRatingStatsQuery(hostuser?._id || "");
+    const { data: ratingStats } = useGetUserRatingStatsQuery(hostuser?._id || "");
     // console.log(ratingStats);
     const { data: randomAdminData, refetch: refetchRandomAdmin } = useGetRandomAdminQuery();
     console.log(randomAdminData);

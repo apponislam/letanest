@@ -136,7 +136,7 @@ const Guest = () => {
             const ratingPayload = {
                 type: RatingType.PROPERTY,
                 propertyId: selectedProperty.propertyId?._id,
-                hostId: selectedProperty.hostId?._id,
+                reviewedId: selectedProperty.hostId?._id,
                 ...ratingData,
                 description: ratingData.description || undefined,
             };
@@ -208,6 +208,7 @@ const Guest = () => {
         if (ratingData.cleanliness === 0) errors.push("Cleanliness rating");
         if (ratingData.checkInExperience === 0) errors.push("Check-in experience rating");
         if (ratingData.overallExperience === 0) errors.push("Overall experience rating");
+        if (!ratingData.description || ratingData.description.trim().length === 0) errors.push("Description");
         return errors;
     };
 
@@ -308,10 +309,10 @@ const Guest = () => {
                                 </div>
                             </div>
 
-                            {/* Description */}
-                            {/* <div>
+                            {/* Description - Now Required */}
+                            <div>
                                 <label htmlFor="description" className="block text-sm font-medium text-white mb-2">
-                                    Description
+                                    Description <span className="text-red-400">*</span>
                                 </label>
                                 <textarea
                                     id="description"
@@ -321,12 +322,13 @@ const Guest = () => {
                                     rows={4}
                                     className="w-full text-white placeholder-gray-400 px-3 py-2 border border-[#C9A94D] rounded-md focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent resize-none bg-[#1a202c]"
                                     maxLength={500}
+                                    required
                                 />
                                 <p className="text-xs text-gray-400 mt-1">{ratingData.description.length}/500 characters</p>
-                            </div> */}
+                            </div>
 
-                            {/* Optional: Show validation errors */}
-                            {/* {!isFormValid && <p className="text-red-400 text-sm text-center">Please provide all star ratings before submitting</p>} */}
+                            {/* Show validation errors */}
+                            {!isFormValid && <p className="text-red-400 text-sm text-center">Please provide: {validationErrors.join(", ")}</p>}
 
                             {/* Submit Button */}
                             <Button onClick={handleSubmitRating} disabled={isSubmittingRating || !isFormValid} className="w-full bg-[#C9A94D] hover:bg-[#af8d28] text-white disabled:opacity-50 disabled:cursor-not-allowed" title={!isFormValid ? `Please provide: ${validationErrors.join(", ")}` : undefined}>

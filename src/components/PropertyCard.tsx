@@ -7,7 +7,7 @@ import Link from "next/link";
 
 interface PropertyCardProps {
     property: Property;
-    status?: string; // optional, default to "For rent"
+    status?: string;
 }
 
 export default function PropertyCard({ property, status = "For rent" }: PropertyCardProps) {

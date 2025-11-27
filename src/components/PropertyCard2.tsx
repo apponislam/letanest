@@ -28,6 +28,10 @@ export default function PropertyCard({ property, status = "For rent" }: Property
 
     const imageUrl = getImageUrl();
 
+    console.log(property.createdBy);
+
+    // console.log(property?.featured, property?.trending);
+
     return (
         <Card className="overflow-hidden shadow-md border-0 gap-0 rounded-[10px] py-0 bg-[#FAF6ED]">
             <div className="relative h-64 w-full">

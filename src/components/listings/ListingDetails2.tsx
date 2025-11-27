@@ -17,7 +17,7 @@ import { useCreateConversationMutation, useSendMessageMutation } from "@/redux/f
 import ListingIcon from "@/utils/ListingIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { setRedirectPath, currentUser } from "@/redux/features/auth/authSlice";
-import { useGetHostRatingStatsQuery, useGetPropertyRatingsQuery, useGetPropertyRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+import { useGetPropertyRatingsQuery, useGetPropertyRatingStatsQuery, useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { IUser } from "@/types/property";
 import DateSelectionWithPrice from "./DateSelectionWithPrice";
 import { differenceInDays } from "date-fns";
@@ -50,7 +50,7 @@ export default function PropertyPage2() {
     const averageRating = stats?.averageRating || 0;
     const totalRatings = stats?.totalRatings || 0;
 
-    const { data: hostRatingStats, isLoading: hostRatingLoading } = useGetHostRatingStatsQuery(property?.createdBy?._id || "");
+    const { data: hostRatingStats, isLoading: hostRatingLoading } = useGetUserRatingStatsQuery(property?.createdBy?._id || "");
     const hostStats = hostRatingStats?.data;
     const hostAverageRating = hostStats?.averageRating || 0;
     const hostTotalRatings = hostStats?.totalRatings || 0;

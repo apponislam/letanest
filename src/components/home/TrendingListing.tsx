@@ -82,7 +82,7 @@ export default function TrendingListing() {
                             >
                                 {properties.map((property) => (
                                     <SwiperSlide key={property._id}>
-                                        <PropertyCard2 property={property} />
+                                        <PropertyCard2 property={property} status="Trending" />
                                     </SwiperSlide>
                                 ))}
                             </Swiper>
