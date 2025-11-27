@@ -14,7 +14,7 @@ import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+// import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ import BankTransferModal from "./BankTransferModal";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -353,7 +354,7 @@ export default function MessagesLayout2() {
     // Filter out current user from typing indicators
     const otherUserTyping = typingUsers.filter((userId: any) => userId !== user?._id);
 
-    const { data: ratingStats } = useGetHostRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
+    const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
         skip: !otherParticipant || otherParticipant?.role !== "HOST",
     });
 
