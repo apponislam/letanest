@@ -14,7 +14,7 @@ import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+// import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ import BankTransferModal from "./BankTransferModal";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -353,7 +354,10 @@ export default function MessagesLayout2() {
     // Filter out current user from typing indicators
     const otherUserTyping = typingUsers.filter((userId: any) => userId !== user?._id);
 
-    const { data: ratingStats } = useGetHostRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
+    // const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
+    //     skip: !otherParticipant || otherParticipant?.role !== "HOST",
+    // });
+    const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?._id ?? "", {
         skip: !otherParticipant || otherParticipant?.role !== "HOST",
     });
 
@@ -378,6 +382,8 @@ export default function MessagesLayout2() {
                 return `Request: ${lastMessage.propertyId.propertyNumber || ""}`;
             case "makeoffer":
                 return `New Conversation For: ${lastMessage.propertyId.propertyNumber || ""}`;
+            case "review":
+                return `Review Your Experience`;
             default:
                 return lastMessage.text || "";
         }
@@ -1150,7 +1156,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         }
     };
 
-    // console.log(message);
+    console.log(message);
 
     // Handle optimistic messages
     if (message.isOptimistic) {
@@ -1174,6 +1180,155 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                 <div className={`px-3 py-2 rounded-lg max-w-xs break-words ${isMe ? "bg-[#14213D] text-white opacity-80" : "bg-[#D4BA71] text-[#080E1A] opacity-80"}`}>
                     <p>{message.text}</p>
                     <p className="text-xs opacity-70 mt-1">Sending...</p>
+                </div>
+                {isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt="Me"
+                            width={30}
+                            height={30}
+                            className="rounded-full ml-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                    ))}
+            </div>
+        );
+    }
+
+    // Review
+
+    if (message.type === "review") {
+        const [ratingData, setRatingData] = useState({
+            communication: 0,
+            accuracy: 0,
+            cleanliness: 0,
+            checkInExperience: 0,
+            overallExperience: 0,
+            description: "",
+        });
+
+        const handleStarChange = (field: string, value: number) => {
+            setRatingData((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
+        };
+
+        // Determine who this review message is FOR
+        // If message.sender is property owner (host) → This message is for GUEST to review HOST
+        // If message.sender is NOT property owner (guest) → This message is for HOST to review GUEST
+
+        const isSenderHost = message.sender?._id === message.propertyId?.createdBy?._id;
+
+        // This message is FOR reviewing the SENDER
+        // If host sent it → Review the host
+        // If guest sent it → Review the guest
+
+        const personToReview = isSenderHost ? message.propertyId?.createdBy : message.sender;
+        const personToReviewName = personToReview?.name;
+        const personToReviewRole = isSenderHost ? "Host" : "Guest";
+
+        return (
+            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt={message.sender?.name}
+                            width={30}
+                            height={30}
+                            className="rounded-full mr-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                    ))}
+                <div className="bg-[#D4BA71] p-3 border-2 border-black w-80">
+                    <p className="font-semibold text-sm text-center mb-3">Review Your {personToReviewRole}</p>
+
+                    <div className="text-center mb-3">
+                        <p className="text-[11px] text-[#16223D] mb-2">{isSenderHost ? `We noticed you recently stayed with ${personToReviewName}!` : `We noticed ${personToReviewName} recently stayed in your Nest!`}</p>
+                        <p className="text-[10px] text-[#16223D]">{isSenderHost ? "We'd really appreciate it if you could leave a review - every review helps our hosts improve their listings and reach more guests." : "Please take a moment to leave a review — your feedback helps guests find future stays and helps hosts decide who to welcome next."}</p>
+                    </div>
+
+                    {/* Rest of the rating form remains the same */}
+                    {/* Communication */}
+                    <div className="flex justify-between items-center mb-2">
+                        <p className="text-[12px]">Communication</p>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button key={star} type="button" onClick={() => handleStarChange("communication", star)} className="text-xl">
+                                    <Star className={`w-4 h-4 ${star <= ratingData.communication ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Accuracy */}
+                    <div className="flex justify-between items-center mb-2">
+                        <p className="text-[12px]">Accuracy</p>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button key={star} type="button" onClick={() => handleStarChange("accuracy", star)} className="text-xl">
+                                    <Star className={`w-4 h-4 ${star <= ratingData.accuracy ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Cleanliness */}
+                    <div className="flex justify-between items-center mb-2">
+                        <p className="text-[12px]">Cleanliness</p>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button key={star} type="button" onClick={() => handleStarChange("cleanliness", star)} className="text-xl">
+                                    <Star className={`w-4 h-4 ${star <= ratingData.cleanliness ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Check-in Experience */}
+                    <div className="flex justify-between items-center mb-2">
+                        <p className="text-[12px]">Check-in Experience</p>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button key={star} type="button" onClick={() => handleStarChange("checkInExperience", star)} className="text-xl">
+                                    <Star className={`w-4 h-4 ${star <= ratingData.checkInExperience ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Overall Experience */}
+                    <div className="flex justify-between items-center mb-3">
+                        <p className="text-[12px] font-semibold">Overall Experience</p>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button key={star} type="button" onClick={() => handleStarChange("overallExperience", star)} className="text-xl">
+                                    <Star className={`w-4 h-4 ${star <= ratingData.overallExperience ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="mt-2">
+                        <textarea value={ratingData.description} onChange={(e) => setRatingData((prev) => ({ ...prev, description: e.target.value }))} placeholder="Share your experience..." rows={3} className="w-full text-[11px] p-2 border border-[#16223D] rounded resize-none bg-transparent placeholder-gray-600" maxLength={500} />
+                        <p className="text-[10px] text-gray-600 text-right">{ratingData.description.length}/500</p>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="flex justify-center mt-3">
+                        <button className="border border-black bg-[#16223D] text-white px-6 py-2 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Submit Review</button>
+                    </div>
                 </div>
                 {isMe &&
                     (message.sender?.profileImg ? (

@@ -41,6 +41,8 @@ const HomeFooter = () => {
         skip: !user,
     });
 
+    console.log(userSiteRating);
+
     // Fix the hasRatedSite logic
     const hasRatedSite = userSiteRating?.success && userSiteRating?.data !== null && userSiteRating?.data !== undefined;
 

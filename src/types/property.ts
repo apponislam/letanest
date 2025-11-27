@@ -125,6 +125,8 @@ export interface IProperty extends IPropertyStep1, IPropertyStep2, IPropertyStep
     updatedAt?: string;
     status?: "pending" | "published" | "rejected" | "hidden";
     isDeleted?: boolean;
+    featured?: boolean;
+    trending?: boolean;
     termsAndConditions?: any;
     nearbyPlaces?: {
         name: string;

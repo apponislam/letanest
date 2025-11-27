@@ -79,7 +79,7 @@ export default function FeaturedNests() {
                                     <SwiperSlide key={idx}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8" style={{ rowGap: "1rem" }}>
                                             {chunk.map((property) => (
-                                                <PropertyCard2 key={property._id} property={property} />
+                                                <PropertyCard2 key={property._id} property={property} status="Featured" />
                                             ))}
                                         </div>
                                     </SwiperSlide>
