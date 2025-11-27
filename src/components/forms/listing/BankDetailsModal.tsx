@@ -6,6 +6,7 @@ import { useCreateBankDetailsMutation, useGetMyBankDetailsQuery, useUpdateMyBank
 import { toast } from "sonner";
 
 const BankDetailsModal = () => {
+    const [showBankRules, setShowBankRules] = useState(false);
     // API Hooks
     const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
     const [createBankDetails, { isLoading: isCreating }] = useCreateBankDetailsMutation();
@@ -93,9 +94,26 @@ const BankDetailsModal = () => {
     return (
         <>
             {/* Bank Details Button */}
-            <div onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 cursor-pointer transition hover:text-[#C9A94D]">
-                <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
-                {bankDetailsLoading ? <p>Checking Bank Details...</p> : hasBankDetails ? <p>Bank Details Added</p> : <p>Add Bank Details (To Receive Payment Via Bank Transfer)</p>}
+            <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                    <div onClick={() => setIsModalOpen(true)} className="flex items-center gap-1 cursor-pointer transition hover:text-[#C9A94D]">
+                        <Image src="/listing/add/plus-circle.png" alt="Add Bank Details" width={24} height={24} />
+                        {bankDetailsLoading ? <p>Checking Bank Details...</p> : hasBankDetails ? <p>Bank Details Added</p> : <p>Add Bank Details (To Receive Payment Via Bank Transfer)</p>}
+                    </div>
+
+                    {/* Tooltip */}
+                    <div className="relative inline-block" onMouseEnter={() => setShowBankRules(true)} onMouseLeave={() => setShowBankRules(false)} onClick={() => setShowBankRules(!showBankRules)}>
+                        <Image src="/listing/add/info-circle.png" alt="Info" width={24} height={24} />
+
+                        {showBankRules && (
+                            <div className="absolute -right-5 md:right-unset md:left-1/2 md:bottom-full bottom-full mb-2 md:mb-4 w-72 md:w-[520px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg md:-translate-x-1/2 border border-[#C9A94D] z-50" style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                                <h2 className="font-bold mb-2 text-[14px]">Bank Details Information</h2>
+                                <p className="mb-2">You can receive payments securely by adding your bank details — this is fully permitted and ensures your funds go directly to your account via bank transfer.</p>
+                                <p className="mb-2">If you want to access additional features, you can also link or set up a Stripe account, but adding your bank details is enough to start receiving payments safely.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Modal */}
