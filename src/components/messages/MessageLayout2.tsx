@@ -582,12 +582,16 @@ export default function MessagesLayout2() {
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant?.role}</p>
 
-                                        {otherParticipant?.role === "HOST" && (
+                                        {/* {otherParticipant?.role === "HOST" && (
                                             <div className="flex items-center gap-2">
                                                 <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
                                                 <p>{ratingStats?.data?.averageRating?.toFixed(1) || "0.0"}</p>
                                             </div>
-                                        )}
+                                        )} */}
+                                        <div className="flex items-center gap-2">
+                                            <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
+                                            <p>{ratingStats?.data?.averageRating?.toFixed(1) || "No Review"}</p>
+                                        </div>
                                         {/* {otherParticipant.role === "HOST" && (
                                             <button className="bg-[#C9A94D] px-2 text-white rounded-[10px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
                                                 Report Host
@@ -1219,19 +1223,10 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             }));
         };
 
-        // Determine who this review message is FOR
-        // If message.sender is property owner (host) → This message is for GUEST to review HOST
-        // If message.sender is NOT property owner (guest) → This message is for HOST to review GUEST
-
         const isSenderHost = message.sender?._id === message.propertyId?.createdBy?._id;
-
-        // This message is FOR reviewing the SENDER
-        // If host sent it → Review the host
-        // If guest sent it → Review the guest
-
-        const personToReview = isSenderHost ? message.propertyId?.createdBy : message.sender;
+        const personToReview = isSenderHost ? message.sender : message.propertyId?.createdBy;
         const personToReviewName = personToReview?.name;
-        const personToReviewRole = isSenderHost ? "Host" : "Guest";
+        const personToReviewRole = isSenderHost ? "Guest" : "Host";
 
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
@@ -1250,22 +1245,25 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-black w-80">
-                    <p className="font-semibold text-sm text-center mb-3">Review Your {personToReviewRole}</p>
+                <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
+                    <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Your {personToReviewRole}</p>
 
                     <div className="text-center mb-3">
-                        <p className="text-[11px] text-[#16223D] mb-2">{isSenderHost ? `We noticed you recently stayed with ${personToReviewName}!` : `We noticed ${personToReviewName} recently stayed in your Nest!`}</p>
-                        <p className="text-[10px] text-[#16223D]">{isSenderHost ? "We'd really appreciate it if you could leave a review - every review helps our hosts improve their listings and reach more guests." : "Please take a moment to leave a review — your feedback helps guests find future stays and helps hosts decide who to welcome next."}</p>
+                        <p className="text-[11px] text-[#D4BA71] mb-2">
+                            {isSenderHost
+                                ? `We noticed ${personToReviewName} recently stayed in your Nest! Please take a moment to leave a review — your feedback helps guests find future stays and helps hosts decide who to welcome next.`
+                                : `We noticed you recently stayed with one of our hosts, Nest. We'd really appreciate it if you could leave a review - every review helps our hosts improve their listings and reach more guests.`}
+                        </p>
                     </div>
 
                     {/* Rest of the rating form remains the same */}
                     {/* Communication */}
                     <div className="flex justify-between items-center mb-2">
-                        <p className="text-[12px]">Communication</p>
+                        <p className="text-[12px] text-[#D4BA71]">Communication</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button key={star} type="button" onClick={() => handleStarChange("communication", star)} className="text-xl">
-                                    <Star className={`w-4 h-4 ${star <= ratingData.communication ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                    <Star className={`w-4 h-4 ${star <= ratingData.communication ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
                         </div>
@@ -1273,11 +1271,11 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
                     {/* Accuracy */}
                     <div className="flex justify-between items-center mb-2">
-                        <p className="text-[12px]">Accuracy</p>
+                        <p className="text-[12px] text-[#D4BA71]">Accuracy</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button key={star} type="button" onClick={() => handleStarChange("accuracy", star)} className="text-xl">
-                                    <Star className={`w-4 h-4 ${star <= ratingData.accuracy ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                    <Star className={`w-4 h-4 ${star <= ratingData.accuracy ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
                         </div>
@@ -1285,11 +1283,11 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
                     {/* Cleanliness */}
                     <div className="flex justify-between items-center mb-2">
-                        <p className="text-[12px]">Cleanliness</p>
+                        <p className="text-[12px] text-[#D4BA71]">Cleanliness</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button key={star} type="button" onClick={() => handleStarChange("cleanliness", star)} className="text-xl">
-                                    <Star className={`w-4 h-4 ${star <= ratingData.cleanliness ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                    <Star className={`w-4 h-4 ${star <= ratingData.cleanliness ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
                         </div>
@@ -1297,11 +1295,11 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
                     {/* Check-in Experience */}
                     <div className="flex justify-between items-center mb-2">
-                        <p className="text-[12px]">Check-in Experience</p>
+                        <p className="text-[12px] text-[#D4BA71]">Check-in Experience</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button key={star} type="button" onClick={() => handleStarChange("checkInExperience", star)} className="text-xl">
-                                    <Star className={`w-4 h-4 ${star <= ratingData.checkInExperience ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                    <Star className={`w-4 h-4 ${star <= ratingData.checkInExperience ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
                         </div>
@@ -1309,25 +1307,25 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
                     {/* Overall Experience */}
                     <div className="flex justify-between items-center mb-3">
-                        <p className="text-[12px] font-semibold">Overall Experience</p>
+                        <p className="text-[12px] font-semibold text-[#D4BA71]">Overall Experience</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button key={star} type="button" onClick={() => handleStarChange("overallExperience", star)} className="text-xl">
-                                    <Star className={`w-4 h-4 ${star <= ratingData.overallExperience ? "fill-[#16223D] text-[#16223D]" : "fill-none text-gray-400"}`} />
+                                    <Star className={`w-4 h-4 ${star <= ratingData.overallExperience ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {/* Description */}
-                    <div className="mt-2">
-                        <textarea value={ratingData.description} onChange={(e) => setRatingData((prev) => ({ ...prev, description: e.target.value }))} placeholder="Share your experience..." rows={3} className="w-full text-[11px] p-2 border border-[#16223D] rounded resize-none bg-transparent placeholder-gray-600" maxLength={500} />
-                        <p className="text-[10px] text-gray-600 text-right">{ratingData.description.length}/500</p>
+                    <div className="mt-2 ">
+                        <textarea value={ratingData.description} onChange={(e) => setRatingData((prev) => ({ ...prev, description: e.target.value }))} placeholder="Share your experience..." rows={3} className="w-full text-[11px] p-2 border border-[#D4BA71] rounded resize-none bg-transparent placeholder-[#D4BA71] text-[#D4BA71]" maxLength={500} />
+                        <p className="text-[10px] text-[#D4BA71] text-right">{ratingData.description.length}/500</p>
                     </div>
 
                     {/* Submit Button */}
                     <div className="flex justify-center mt-3">
-                        <button className="border border-black bg-[#16223D] text-white px-6 py-2 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Submit Review</button>
+                        <button className="border border-[#D4BA71] bg-[#D4BA71] text-white px-6 py-2 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Submit Review</button>
                     </div>
                 </div>
                 {isMe &&
@@ -1448,7 +1446,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 {!isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="mr-2" />}
-                <div className="bg-[#D4BA71] p-3 border-2 border-black w-80">
+                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-80">
                     <p className="font-semibold text-sm text-center">Request Availability</p>
                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
 
@@ -1560,7 +1558,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
                     <p className="font-semibold text-sm text-center">Nest Offer</p>
                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
                     <p className="text-center font-bold mb-1 text-[14px]">Host Agreed Fee - £{message?.agreedFee}</p>
@@ -1711,7 +1709,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
                     <p className="font-semibold text-sm text-center">Booking Offer</p>
                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
                     <p className="text-center font-bold mb-2">£{message?.agreedFee}</p>
@@ -1807,7 +1805,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
+                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
                     <p className="font-semibold text-sm text-center">Offer Accepted</p>
                     <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
 
