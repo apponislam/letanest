@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Search, Mail, Calendar, MessageSquare, Eye, Download, Send } from "lucide-react";
+import { Search, Mail, Calendar, MessageSquare, Eye, Download, Send, Phone } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -191,6 +191,12 @@ const ContactsManagement = () => {
         setReplyMessage("");
     };
 
+    const handlePhoneClick = (phoneNumber: string) => {
+        // Remove spaces and special characters for tel: link
+        const cleanPhone = phoneNumber.replace(/[^\d+]/g, "");
+        window.location.href = `tel:${cleanPhone}`;
+    };
+
     return (
         <div className="container mx-auto">
             <PageHeader title={"Contacts Management"}></PageHeader>
@@ -286,104 +292,6 @@ const ContactsManagement = () => {
             </div>
 
             {/* Contact Details Modal */}
-            {/* <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="bg-[#14213D] border border-[#C9A94D] rounded-[20px] p-6 max-w-2xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-[#C9A94D] text-center">Contact Details</DialogTitle>
-                    </DialogHeader>
-
-                    {selectedContact && (
-                        <div className="space-y-6 mt-4">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-xl font-semibold text-white">
-                                    {selectedContact.firstName} {selectedContact.lastName}
-                                </h3>
-                                <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${getStatusColor(selectedContact.status)}`}>{selectedContact.status}</span>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4">
-                                <div className="flex items-center gap-3 p-3 bg-[#2D3546] rounded-lg">
-                                    <Mail className="w-5 h-5 text-[#C9A94D]" />
-                                    <div>
-                                        <p className="text-sm text-gray-400">Email</p>
-                                        <button onClick={() => handleEmailClick(selectedContact.email)} className="text-white hover:text-[#C9A94D] transition">
-                                            {selectedContact.email}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 p-3 bg-[#2D3546] rounded-lg">
-                                    <Calendar className="w-5 h-5 text-[#C9A94D]" />
-                                    <div>
-                                        <p className="text-sm text-gray-400">Received</p>
-                                        <p className="text-white">{formatDate(selectedContact.createdAt)}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <MessageSquare className="w-5 h-5 text-[#C9A94D]" />
-                                    <h4 className="text-lg font-semibold text-[#C9A94D]">Message</h4>
-                                </div>
-                                <div className="p-4 bg-[#2D3546] rounded-lg border border-[#434D64]">
-                                    <p className="text-white whitespace-pre-wrap leading-relaxed">{selectedContact.message}</p>
-                                </div>
-                            </div>
-
-                            {(selectedContact.status === "pending" || selectedContact.status === "read") && (
-                                <div className="space-y-3 pt-4 border-t border-[#434D64]">
-                                    <div className="flex items-center gap-2">
-                                        <Send className="w-5 h-5 text-[#C9A94D]" />
-                                        <h4 className="text-lg font-semibold text-[#C9A94D]">Send Reply</h4>
-                                    </div>
-
-                                    <textarea value={replyMessage} onChange={(e) => setReplyMessage(e.target.value)} placeholder="Type your reply message here..." className="w-full h-32 p-3 bg-[#2D3546] border border-[#434D64] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] resize-none" />
-
-                                    <div className="flex gap-3">
-                                        <button onClick={handleReplySubmit} disabled={isReplying || !replyMessage.trim()} className="flex-1 flex items-center justify-center gap-2 bg-[#C9A94D] text-white py-3 px-4 rounded-lg hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed transition">
-                                            <Send className="w-4 h-4" />
-                                            {isReplying ? "Sending..." : "Send Reply"}
-                                        </button>
-
-                                        <button onClick={() => setReplyMessage("")} className="px-4 py-3 bg-[#434D64] text-white rounded-lg hover:bg-[#535a6b] transition">
-                                            Clear
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="space-y-3 pt-4 border-t border-[#434D64]">
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                    {selectedContact.status === "pending" && (
-                                        <>
-                                            <button onClick={() => handleStatusUpdate(selectedContact._id, "read")} className="flex items-center justify-center gap-2 bg-[#135E9A] text-white py-2 px-4 rounded-lg hover:bg-[#0f4a7a] transition text-sm">
-                                                Mark as Read
-                                            </button>
-                                            <button onClick={() => handleStatusUpdate(selectedContact._id, "replied")} className="flex items-center justify-center gap-2 bg-[#C9A94D] text-white py-2 px-4 rounded-lg hover:bg-[#b8973e] transition text-sm">
-                                                Mark as Replied
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {selectedContact.status === "read" && (
-                                        <>
-                                            <button onClick={() => handleStatusUpdate(selectedContact._id, "pending")} className="flex items-center justify-center gap-2 bg-[#D00000] text-white py-2 px-4 rounded-lg hover:bg-[#b30000] transition text-sm">
-                                                Mark as Pending
-                                            </button>
-                                            <button onClick={() => handleStatusUpdate(selectedContact._id, "replied")} className="flex items-center justify-center gap-2 bg-[#C9A94D] text-white py-2 px-4 rounded-lg hover:bg-[#b8973e] transition text-sm">
-                                                Mark as Replied
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {selectedContact.status === "replied" && <span className="text-sm text-gray-400 py-2 px-4">This contact has been replied to</span>}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog> */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="bg-[#14213D] border border-[#C9A94D] rounded-[20px] p-6 max-w-md max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
@@ -402,6 +310,7 @@ const ContactsManagement = () => {
 
                             {/* Contact Information */}
                             <div className="space-y-2">
+                                {/* Email */}
                                 <div className="flex items-center gap-2 p-2 bg-[#2D3546] rounded-lg">
                                     <Mail className="w-4 h-4 text-[#C9A94D] flex-shrink-0" />
                                     <div className="min-w-0 flex-1">
@@ -412,6 +321,20 @@ const ContactsManagement = () => {
                                     </div>
                                 </div>
 
+                                {/* Phone - ADDED THIS SECTION */}
+                                {selectedContact.phone && (
+                                    <div className="flex items-center gap-2 p-2 bg-[#2D3546] rounded-lg">
+                                        <Phone className="w-4 h-4 text-[#C9A94D] flex-shrink-0" />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-xs text-gray-400">Phone</p>
+                                            <button onClick={() => handlePhoneClick(selectedContact.phone)} className="text-white hover:text-[#C9A94D] transition text-sm truncate">
+                                                {selectedContact.phone}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Received Date */}
                                 <div className="flex items-center gap-2 p-2 bg-[#2D3546] rounded-lg">
                                     <Calendar className="w-4 h-4 text-[#C9A94D] flex-shrink-0" />
                                     <div>
@@ -542,6 +465,12 @@ const ContactTable = ({
         return new Date(dateString).toLocaleDateString();
     };
 
+    const onPhoneClick = (phoneNumber: string) => {
+        const cleanPhone = phoneNumber.replace(/[^\d+]/g, "");
+
+        window.location.href = `tel:${cleanPhone}`;
+    };
+
     return (
         <div className="bg-[#2D3546] border border-[#C9A94D] p-4 md:p-6 text-[#C9A94D] rounded-[20px] space-y-4">
             <div className="flex justify-between items-center gap-3 flex-col md:flex-row">
@@ -592,6 +521,7 @@ const ContactTable = ({
                                 <tr className="border-b border-[#C9A94D]">
                                     <th className="text-left py-3 px-4 text-white font-semibold">Name</th>
                                     <th className="text-left py-3 px-4 text-white font-semibold">Email</th>
+                                    <th className="text-left py-3 px-4 text-white font-semibold">Phone</th>
                                     <th className="text-left py-3 px-4 text-white font-semibold">Message</th>
                                     <th className="text-left py-3 px-4 text-white font-semibold">Status</th>
                                     <th className="text-left py-3 px-4 text-white font-semibold">Date</th>
@@ -610,6 +540,17 @@ const ContactTable = ({
                                                 {contact.email}
                                             </button>
                                         </td>
+                                        <td className="py-3 px-4">
+                                            {contact.phone ? (
+                                                <button onClick={() => onPhoneClick(contact.phone)} className="text-[#C9A94D] hover:text-[#b8973e] transition flex items-center gap-2">
+                                                    <Phone className="w-4 h-4" />
+                                                    <span className="text-sm">{contact.phone}</span>
+                                                </button>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">N/A</span>
+                                            )}
+                                        </td>
+
                                         <td className="py-3 px-4 text-white max-w-xs">
                                             <div className="line-clamp-2 text-sm">{contact.message}</div>
                                         </td>
