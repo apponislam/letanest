@@ -382,6 +382,8 @@ export default function MessagesLayout2() {
                 return `Request: ${lastMessage.propertyId.propertyNumber || ""}`;
             case "makeoffer":
                 return `New Conversation For: ${lastMessage.propertyId.propertyNumber || ""}`;
+            case "system":
+                return `Welcome to Letanest`;
             case "review":
                 return `Review Your Experience`;
             default:
@@ -1885,6 +1887,48 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
                 <div className="bg-red-200 p-3 rounded-lg w-72 text-center font-semibold text-red-900">Offer Rejected</div>
+                {isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt="Me"
+                            width={30}
+                            height={30}
+                            className="rounded-full ml-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                    ))}
+            </div>
+        );
+    }
+
+    if (message.type === "system") {
+        return (
+            <div className={`flex items-end ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt={message.sender?.name}
+                            width={30}
+                            height={30}
+                            className="rounded-full mr-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                    ))}
+                <div className={`px-3 py-2 rounded-lg max-w-xs break-words ${isMe ? "bg-[#14213D] text-white" : "bg-[#D4BA71] text-[#080E1A]"}`}>
+                    {/* Use dangerouslySetInnerHTML for HTML content */}
+                    <div className="rich-text-content text-[14px]" dangerouslySetInnerHTML={{ __html: message.text }} />
+                    {message.createdAt && <p className="text-xs opacity-70 mt-1 text-right">{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>}
+                </div>
                 {isMe &&
                     (message.sender?.profileImg ? (
                         <Image

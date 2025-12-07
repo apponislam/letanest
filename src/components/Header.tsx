@@ -21,7 +21,6 @@ const menuItems = [
 const Header = () => {
     const router = useRouter();
     const user = useSelector(currentUser);
-    // console.log(user);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
     const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
@@ -42,7 +41,7 @@ const Header = () => {
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll(); // initial check
+        handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
     }, [scrolled]);
 
