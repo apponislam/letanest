@@ -14,7 +14,6 @@ import { socketService } from "@/redux/features/socket/socketService";
 import { useConnectStripeAccountMutation, useGetRandomAdminQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-// import { useGetHostRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -27,9 +26,6 @@ import { currentUser } from "@/redux/features/auth/authSlice";
 import EditOfferModal from "./EditOfferModal";
 import SuggestNewOfferModal from "./SuggestNewOffer";
 import BankTransferModal from "./BankTransferModal";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useCreateRatingMutation, useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 // Avatar component for fallback
@@ -1135,6 +1131,17 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
     // Review
 
+    const [ratingData, setRatingData] = useState({
+        communication: 0,
+        accuracy: 0,
+        cleanliness: 0,
+        checkInExperience: 0,
+        overallExperience: 0,
+        description: "",
+    });
+
+    const [createRating, { isLoading: isSubmitting }] = useCreateRatingMutation();
+
     const handleStarChange = (setRatingData: React.Dispatch<React.SetStateAction<any>>, field: string, value: number) => {
         setRatingData((prev: any) => ({
             ...prev,
@@ -1144,9 +1151,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
     const handleSubmitReview = async (ratingData: any, user: any, createRating: any, setRatingData: React.Dispatch<React.SetStateAction<any>>, message: any, propertyId: string) => {
         try {
-            console.log("=== DEBUG SUBMIT ===");
-            console.log("UI shows: Review Your", message.sender?._id === message.propertyId?.createdBy?._id ? "Guest" : "Host");
-
             const propertyOwnerId = message?.propertyId?.createdBy?._id;
             const me = user?._id;
             const senderId = message?.sender?._id;
@@ -1156,27 +1160,16 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
             let actualReviewedId = null;
             let actualReviewedRole = null;
 
-            // OPPOSITE LOGIC: Review the OTHER person
-            // If UI shows "Review Your Guest" → Actually review HOST
-            // If UI shows "Review Your Host" → Actually review GUEST
-
             const isSenderHost = senderId === propertyOwnerId;
 
             if (isSenderHost) {
-                // UI shows "Review Your Guest" but we should review HOST
-                actualReviewedRole = "Host"; // ← OPPOSITE!
+                actualReviewedRole = "Host";
                 actualReviewedId = propertyOwnerId;
-                console.log("Message from host → Reviewing HOST (opposite)");
             } else {
-                // UI shows "Review Your Host" but we should review GUEST
-                actualReviewedRole = "Guest"; // ← OPPOSITE!
-
-                // Guest is the sender (since sender is not host)
+                actualReviewedRole = "Guest";
                 actualReviewedId = senderId;
                 console.log("Message from guest → Reviewing GUEST (opposite)");
             }
-
-            console.log("FINAL:", { actualReviewedId, actualReviewedRole });
 
             if (!actualReviewedId) {
                 toast.error("Unable to find review target");
@@ -1209,6 +1202,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                 overallExperience: ratingData.overallExperience,
                 description: ratingData.description,
                 status: "approved",
+                message: message._id,
             };
 
             if (actualReviewedRole === "Host") {
@@ -1233,11 +1227,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
             console.error(err);
         }
     };
-
-    console.log(user);
-    if (message.type === "review") {
-        console.log("Review message:", message);
-    }
 
     // Handle optimistic messages
     if (message.isOptimistic) {
@@ -1281,28 +1270,62 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
         );
     }
 
+    // review done
+    if (message.type === "review" && message.reviewed) {
+        return (
+            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt={message.sender?.name}
+                            width={30}
+                            height={30}
+                            className="rounded-full mr-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                    ))}
+                <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
+                    <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Completed ✓</p>
+
+                    <div className="text-center mb-3">
+                        <p className="text-[11px] text-[#D4BA71] mb-2">Thank you for your review! Your feedback has been submitted.</p>
+                    </div>
+
+                    <div className="text-center">
+                        <p className="text-[10px] text-[#D4BA71]">Review submitted on: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                    </div>
+                </div>
+                {isMe &&
+                    (message.sender?.profileImg ? (
+                        <Image
+                            src={`${backendURL}${message.sender.profileImg}`}
+                            alt="Me"
+                            width={30}
+                            height={30}
+                            className="rounded-full ml-2 h-[30px] w-[30px]"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                    ))}
+            </div>
+        );
+    }
+
     // Review
 
     if (message.type === "review") {
-        const [ratingData, setRatingData] = useState({
-            communication: 0,
-            accuracy: 0,
-            cleanliness: 0,
-            checkInExperience: 0,
-            overallExperience: 0,
-            description: "",
-        });
-
-        const [createRating, { isLoading: isSubmitting }] = useCreateRatingMutation();
-
         const isSenderHost = message.sender?._id === message.propertyId?.createdBy?._id;
-        // const personToReview = isSenderHost ? message.propertyId?.createdBy : message.sender;
-        // const personToReviewName = personToReview?.name;
         const personToReviewRole = isSenderHost ? "Host" : "Guest";
         const propertyId = message.propertyId?._id;
         const isMyMessage = user?._id === message.sender?._id;
-
-        // Disable button if it's YOUR message OR if submitting
         const shouldDisableButton = isSubmitting || isMyMessage;
 
         return (
