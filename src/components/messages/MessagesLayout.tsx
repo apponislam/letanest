@@ -353,8 +353,9 @@ export default function MessagesLayout2() {
     // const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
     //     skip: !otherParticipant || otherParticipant?.role !== "HOST",
     // });
-    const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?._id ?? "", {
-        skip: !otherParticipant || otherParticipant?.role !== "HOST",
+    console.log(otherParticipant);
+    const { data: ratingStats, refetch } = useGetUserRatingStatsQuery(otherParticipant?._id ?? "", {
+        skip: !otherParticipant,
     });
 
     // Helper function to get unread count
@@ -397,6 +398,7 @@ export default function MessagesLayout2() {
         // Mark conversation as read when clicked
         try {
             const result = await markConversationAsReads(conversationId).unwrap();
+            refetch();
             console.log("mark all message read", result);
 
             console.log("✅ Conversation marked as read");
@@ -443,9 +445,6 @@ export default function MessagesLayout2() {
     };
 
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
-
-    // console.log(otherParticipant);
-    console.log(ratingStats);
 
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">

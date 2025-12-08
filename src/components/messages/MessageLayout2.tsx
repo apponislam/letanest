@@ -353,15 +353,14 @@ export default function MessagesLayout2() {
     // const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
     //     skip: !otherParticipant || otherParticipant?.role !== "HOST",
     // });
-    const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?._id ?? "", {
-        skip: !otherParticipant || otherParticipant?.role !== "HOST",
+    const { data: ratingStats, refetch } = useGetUserRatingStatsQuery(otherParticipant?._id ?? "", {
+        skip: !otherParticipant,
     });
 
     // Helper function to get unread count
     const getUnreadCount = (conversation: any) => {
         return conversation.unreadCount || 0;
     };
-    // console.log(conversations);
 
     // Helper function to format last message
     const formatLastMessage = (lastMessage: any) => {
@@ -397,6 +396,7 @@ export default function MessagesLayout2() {
         // Mark conversation as read when clicked
         try {
             const result = await markConversationAsReads(conversationId).unwrap();
+            refetch();
             console.log("mark all message read", result);
 
             console.log("✅ Conversation marked as read");
@@ -443,9 +443,6 @@ export default function MessagesLayout2() {
     };
 
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
-
-    // console.log(otherParticipant);
-    console.log(ratingStats);
 
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">
@@ -1272,51 +1269,102 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
     // review done
     if (message.type === "review" && message.reviewed) {
-        return (
-            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                {!isMe &&
-                    (message.sender?.profileImg ? (
-                        <Image
-                            src={`${backendURL}${message.sender.profileImg}`}
-                            alt={message.sender?.name}
-                            width={30}
-                            height={30}
-                            className="rounded-full mr-2 h-[30px] w-[30px]"
-                            onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                            }}
-                        />
-                    ) : (
-                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
-                    ))}
-                <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
-                    <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Completed ✓</p>
+        const isMyMessage = user?._id === message.sender?._id;
 
-                    <div className="text-center mb-3">
-                        <p className="text-[11px] text-[#D4BA71] mb-2">Thank you for your review! Your feedback has been submitted.</p>
-                    </div>
+        if (isMyMessage) {
+            // This is MY message, but SOMEONE ELSE reviewed ME
+            return (
+                <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                    {!isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt={message.sender?.name}
+                                width={30}
+                                height={30}
+                                className="rounded-full mr-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                        ))}
+                    <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
+                        <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Received ✓</p>
 
-                    <div className="text-center">
-                        <p className="text-[10px] text-[#D4BA71]">Review submitted on: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                        <div className="text-center mb-3">
+                            <p className="text-[11px] text-[#D4BA71] mb-2"> {otherParticipant?.name || "User"} has left a review.</p>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-[10px] text-[#D4BA71]">Submitted on: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                        </div>
                     </div>
+                    {isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt="Me"
+                                width={30}
+                                height={30}
+                                className="rounded-full ml-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                        ))}
                 </div>
-                {isMe &&
-                    (message.sender?.profileImg ? (
-                        <Image
-                            src={`${backendURL}${message.sender.profileImg}`}
-                            alt="Me"
-                            width={30}
-                            height={30}
-                            className="rounded-full ml-2 h-[30px] w-[30px]"
-                            onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                            }}
-                        />
-                    ) : (
-                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
-                    ))}
-            </div>
-        );
+            );
+        } else {
+            return (
+                <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                    {!isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt={message.sender?.name}
+                                width={30}
+                                height={30}
+                                className="rounded-full mr-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                        ))}
+                    <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
+                        <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Sent ✓</p>
+
+                        <div className="text-center mb-3">
+                            <p className="text-[11px] text-[#D4BA71] mb-2">Your review has been submitted. Thank you for sharing your experience.</p>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-[10px] text-[#D4BA71]">Submitted: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    {isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt="Me"
+                                width={30}
+                                height={30}
+                                className="rounded-full ml-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                        ))}
+                </div>
+            );
+        }
     }
 
     // Review
