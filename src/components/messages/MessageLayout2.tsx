@@ -30,7 +30,7 @@ import BankTransferModal from "./BankTransferModal";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+import { useCreateRatingMutation, useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 
 // Avatar component for fallback
 const Avatar = ({ name, size = 48, className = "", isVerified = false }: { name: string; size?: number; className?: string; isVerified?: boolean }) => {
@@ -449,6 +449,7 @@ export default function MessagesLayout2() {
     const backendURL = process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000";
 
     // console.log(otherParticipant);
+    console.log(ratingStats);
 
     return (
         <div className="h-[90vh] flex bg-[#B6BAC3] border border-[#C9A94D]">
@@ -634,7 +635,7 @@ export default function MessagesLayout2() {
                                             </div>
                                         </div>
                                     ) : (
-                                        messagesData.map((msg: any) => <MessageBubble key={msg._id} message={msg} currentUserId={user?._id} focusMessageInput={focusMessageInput} />)
+                                        messagesData.map((msg: any) => <MessageBubble key={msg._id} message={msg} currentUserId={user?._id} focusMessageInput={focusMessageInput} otherParticipant={otherParticipant} />)
                                     )}
 
                                     {/* Typing Indicator - AT THE BOTTOM */}
@@ -910,7 +911,7 @@ export default function MessagesLayout2() {
     );
 }
 
-const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message: any; currentUserId?: string; focusMessageInput?: () => void }) => {
+const MessageBubble = ({ message, currentUserId, focusMessageInput, otherParticipant }: { message: any; currentUserId?: string; focusMessageInput?: () => void; otherParticipant: any }) => {
     const user = useAppSelector(currentUser);
 
     const isMe = message.sender?._id === currentUserId;
@@ -941,36 +942,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             console.error("Failed to reject offer:", error);
         }
     };
-
-    // const handleSuggestNewOffer = async (offerData: any) => {
-    //     if (!user || !message.conversationId) {
-    //         console.error("User or conversation not available");
-    //         return;
-    //     }
-
-    //     try {
-    //         await sendMessage({
-    //             conversationId: message.conversationId,
-    //             sender: user._id,
-    //             type: "offer",
-    //             propertyId: offerData.propertyId,
-    //             checkInDate: offerData.checkInDate,
-    //             checkOutDate: offerData.checkOutDate,
-    //             agreedFee: offerData.agreedFee.toString(),
-    //             guestNo: offerData.guestNo,
-    //         }).unwrap();
-
-    //         setShowSuggestOfferModal(false);
-
-    //         // Refetch messages
-    //         setTimeout(() => {
-    //             refetchMessages();
-    //             refetchConversations();
-    //         }, 100);
-    //     } catch (error) {
-    //         console.error("Failed to send new offer:", error);
-    //     }
-    // };
 
     const [convertRequestToOffer, { isLoading: isConverting }] = useConvertRequestToOfferMutation();
 
@@ -1162,7 +1133,111 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         }
     };
 
-    console.log(message);
+    // Review
+
+    const handleStarChange = (setRatingData: React.Dispatch<React.SetStateAction<any>>, field: string, value: number) => {
+        setRatingData((prev: any) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const handleSubmitReview = async (ratingData: any, user: any, createRating: any, setRatingData: React.Dispatch<React.SetStateAction<any>>, message: any, propertyId: string) => {
+        try {
+            console.log("=== DEBUG SUBMIT ===");
+            console.log("UI shows: Review Your", message.sender?._id === message.propertyId?.createdBy?._id ? "Guest" : "Host");
+
+            const propertyOwnerId = message?.propertyId?.createdBy?._id;
+            const me = user?._id;
+            const senderId = message?.sender?._id;
+
+            console.log("IDs:", { me, propertyOwnerId, senderId });
+
+            let actualReviewedId = null;
+            let actualReviewedRole = null;
+
+            // OPPOSITE LOGIC: Review the OTHER person
+            // If UI shows "Review Your Guest" → Actually review HOST
+            // If UI shows "Review Your Host" → Actually review GUEST
+
+            const isSenderHost = senderId === propertyOwnerId;
+
+            if (isSenderHost) {
+                // UI shows "Review Your Guest" but we should review HOST
+                actualReviewedRole = "Host"; // ← OPPOSITE!
+                actualReviewedId = propertyOwnerId;
+                console.log("Message from host → Reviewing HOST (opposite)");
+            } else {
+                // UI shows "Review Your Host" but we should review GUEST
+                actualReviewedRole = "Guest"; // ← OPPOSITE!
+
+                // Guest is the sender (since sender is not host)
+                actualReviewedId = senderId;
+                console.log("Message from guest → Reviewing GUEST (opposite)");
+            }
+
+            console.log("FINAL:", { actualReviewedId, actualReviewedRole });
+
+            if (!actualReviewedId) {
+                toast.error("Unable to find review target");
+                return;
+            }
+
+            // Validation
+            if (ratingData.overallExperience === 0) {
+                toast.error("Please select overall experience rating");
+                return;
+            }
+
+            const requiredFields = ["communication", "accuracy", "cleanliness", "checkInExperience"];
+            const missingFields = requiredFields.filter((f) => ratingData[f] === 0);
+
+            if (missingFields.length > 0) {
+                toast.error(`Please rate: ${missingFields.join(", ")}`);
+                return;
+            }
+
+            // Prepare payload
+            const payload: any = {
+                type: actualReviewedRole === "Guest" ? "guest" : "property",
+                userId: me,
+                reviewedId: actualReviewedId,
+                communication: ratingData.communication,
+                accuracy: ratingData.accuracy,
+                cleanliness: ratingData.cleanliness,
+                checkInExperience: ratingData.checkInExperience,
+                overallExperience: ratingData.overallExperience,
+                description: ratingData.description,
+                status: "approved",
+            };
+
+            if (actualReviewedRole === "Host") {
+                payload.propertyId = propertyId;
+            }
+
+            console.log("Payload:", payload);
+
+            const result = await createRating(payload).unwrap();
+            toast.success(result.message || "Review submitted successfully!");
+
+            setRatingData({
+                communication: 0,
+                accuracy: 0,
+                cleanliness: 0,
+                checkInExperience: 0,
+                overallExperience: 0,
+                description: "",
+            });
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Review failed");
+            console.error(err);
+        }
+    };
+
+    console.log(user);
+    if (message.type === "review") {
+        console.log("Review message:", message);
+    }
 
     // Handle optimistic messages
     if (message.isOptimistic) {
@@ -1218,17 +1293,17 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             description: "",
         });
 
-        const handleStarChange = (field: string, value: number) => {
-            setRatingData((prev) => ({
-                ...prev,
-                [field]: value,
-            }));
-        };
+        const [createRating, { isLoading: isSubmitting }] = useCreateRatingMutation();
 
         const isSenderHost = message.sender?._id === message.propertyId?.createdBy?._id;
-        const personToReview = isSenderHost ? message.sender : message.propertyId?.createdBy;
-        const personToReviewName = personToReview?.name;
-        const personToReviewRole = isSenderHost ? "Guest" : "Host";
+        // const personToReview = isSenderHost ? message.propertyId?.createdBy : message.sender;
+        // const personToReviewName = personToReview?.name;
+        const personToReviewRole = isSenderHost ? "Host" : "Guest";
+        const propertyId = message.propertyId?._id;
+        const isMyMessage = user?._id === message.sender?._id;
+
+        // Disable button if it's YOUR message OR if submitting
+        const shouldDisableButton = isSubmitting || isMyMessage;
 
         return (
             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
@@ -1253,18 +1328,17 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                     <div className="text-center mb-3">
                         <p className="text-[11px] text-[#D4BA71] mb-2">
                             {isSenderHost
-                                ? `We noticed ${personToReviewName} recently stayed in your Nest! Please take a moment to leave a review — your feedback helps guests find future stays and helps hosts decide who to welcome next.`
-                                : `We noticed you recently stayed with one of our hosts, Nest. We'd really appreciate it if you could leave a review - every review helps our hosts improve their listings and reach more guests.`}
+                                ? `We noticed you recently stayed with one of our hosts, Nest. We'd really appreciate it if you could leave a review - every review helps our hosts improve heir listings and reach more guests.`
+                                : `We noticed ${otherParticipant?.name || "the guest"} recently stayed in your Nest! Please take a moment to leave a review — your feedback helps guests find future stays and helps hosts decide who to welcome next.`}
                         </p>
                     </div>
 
-                    {/* Rest of the rating form remains the same */}
                     {/* Communication */}
                     <div className="flex justify-between items-center mb-2">
                         <p className="text-[12px] text-[#D4BA71]">Communication</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <button key={star} type="button" onClick={() => handleStarChange("communication", star)} className="text-xl">
+                                <button disabled={isMyMessage} key={star} type="button" onClick={() => handleStarChange(setRatingData, "communication", star)} className="text-xl">
                                     <Star className={`w-4 h-4 ${star <= ratingData.communication ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
@@ -1276,7 +1350,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         <p className="text-[12px] text-[#D4BA71]">Accuracy</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <button key={star} type="button" onClick={() => handleStarChange("accuracy", star)} className="text-xl">
+                                <button disabled={isMyMessage} key={star} type="button" onClick={() => handleStarChange(setRatingData, "accuracy", star)} className="text-xl">
                                     <Star className={`w-4 h-4 ${star <= ratingData.accuracy ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
@@ -1288,7 +1362,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         <p className="text-[12px] text-[#D4BA71]">Cleanliness</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <button key={star} type="button" onClick={() => handleStarChange("cleanliness", star)} className="text-xl">
+                                <button disabled={isMyMessage} key={star} type="button" onClick={() => handleStarChange(setRatingData, "cleanliness", star)} className="text-xl">
                                     <Star className={`w-4 h-4 ${star <= ratingData.cleanliness ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
@@ -1300,7 +1374,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         <p className="text-[12px] text-[#D4BA71]">Check-in Experience</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <button key={star} type="button" onClick={() => handleStarChange("checkInExperience", star)} className="text-xl">
+                                <button disabled={isMyMessage} key={star} type="button" onClick={() => handleStarChange(setRatingData, "checkInExperience", star)} className="text-xl">
                                     <Star className={`w-4 h-4 ${star <= ratingData.checkInExperience ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
@@ -1312,7 +1386,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         <p className="text-[12px] font-semibold text-[#D4BA71]">Overall Experience</p>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <button key={star} type="button" onClick={() => handleStarChange("overallExperience", star)} className="text-xl">
+                                <button disabled={isMyMessage} key={star} type="button" onClick={() => handleStarChange(setRatingData, "overallExperience", star)} className="text-xl">
                                     <Star className={`w-4 h-4 ${star <= ratingData.overallExperience ? "fill-[#D4BA71] text-[#D4BA71]" : "fill-none text-[#D4BA71]"}`} />
                                 </button>
                             ))}
@@ -1321,13 +1395,15 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
 
                     {/* Description */}
                     <div className="mt-2 ">
-                        <textarea value={ratingData.description} onChange={(e) => setRatingData((prev) => ({ ...prev, description: e.target.value }))} placeholder="Share your experience..." rows={3} className="w-full text-[11px] p-2 border border-[#D4BA71] rounded resize-none bg-transparent placeholder-[#D4BA71] text-[#D4BA71]" maxLength={500} />
+                        <textarea value={ratingData.description} onChange={(e) => setRatingData((prev: any) => ({ ...prev, description: e.target.value }))} placeholder="Share your experience..." rows={3} className="w-full text-[11px] p-2 border border-[#D4BA71] rounded resize-none bg-transparent placeholder-[#D4BA71] text-[#D4BA71]" maxLength={500} />
                         <p className="text-[10px] text-[#D4BA71] text-right">{ratingData.description.length}/500</p>
                     </div>
 
                     {/* Submit Button */}
                     <div className="flex justify-center mt-3">
-                        <button className="border border-[#D4BA71] bg-[#D4BA71] text-white px-6 py-2 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Submit Review</button>
+                        <button onClick={() => handleSubmitReview(ratingData, user, createRating, setRatingData, message, propertyId)} disabled={shouldDisableButton} className="border border-[#D4BA71] bg-[#D4BA71] text-white px-6 py-2 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isSubmitting ? "Submitting..." : "Submit Review"}
+                        </button>
                     </div>
                 </div>
                 {isMe &&
@@ -1349,79 +1425,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
         );
     }
 
-    // if (message.type === "makeoffer") {
-    //     const isPropertyOwner = user?._id === message.propertyId?.createdBy?._id;
-
-    //     // If property owner, show waiting message
-    //     if (isPropertyOwner) {
-    //         return (
-    //             <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-    //                 {!isMe && <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />}
-    //                 <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
-    //                     <p className="font-semibold text-sm text-center">Availability Request</p>
-    //                     <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
-    //                     <p className="text-center text-[12px] mb-3">Waiting for guest to send availability request...</p>
-    //                 </div>
-    //                 {isMe && <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />}
-    //             </div>
-    //         );
-    //     }
-
-    //     // If guest, show the input form - USING YOUR ORIGINAL WORKING SYSTEM
-    //     const nights = getNumberOfNights();
-    //     const propertyPrice = message.propertyId?.price || 100;
-
-    //     return (
-    //         <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-    //             {!isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="mr-2" />}
-    //             <div className="bg-[#D4BA71] p-3 border-2 border-black w-72">
-    //                 <p className="font-semibold text-sm text-center">Request Availability</p>
-    //                 <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
-
-    //                 <p className="text-center text-[12px] mb-2">Requested Dates</p>
-
-    //                 {/* KEEP YOUR ORIGINAL DATE INPUTS THAT WORK */}
-    //                 <div className="grid grid-cols-2 gap-2 mb-3">
-    //                     <div>
-    //                         <label className="block text-[10px] font-medium mb-1">Check In</label>
-    //                         <input type="date" value={checkInDate} onChange={(e) => handleDateChange("checkInDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={new Date().toISOString().split("T")[0]} />
-    //                     </div>
-    //                     <div>
-    //                         <label className="block text-[10px] font-medium mb-1">Check Out</label>
-    //                         <input type="date" value={checkOutDate} onChange={(e) => handleDateChange("checkOutDate", e.target.value)} className="w-full p-1 border border-black text-[10px]" min={checkInDate || new Date().toISOString().split("T")[0]} />
-    //                     </div>
-    //                 </div>
-
-    //                 <div className="mb-3">
-    //                     <label className="block text-[10px] font-medium mb-1">Guests</label>
-    //                     <input type="number" min="1" value={guestNo} onChange={(e) => handleGuestChange(e.target.value)} className="w-full p-1 border border-black text-[10px]" placeholder="Number of guests" />
-    //                 </div>
-
-    //                 {/* Price Display */}
-    //                 {nights > 0 && agreedFee > 0 && (
-    //                     <div className="bg-yellow-50 p-2 border border-yellow-200 rounded mb-3">
-    //                         <div className="flex justify-between text-[10px]">
-    //                             <span>Estimated Price:</span>
-    //                             <span className="font-bold">£{agreedFee}</span>
-    //                         </div>
-    //                         <div className="flex justify-between text-[9px] text-gray-600">
-    //                             <span>
-    //                                 {nights} night{nights !== 1 ? "s" : ""} × £{propertyPrice}
-    //                             </span>
-    //                         </div>
-    //                     </div>
-    //                 )}
-
-    //                 <div className="flex justify-center mt-3">
-    //                     <button onClick={handleRequestAvailability} disabled={isConvertingToRequest || !checkInDate || !checkOutDate || !guestNo} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[10px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-    //                         {isConvertingToRequest ? "Sending..." : "Request Availability"}
-    //                     </button>
-    //                 </div>
-    //             </div>
-    //             {isMe && <Avatar name={user?.name || "Unknown User"} size={30} className="ml-2" />}
-    //         </div>
-    //     );
-    // }
     if (message.type === "makeoffer") {
         const isPropertyOwner = user?._id === message.propertyId?.createdBy?._id;
 
@@ -1517,14 +1520,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
             return `${day}/${month}/${year}`;
         };
 
-        // const calculateTotal = () => {
-        //     const agreedFee = parseFloat(message.agreedFee) || 0;
-        //     const bookingFee = parseFloat(message.bookingFee) || 0;
-        //     return (agreedFee + bookingFee).toFixed(2);
-        // };
-
-        // const totalAmount = message.total || calculateTotal();
-
         const calculateDays = () => {
             if (!message.checkInDate || !message.checkOutDate) return "0 Night";
 
@@ -1590,7 +1585,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                         </div>
                     )}
 
-                    {/* {!message?.bookingFeePaid ? <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p> : <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>} */}
                     {user?._id === message.propertyId?.createdBy?._id ? (
                         !message?.bookingFeePaid ? (
                             <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
@@ -1611,11 +1605,9 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput }: { message:
                                 </button>
                             </div>
                         ) : (
-                            // If bookingFeePaid true - No reject button
                             <div></div>
                         )
-                    ) : // Other User View
-                    !message?.bookingFeePaid ? (
+                    ) : !message?.bookingFeePaid ? (
                         // If bookingFeePaid false - Pay By Card | Withdraw Offer
                         <div className="grid grid-cols-2 gap-4 mt-3 w-full items-stretch">
                             <Link href={`/listings/${message._id}/pay`} className="w-full flex">
