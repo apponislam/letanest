@@ -469,7 +469,13 @@ export default function MessagesLayout2() {
                     </div>
                 </div>
 
-                <div className="flex-1 flex flex-col overflow-y-auto py-6 px-4 gap-4 custom-scrollbar">
+                <div
+                    className="flex-1 flex flex-col overflow-y-auto py-6 px-4 gap-4 custom-scrollbar"
+                    style={{
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "#C9A94D transparent",
+                    }}
+                >
                     {filteredConversations.length === 0 ? (
                         <div className="text-center text-[#14213D] py-8">
                             <MessagesSquare className="h-12 w-12 mx-auto mb-3 text-[#C9A94D] opacity-50" />
@@ -618,7 +624,14 @@ export default function MessagesLayout2() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" ref={messagesContainerRef}>
+                                <div
+                                    className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"
+                                    ref={messagesContainerRef}
+                                    style={{
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "#C9A94D transparent",
+                                    }}
+                                >
                                     {messagesData.length === 0 ? (
                                         <div className="flex-1 flex items-center justify-center h-full">
                                             <div className="text-center">
