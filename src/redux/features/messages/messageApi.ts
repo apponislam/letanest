@@ -163,10 +163,10 @@ export const messageApi = baseApi.injectEndpoints({
             },
         }),
         editOffer: builder.mutation({
-            query: ({ messageId, conversationId, agreedFee, checkInDate, checkOutDate, guestNo }) => ({
+            query: ({ messageId, conversationId, agreedFee, checkInDate, checkOutDate, guestNo, offerEdited }) => ({
                 url: `/messages/${messageId}/edit-offer`,
                 method: "PATCH",
-                body: { conversationId, agreedFee, checkInDate, checkOutDate, guestNo },
+                body: { conversationId, agreedFee, checkInDate, checkOutDate, guestNo, offerEdited },
             }),
             invalidatesTags: (_result, _error, arg) => [{ type: "Messages", id: arg.conversationId }, "Messages", "Conversations"],
             onQueryStarted: async ({ messageId, conversationId, agreedFee, checkInDate, checkOutDate, guestNo }, { dispatch, queryFulfilled }) => {

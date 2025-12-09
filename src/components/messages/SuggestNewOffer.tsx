@@ -16,10 +16,7 @@ const SuggestNewOfferModal = ({ message, isOpen, onClose, onSend, isSending }: {
 
         onSend({
             agreedFee: newPrice,
-            // checkInDate: message.checkInDate,
-            // checkOutDate: message.checkOutDate,
-            // guestNo: message.guestNo,
-            // propertyId: message.propertyId._id,
+            offerEdited: true,
         });
     };
 

@@ -18,6 +18,7 @@ const EditOfferModal = ({ message, isOpen, onClose, onSave, isEditing }: { messa
         // Only send the new agreed fee - keep original dates and guest number
         onSave({
             agreedFee: newPrice,
+            offerEdited: true,
         });
     };
 
