@@ -22,6 +22,7 @@ import { IUser } from "@/types/property";
 import DateSelectionWithPrice from "./DateSelectionWithPrice";
 import { differenceInDays } from "date-fns";
 import { DateRange } from "react-day-picker";
+import RatingsSection from "./RatingsSection";
 
 export default function PropertyPage2() {
     const [selectedDates, setSelectedDates] = useState<DateRange | undefined>();
@@ -600,7 +601,7 @@ export default function PropertyPage2() {
                             </div>
                         )}
 
-                        <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
+                        {/* <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Ratings</h1>
 
                             {propertyRatingsLoading ? (
@@ -620,11 +621,9 @@ export default function PropertyPage2() {
                                 <p className="text-gray-300">No ratings yet</p>
                             ) : (
                                 <div className="space-y-6">
-                                    {/* Average rating */}
-
-                                    {/* Individual ratings */}
+                           
                                     {propertyRatingsArray.map((r) => {
-                                        // Type guard to check if userId is an object
+                          
                                         const isUserObject = typeof r.userId === "object" && r.userId !== null;
                                         const userName = isUserObject ? (r.userId as IUser).name : "Unknown User";
                                         const userProfileImg = isUserObject ? (r.userId as IUser).profileImg : undefined;
@@ -632,10 +631,9 @@ export default function PropertyPage2() {
 
                                         return (
                                             <div key={r._id} className="flex items-start gap-4">
-                                                {/* Profile image or avatar */}
+                                            
                                                 {userProfileImg ? <img src={userProfileImg} alt={userName} className="h-12 w-12 rounded-full object-cover" /> : <div className="h-12 w-12 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">{userInitial}</div>}
 
-                                                {/* Rating info */}
                                                 <div className="flex-1">
                                                     <p className="text-white font-semibold">{userName}</p>
                                                     <div className="flex items-center gap-2 mb-1">
@@ -649,7 +647,9 @@ export default function PropertyPage2() {
                                     })}
                                 </div>
                             )}
-                        </div>
+                        </div> */}
+
+                        <RatingsSection propertyRatingsLoading={propertyRatingsLoading} propertyRatingsArray={propertyRatingsArray}></RatingsSection>
 
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Location</h1>

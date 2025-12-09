@@ -1713,7 +1713,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                             <p className="text-center mt-1 text-[9px]">One last step — pay the host and your nest for your next stay is all yours!</p>
                         )}
                     </div>
-                    {message.bookingFeePaid && <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Booking Fee Paid</div>}
+                    {message.hostFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Host Fee Paid</div> : message.bookingFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Booking Fee Paid</div> : null}
                 </div>
                 {isMe &&
                     (message.sender?.profileImg ? (
@@ -1780,62 +1780,65 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
-                    <p className="font-semibold text-sm text-center">Booking Offer</p>
-                    <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
-                    <p className="text-center font-bold mb-2">£{message?.agreedFee}</p>
-                    <p className="text-center text-[12px]">Requested Dates:</p>
+                <div>
+                    <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
+                        <p className="font-semibold text-sm text-center">Booking Offer</p>
+                        <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                        <p className="text-center font-bold mb-2">£{message?.agreedFee}</p>
+                        <p className="text-center text-[12px]">Requested Dates:</p>
 
-                    <p className="text-center text-[12px] ">
-                        {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
-                    </p>
+                        <p className="text-center text-[12px] ">
+                            {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
+                        </p>
 
-                    <p className="text-center text-[12px] mb-2">{calculateDays()}</p>
+                        <p className="text-center text-[12px] mb-2">{calculateDays()}</p>
 
-                    {message.guestNo && (
-                        <div>
-                            <p className="text-center text-[12px] ">Guests:</p>
-                            <p className="text-[10px] text-center mb-2">{message.guestNo}</p>
-                        </div>
-                    )}
+                        {message.guestNo && (
+                            <div>
+                                <p className="text-center text-[12px] ">Guests:</p>
+                                <p className="text-[10px] text-center mb-2">{message.guestNo}</p>
+                            </div>
+                        )}
 
-                    {user?._id === message.propertyId?.createdBy?._id ? (
-                        // Property Owner View - Show grid of buttons
-                        <div className="grid grid-cols-2 gap-2 mt-3 w-full">
-                            <button onClick={handleConvertToOffer} disabled={isConverting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isConverting ? "Accepting..." : "Accept Offer"}
-                            </button>
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Rejecting..." : "Reject Offer"}
-                            </button>
-                            <button onClick={() => setShowSuggestOfferModal(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                Suggest New Offer
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (focusMessageInput) {
-                                        focusMessageInput();
-                                    }
-                                }}
-                                className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
-                            >
-                                Message Guest
-                            </button>
-                        </div>
-                    ) : (
-                        // Other User View - Show only Make Offer and Withdraw Offer
-                        <div className="grid grid-cols-2 gap-4 mt-3 w-full">
-                            <button onClick={() => setIsEditModalOpen(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">
-                                Edit/Change Offer
-                            </button>
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
-                            </button>
-                        </div>
-                    )}
-                    {user?._id === message.propertyId?.createdBy?._id ? <p className="text-center mt-1 text-[9px]">You've received a new offer. Please response within 48 hours - after that, the offer will automatically expire.</p> : <p className="text-center mt-1 text-[9px]">Thank you! Your offer has been sent to the host for review</p>}
-                    <EditOfferModal message={message} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleEditOffer} isEditing={isEditing} />
+                        {user?._id === message.propertyId?.createdBy?._id ? (
+                            // Property Owner View - Show grid of buttons
+                            <div className="grid grid-cols-2 gap-2 mt-3 w-full">
+                                <button onClick={handleConvertToOffer} disabled={isConverting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isConverting ? "Accepting..." : "Accept Offer"}
+                                </button>
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Rejecting..." : "Reject Offer"}
+                                </button>
+                                <button onClick={() => setShowSuggestOfferModal(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    Suggest New Offer
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (focusMessageInput) {
+                                            focusMessageInput();
+                                        }
+                                    }}
+                                    className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
+                                >
+                                    Message Guest
+                                </button>
+                            </div>
+                        ) : (
+                            // Other User View - Show only Make Offer and Withdraw Offer
+                            <div className="grid grid-cols-2 gap-4 mt-3 w-full">
+                                <button onClick={() => setIsEditModalOpen(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">
+                                    Edit/Change Offer
+                                </button>
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
+                                </button>
+                            </div>
+                        )}
+                        {user?._id === message.propertyId?.createdBy?._id ? <p className="text-center mt-1 text-[9px]">You've received a new offer. Please response within 48 hours - after that, the offer will automatically expire.</p> : <p className="text-center mt-1 text-[9px]">Thank you! Your offer has been sent to the host for review</p>}
+                    </div>
+                    {message.offerEdited ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Offer is Changed</div> : null}
                 </div>
+                <EditOfferModal message={message} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleEditOffer} isEditing={isEditing} />
 
                 <SuggestNewOfferModal message={message} isOpen={showSuggestOfferModal} onClose={() => setShowSuggestOfferModal(false)} onSend={handleSuggestNewOffer} isSending={isEditing} />
 
@@ -1876,47 +1879,50 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
-                    <p className="font-semibold text-sm text-center">Offer Accepted</p>
-                    <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                <div>
+                    <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
+                        <p className="font-semibold text-sm text-center">Offer Accepted</p>
+                        <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
 
-                    <div className="flex flex-col gap-3">
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
-                                <span>Property:</span>
+                        <div className="flex flex-col gap-3">
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
+                                    <span>Property:</span>
+                                </div>
+                                <span className="font-semibold">{message?.propertyId?.title}</span>
                             </div>
-                            <span className="font-semibold">{message?.propertyId?.title}</span>
+
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
+                                    <span>Address:</span>
+                                </div>
+                                <span className="font-semibold text-right">{message?.propertyId?.location}</span>
+                            </div>
+
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
+                                    <span>Manager:</span>
+                                </div>
+                                <span className="font-semibold">{message.propertyId?.createdBy?.name}</span>
+                            </div>
+
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
+                                    <span>Phone:</span>
+                                </div>
+                                <span className="font-semibold">{message.propertyId?.createdBy?.phone}</span>
+                            </div>
                         </div>
 
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
-                                <span>Address:</span>
-                            </div>
-                            <span className="font-semibold text-right">{message?.propertyId?.location}</span>
-                        </div>
-
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
-                                <span>Manager:</span>
-                            </div>
-                            <span className="font-semibold">{message.propertyId?.createdBy?.name}</span>
-                        </div>
-
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
-                                <span>Phone:</span>
-                            </div>
-                            <span className="font-semibold">{message.propertyId?.createdBy?.phone}</span>
+                        <div className="flex justify-center mt-3">
+                            <div className="border border-black bg-[#16223D] text-white px-6 py-1 text-[10px]">Booking Confirmed</div>
                         </div>
                     </div>
-
-                    <div className="flex justify-center mt-3">
-                        <div className="border border-black bg-[#16223D] text-white px-6 py-1 text-[10px]">Booking Confirmed</div>
-                    </div>
+                    {message.hostFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Host Fee Paid</div> : message.bookingFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Booking Fee Paid</div> : null}
                 </div>
                 {isMe &&
                     (message.sender?.profileImg ? (
