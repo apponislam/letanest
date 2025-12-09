@@ -1029,14 +1029,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
         setGuestNo(value);
     };
 
-    // const getNumberOfNights = () => {
-    //     if (!checkInDate || !checkOutDate) return 0;
-    //     const checkIn = new Date(checkInDate);
-    //     const checkOut = new Date(checkOutDate);
-    //     const timeDiff = checkOut.getTime() - checkIn.getTime();
-    //     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    // };
-
     const [tempDate, setTempDate] = useState<DateRange | undefined>();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const propertyPrice = message.propertyId?.price || 100;
@@ -1237,6 +1229,10 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
             console.error(err);
         }
     };
+
+    if (message.type === "offer") {
+        console.log(message);
+    }
 
     // Handle optimistic messages
     if (message.isOptimistic) {
@@ -1606,19 +1602,13 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
         const calculateDays = () => {
             if (!message.checkInDate || !message.checkOutDate) return "0 Night";
-
             const checkIn = new Date(message.checkInDate);
             const checkOut = new Date(message.checkOutDate);
-
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
-
-            // FIXED: Add +1 day to checkout date for correct night calculation
             const adjustedCheckOut = new Date(checkOut);
             adjustedCheckOut.setDate(adjustedCheckOut.getDate() + 1);
-
             const timeDiff = adjustedCheckOut.getTime() - checkIn.getTime();
             const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };
 
@@ -1639,88 +1629,91 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
-                    <p className="font-semibold text-sm text-center">Nest Offer</p>
-                    <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
-                    <p className="text-center font-bold mb-1 text-[14px]">Host Agreed Fee - £{message?.agreedFee}</p>
+                <div>
+                    <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
+                        <p className="font-semibold text-sm text-center">Nest Offer</p>
+                        <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                        <p className="text-center font-bold mb-1 text-[14px]">Host Agreed Fee - £{message?.agreedFee}</p>
 
-                    {!message?.bookingFeePaid && (
-                        <p className="text-center font-bold mb-2 text-[14px]">
-                            Booking Fee - £{message?.bookingFee} (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
-                        </p>
-                    )}
-
-                    <div className="flex justify-between">
-                        <p className="text-center text-[12px]">Requested Dates:</p>
-
-                        <div>
-                            <p className="text-right text-[12px] ">
-                                {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
+                        {!message?.bookingFeePaid && (
+                            <p className="text-center font-bold mb-2 text-[14px]">
+                                Booking Fee - £{message?.bookingFee} (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
                             </p>
+                        )}
 
-                            <p className="text-right text-[12px] mb-2">{calculateDays()}</p>
-                        </div>
-                    </div>
-
-                    {message.guestNo && (
                         <div className="flex justify-between">
-                            <p className=" text-[12px] ">Guests:</p>
-                            <p className="text-[10px]  mb-2">{message.guestNo}</p>
+                            <p className="text-center text-[12px]">Requested Dates:</p>
+
+                            <div>
+                                <p className="text-right text-[12px] ">
+                                    {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
+                                </p>
+
+                                <p className="text-right text-[12px] mb-2">{calculateDays()}</p>
+                            </div>
                         </div>
-                    )}
 
-                    {user?._id === message.propertyId?.createdBy?._id ? (
-                        !message?.bookingFeePaid ? (
-                            <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
+                        {message.guestNo && (
+                            <div className="flex justify-between">
+                                <p className=" text-[12px] ">Guests:</p>
+                                <p className="text-[10px]  mb-2">{message.guestNo}</p>
+                            </div>
+                        )}
+
+                        {user?._id === message.propertyId?.createdBy?._id ? (
+                            !message?.bookingFeePaid ? (
+                                <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
+                            ) : (
+                                <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.agreedFee}</p>
+                            )
+                        ) : !message?.bookingFeePaid ? (
+                            <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p>
                         ) : (
-                            <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.agreedFee}</p>
-                        )
-                    ) : !message?.bookingFeePaid ? (
-                        <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p>
-                    ) : (
-                        <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>
-                    )}
+                            <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>
+                        )}
 
-                    {user?._id === message.propertyId?.createdBy?._id ? (
-                        !message?.bookingFeePaid ? (
-                            <div className="flex justify-center mt-3 w-full">
-                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-[120px] cursor-pointer">
-                                    {isRejecting ? "Rejecting..." : "Withdraw Offer"}
+                        {user?._id === message.propertyId?.createdBy?._id ? (
+                            !message?.bookingFeePaid ? (
+                                <div className="flex justify-center mt-3 w-full">
+                                    <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-[120px] cursor-pointer">
+                                        {isRejecting ? "Rejecting..." : "Withdraw Offer"}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div></div>
+                            )
+                        ) : !message?.bookingFeePaid ? (
+                            // If bookingFeePaid false - Pay By Card | Withdraw Offer
+                            <div className="grid grid-cols-2 gap-4 mt-3 w-full items-stretch">
+                                <Link href={`/listings/${message._id}/pay`} className="w-full flex">
+                                    <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full flex-1 cursor-pointer">Pay By Card</button>
+                                </Link>
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
                                 </button>
                             </div>
                         ) : (
-                            <div></div>
-                        )
-                    ) : !message?.bookingFeePaid ? (
-                        // If bookingFeePaid false - Pay By Card | Withdraw Offer
-                        <div className="grid grid-cols-2 gap-4 mt-3 w-full items-stretch">
-                            <Link href={`/listings/${message._id}/pay`} className="w-full flex">
-                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full flex-1 cursor-pointer">Pay By Card</button>
-                            </Link>
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
-                            </button>
-                        </div>
-                    ) : (
-                        // If bookingFeePaid true - Pay By Card | Pay By Bank Transfer | Withdraw Offer
-                        <div className="grid grid-cols-2 gap-2 mt-3 w-full items-stretch">
-                            <Link href={`/listings/${message._id}/pay`} className="w-full flex">
-                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Pay By Card</button>
-                            </Link>
-                            <button onClick={() => handleBankTransferClick(message.propertyId?.createdBy?._id)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">
-                                Pay By Bank Transfer
-                            </button>
-                            <div></div> {/* Empty space */}
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
-                            </button>
-                        </div>
-                    )}
-                    {user?._id === message.propertyId?.createdBy?._id ? null : !message?.bookingFeePaid ? ( // Property Owner - Show nothing // Guest
-                        <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
-                    ) : (
-                        <p className="text-center mt-1 text-[9px]">One last step — pay the host and your nest for your next stay is all yours!</p>
-                    )}
+                            // If bookingFeePaid true - Pay By Card | Pay By Bank Transfer | Withdraw Offer
+                            <div className="grid grid-cols-2 gap-2 mt-3 w-full items-stretch">
+                                <Link href={`/listings/${message._id}/pay`} className="w-full flex">
+                                    <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Pay By Card</button>
+                                </Link>
+                                <button onClick={() => handleBankTransferClick(message.propertyId?.createdBy?._id)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">
+                                    Pay By Bank Transfer
+                                </button>
+                                <div></div> {/* Empty space */}
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
+                                </button>
+                            </div>
+                        )}
+                        {user?._id === message.propertyId?.createdBy?._id ? null : !message?.bookingFeePaid ? ( // Property Owner - Show nothing // Guest
+                            <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
+                        ) : (
+                            <p className="text-center mt-1 text-[9px]">One last step — pay the host and your nest for your next stay is all yours!</p>
+                        )}
+                    </div>
+                    {message.bookingFeePaid && <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Booking Fee Paid</div>}
                 </div>
                 {isMe &&
                     (message.sender?.profileImg ? (
