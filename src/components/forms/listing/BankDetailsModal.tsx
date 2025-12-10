@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CheckCircle, CreditCard, Plus, Edit, Trash2, X, Building, User, Globe } from "lucide-react";
+import { CheckCircle, CreditCard, Plus, Edit, Trash2, X, Building, User, Globe, Hash, GlobeIcon, Key } from "lucide-react";
 import Image from "next/image";
 import { useCreateBankDetailsMutation, useGetMyBankDetailsQuery, useUpdateMyBankDetailsMutation, useDeleteMyBankDetailsMutation } from "@/redux/features/bankdetails/bankDetailsApi";
 import { toast } from "sonner";
@@ -16,13 +16,16 @@ const BankDetailsModal = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
 
-    // Form state
+    // Form state - UPDATED with new fields
     const [formData, setFormData] = useState({
         accountHolderName: "",
         accountNumber: "",
+        sortCode: "", // NEW FIELD
         bankName: "",
         accountType: "personal" as "personal" | "business",
         country: "",
+        iban: "", // NEW FIELD (optional)
+        bicSwift: "", // NEW FIELD (optional)
     });
 
     // Derived state
@@ -35,9 +38,12 @@ const BankDetailsModal = () => {
             setFormData({
                 accountHolderName: bankDetails.accountHolderName,
                 accountNumber: bankDetails.accountNumber,
+                sortCode: bankDetails.sortCode || "", // NEW
                 bankName: bankDetails.bankName,
                 accountType: bankDetails.accountType,
                 country: bankDetails.country,
+                iban: bankDetails.iban || "", // NEW
+                bicSwift: bankDetails.bicSwift || "", // NEW
             });
         }
     }, [bankDetails, isEditMode]);
@@ -46,9 +52,12 @@ const BankDetailsModal = () => {
         setFormData({
             accountHolderName: "",
             accountNumber: "",
+            sortCode: "", // NEW
             bankName: "",
             accountType: "personal",
             country: "",
+            iban: "", // NEW
+            bicSwift: "", // NEW
         });
         setIsEditMode(false);
     };
@@ -56,12 +65,26 @@ const BankDetailsModal = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Create payload with optional fields only if they have values
+        const payload: any = {
+            accountHolderName: formData.accountHolderName,
+            accountNumber: formData.accountNumber,
+            sortCode: formData.sortCode, // NEW
+            bankName: formData.bankName,
+            accountType: formData.accountType,
+            country: formData.country,
+        };
+
+        // Add optional fields if they exist
+        if (formData.iban.trim()) payload.iban = formData.iban;
+        if (formData.bicSwift.trim()) payload.bicSwift = formData.bicSwift;
+
         try {
             if (isEditMode) {
-                await updateBankDetails(formData).unwrap();
+                await updateBankDetails(payload).unwrap();
                 toast.success("Bank details updated successfully");
             } else {
-                await createBankDetails(formData).unwrap();
+                await createBankDetails(payload).unwrap();
                 toast.success("Bank details added successfully");
             }
 
@@ -110,6 +133,17 @@ const BankDetailsModal = () => {
                                 <h2 className="font-bold mb-2 text-[14px]">Bank Details Information</h2>
                                 <p className="mb-2">You can receive payments securely by adding your bank details — this is fully permitted and ensures your funds go directly to your account via bank transfer.</p>
                                 <p className="mb-2">If you want to access additional features, you can also link or set up a Stripe account, but adding your bank details is enough to start receiving payments safely.</p>
+
+                                {/* ADDED: Bank transfer requirements info */}
+                                <div className="mt-4 pt-4 border-t border-gray-600">
+                                    <h3 className="font-bold mb-2 text-[13px]">For UK Bank Transfers, provide:</h3>
+                                    <ul className="space-y-1 text-[12px]">
+                                        <li>• Account Holder Name</li>
+                                        <li>• 8-digit Account Number</li>
+                                        <li>• 6-digit Sort Code (e.g., 12-34-56)</li>
+                                    </ul>
+                                    <p className="mt-2 text-[12px]">For international transfers, also provide IBAN and BIC/SWIFT code.</p>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -176,6 +210,17 @@ const BankDetailsModal = () => {
                                             </div>
                                         </div>
 
+                                        {/* NEW: Sort Code */}
+                                        {bankDetails.sortCode && (
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                                <Hash className="w-4 h-4 text-[#C9A94D]" />
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Sort Code</p>
+                                                    <p className="font-medium text-[#14213D]">{bankDetails.sortCode}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                             <Building className="w-4 h-4 text-[#C9A94D]" />
                                             <div>
@@ -191,6 +236,28 @@ const BankDetailsModal = () => {
                                                 <p className="font-medium text-[#14213D]">{bankDetails.country}</p>
                                             </div>
                                         </div>
+
+                                        {/* NEW: IBAN */}
+                                        {bankDetails.iban && (
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                                <GlobeIcon className="w-4 h-4 text-[#C9A94D]" />
+                                                <div>
+                                                    <p className="text-xs text-gray-500">IBAN</p>
+                                                    <p className="font-medium text-[#14213D]">{bankDetails.iban}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* NEW: BIC/SWIFT */}
+                                        {bankDetails.bicSwift && (
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                                <Key className="w-4 h-4 text-[#C9A94D]" />
+                                                <div>
+                                                    <p className="text-xs text-gray-500">BIC/SWIFT Code</p>
+                                                    <p className="font-medium text-[#14213D]">{bankDetails.bicSwift}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Action Buttons */}
@@ -209,23 +276,32 @@ const BankDetailsModal = () => {
                                 // Add/Edit Form
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Account Holder Name</label>
+                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Account Holder Name *</label>
                                         <input type="text" required value={formData.accountHolderName} onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="John Doe" />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Account Number</label>
-                                        <input type="text" required value={formData.accountNumber} onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="1234567890" />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Bank Name</label>
-                                        <input type="text" required value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="Bank of America" />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Account Type</label>
+                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Account Number *</label>
+                                            <input type="text" required value={formData.accountNumber} onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="12345678" />
+                                            <p className="text-xs text-gray-500 mt-1">8 digits for UK</p>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Sort Code *</label>
+                                            <input type="text" required value={formData.sortCode} onChange={(e) => setFormData({ ...formData, sortCode: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="12-34-56 or 123456" />
+                                            <p className="text-xs text-gray-500 mt-1">6 digits for UK</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Bank Name *</label>
+                                        <input type="text" required value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="HSBC, Barclays, etc." />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Account Type *</label>
                                             <select required value={formData.accountType} onChange={(e) => setFormData({ ...formData, accountType: e.target.value as "personal" | "business" })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent">
                                                 <option value="personal">Personal</option>
                                                 <option value="business">Business</option>
@@ -233,15 +309,27 @@ const BankDetailsModal = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Country</label>
-                                            <input type="text" required value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="United States" />
+                                            <label className="block text-sm font-medium text-[#14213D] mb-1">Country *</label>
+                                            <input type="text" required value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="United Kingdom" />
                                         </div>
+                                    </div>
+
+                                    {/* NEW: International fields (optional) */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#14213D] mb-1">IBAN (Optional)</label>
+                                        <input type="text" value={formData.iban} onChange={(e) => setFormData({ ...formData, iban: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="GB29NWBK60161331926819" />
+                                        <p className="text-xs text-gray-500 mt-1">For international transfers</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#14213D] mb-1">BIC/SWIFT Code (Optional)</label>
+                                        <input type="text" value={formData.bicSwift} onChange={(e) => setFormData({ ...formData, bicSwift: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="NWBKGB2L" />
+                                        <p className="text-xs text-gray-500 mt-1">For international transfers</p>
                                     </div>
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-3 pt-4">
                                         <button type="submit" disabled={isLoading} className="flex-1 bg-[#C9A94D] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
-                                            {/* {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4" />} */}
                                             {isLoading ? "Saving..." : isEditMode ? "Update Details" : "Add Bank Details"}
                                         </button>
                                         <button
