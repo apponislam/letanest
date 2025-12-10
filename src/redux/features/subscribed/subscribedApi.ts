@@ -49,6 +49,7 @@ interface ApiResponse<T> {
 }
 
 const subscribedApi = baseApi.injectEndpoints({
+    overrideExisting: true,
     endpoints: (builder) => ({
         // Create user subscription
         createUserSubscription: builder.mutation<ApiResponse<IUserSubscription>, CreateUserSubscriptionData>({
@@ -90,10 +91,10 @@ const subscribedApi = baseApi.injectEndpoints({
         // Cancel subscription
         cancelSubscription: builder.mutation<ApiResponse<IUserSubscription>, string>({
             query: (id) => ({
-                url: `/subscriptions/${id}/cancel`,
+                url: `/subscribed/${id}/cancel`,
                 method: "PATCH",
             }),
-            invalidatesTags: (result, error, id) => [{ type: "UserSubscription", id }, "UserSubscription"],
+            invalidatesTags: ["UserSubscription", "MySubscriptions"],
         }),
 
         // Update subscription status
@@ -106,7 +107,6 @@ const subscribedApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, { id }) => [{ type: "UserSubscription", id }, "UserSubscription"],
         }),
     }),
-    overrideExisting: false,
 });
 
 export const { useCreateUserSubscriptionMutation, useGetMySubscriptionsQuery, useGetMyActiveSubscriptionQuery, useGetUserSubscriptionQuery, useCancelSubscriptionMutation, useUpdateSubscriptionStatusMutation } = subscribedApi;
