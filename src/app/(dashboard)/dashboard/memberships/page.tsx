@@ -10,8 +10,6 @@ import HostPlansPage from "@/components/dashboard/memberships/HostPlansPage";
 const Page = () => {
     const mainuser = useAppSelector(currentUser);
 
-    // console.log("Logged-in user:", mainuser);
-
     if (mainuser?.role === "ADMIN") {
         return <MemberShip />;
     }

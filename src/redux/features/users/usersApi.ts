@@ -112,6 +112,28 @@ export interface IFreeTireSub {
     commission?: number;
 }
 
+export interface ICurrentSubscription {
+    _id: string;
+    user: string;
+    subscription: string;
+    stripeSubscriptionId: string;
+    stripeCustomerId: string;
+    stripePriceId: string;
+    status: "active" | "canceled" | "past_due" | "unpaid" | "incomplete" | "trialing";
+    currentPeriodStart: string;
+    currentPeriodEnd: string;
+    cancelAtPeriodEnd: boolean;
+    isFreeTier: boolean;
+    cost: number;
+    currency: string;
+    bookingFee: number;
+    commission: number;
+    listingLimit: number;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+}
+
 export interface IUserWithSubscriptions {
     _id: string;
     name: string;
@@ -122,6 +144,7 @@ export interface IUserWithSubscriptions {
     freeTireExpiry?: string;
     freeTireSub?: IFreeTireSub;
     subscriptions?: IUserSubscriptionItem[];
+    currentSubscription?: ICurrentSubscription;
 }
 
 export interface IUserSubscriptionsResponse {
@@ -249,7 +272,7 @@ export const userApi = baseApi.injectEndpoints({
             invalidatesTags: ["Users"],
         }),
         // NEW: Get current user subscriptions
-        getMySubscriptions: build.query<IUserSubscriptionsResponse, void>({
+        getAllMySubscriptions: build.query<IUserSubscriptionsResponse, void>({
             query: () => ({
                 url: "/users/me/subscriptions",
                 method: "GET",
@@ -384,7 +407,7 @@ export const {
     useGetAllUsersQuery,
     useGetSingleUserQuery,
     useUpdateUserProfileMutation,
-    useGetMySubscriptionsQuery,
+    useGetAllMySubscriptionsQuery,
     useActivateFreeTierMutation,
     // 🆕 Stripe Connect hooks
     useConnectStripeAccountMutation,
