@@ -7,7 +7,7 @@ import { toast } from "sonner";
 const StripeAccountManager = () => {
     // API Hooks
     const { data: accountStatus, refetch: refetchStatus } = useGetStripeAccountStatusQuery();
-    const { data: dashboardData } = useGetStripeDashboardQuery();
+    const { data: dashboardData, refetch: refetchDash } = useGetStripeDashboardQuery();
     const [connectStripe, { isLoading: isConnecting }] = useConnectStripeAccountMutation();
     const [disconnectStripe, { isLoading: isDisconnecting }] = useDisconnectStripeAccountMutation();
 
@@ -43,6 +43,7 @@ const StripeAccountManager = () => {
 
             // Optional: Add small delay to ensure cache is updated
             setTimeout(() => {
+                refetchDash();
                 refetchStatus();
             }, 500);
         } catch (error: any) {

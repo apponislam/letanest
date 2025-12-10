@@ -19,6 +19,7 @@ import { currentUser } from "@/redux/features/auth/authSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import BankDetailsModal from "./BankDetailsModal";
+import { useGetMyBankDetailsQuery } from "@/redux/features/bankdetails/bankDetailsApi";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -176,6 +177,11 @@ const AddListingForm: React.FC = () => {
     const accountStatus = response?.data?.status;
     const { data: myProfile } = useGetMyProfileQuery();
     const verificationStatus = myProfile?.data?.profile?.verificationStatus;
+    const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
+    console.log(response);
+    console.log(bankDetailsResponse);
+    const isDisabled = bankDetailsResponse?.data == null && response == null;
+    console.log(isDisabled);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -806,7 +812,7 @@ const AddListingForm: React.FC = () => {
                             <span>{step2Data?.bathrooms || "N/A"} Bathrooms</span>
                         </div>
                     </div>
-                    <BankDetailsModal></BankDetailsModal>
+                    <BankDetailsModal bankDetailsResponse={bankDetailsResponse} bankDetailsLoading={bankDetailsLoading} refetchBankDetails={refetchBankDetails} />
 
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-2">
@@ -954,7 +960,7 @@ const AddListingForm: React.FC = () => {
                         <button type="button" onClick={() => setActiveTab("step3")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition cursor-pointer">
                             Previous
                         </button>
-                        <button type="submit" disabled={isLoading} className={`flex items-center cursor-pointer justify-center gap-2 py-2 px-10 rounded-lg transition text-white ${isLoading ? "bg-[#bfa14a] cursor-not-allowed" : "bg-[#C9A94D] hover:bg-[#bfa14a]"}`}>
+                        <button type="submit" disabled={isDisabled || isLoading} className={`flex items-center justify-center gap-2 py-2 px-10 rounded-lg transition text-white ${isDisabled || isLoading ? "bg-[#535a6b] cursor-not-allowed" : "bg-[#C9A94D] hover:bg-[#bfa14a] cursor-pointer"}`}>
                             {isLoading ? (
                                 <>
                                     <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

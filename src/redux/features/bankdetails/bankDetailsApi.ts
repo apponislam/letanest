@@ -226,6 +226,17 @@ export const bankDetailsApi = baseApi.injectEndpoints({
                 method: "GET",
             }),
             providesTags: ["MyBankDetails"],
+            transformResponse: (response: any) => {
+                if (!response || response.statusCode === 404) {
+                    return {
+                        statusCode: 200,
+                        success: true,
+                        message: "No bank details found",
+                        data: null,
+                    };
+                }
+                return response;
+            },
         }),
 
         getBankDetailsByUserId: build.query<BankDetailsListResponse, string>({
@@ -233,7 +244,7 @@ export const bankDetailsApi = baseApi.injectEndpoints({
                 url: `/bank-details/user/${userId}`,
                 method: "GET",
             }),
-            providesTags: (result, error, userId) => [{ type: "BankDetails", id: userId }],
+            providesTags: ["MyBankDetails"],
         }),
 
         // Update my bank details

@@ -2,13 +2,22 @@
 import { useState, useEffect } from "react";
 import { CheckCircle, CreditCard, Plus, Edit, Trash2, X, Building, User, Globe, Hash, GlobeIcon, Key } from "lucide-react";
 import Image from "next/image";
-import { useCreateBankDetailsMutation, useGetMyBankDetailsQuery, useUpdateMyBankDetailsMutation, useDeleteMyBankDetailsMutation } from "@/redux/features/bankdetails/bankDetailsApi";
+import { useCreateBankDetailsMutation, useGetMyBankDetailsQuery, useUpdateMyBankDetailsMutation, useDeleteMyBankDetailsMutation, bankDetailsApi } from "@/redux/features/bankdetails/bankDetailsApi";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
+import { useDispatch } from "react-redux";
 
-const BankDetailsModal = () => {
+interface BankDetailsModalProps {
+    bankDetailsResponse: any;
+    bankDetailsLoading: boolean;
+    refetchBankDetails: () => void;
+}
+
+const BankDetailsModal = ({ bankDetailsResponse, bankDetailsLoading, refetchBankDetails }: BankDetailsModalProps) => {
+    const dispatch = useDispatch();
     const [showBankRules, setShowBankRules] = useState(false);
     // API Hooks
-    const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
+    // const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
     const [createBankDetails, { isLoading: isCreating }] = useCreateBankDetailsMutation();
     const [updateBankDetails, { isLoading: isUpdating }] = useUpdateMyBankDetailsMutation();
     const [deleteBankDetails, { isLoading: isDeleting }] = useDeleteMyBankDetailsMutation();
@@ -97,16 +106,43 @@ const BankDetailsModal = () => {
     };
 
     const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete your bank details?")) return;
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to delete your bank details",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#C9A94D",
+            cancelButtonColor: "#434D64",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            background: "#2D3546",
+            color: "#FFFFFF",
+            customClass: {
+                popup: "border border-[#C9A94D] rounded-[20px]",
+                title: "text-[#C9A94D]",
+                htmlContainer: "text-gray-300",
+                confirmButton: "bg-[#C9A94D] hover:bg-[#b8973e] text-white font-medium py-2 px-6 rounded-lg transition",
+                cancelButton: "bg-[#434D64] hover:bg-[#535a6b] text-white font-medium py-2 px-6 rounded-lg transition",
+                icon: "text-[#C9A94D]",
+                actions: "gap-3 mt-4",
+            },
+            buttonsStyling: false,
+            reverseButtons: true,
+        });
+
+        if (!result.isConfirmed) return;
 
         try {
             await deleteBankDetails().unwrap();
             toast.success("Bank details deleted successfully");
-            await refetchBankDetails();
+            dispatch(bankDetailsApi.util.invalidateTags(["MyBankDetails"]));
+            refetchBankDetails();
+            console.log(bankDetailsResponse);
             setIsModalOpen(false);
             resetForm();
         } catch (error: any) {
             toast.error(error?.data?.message || "Failed to delete bank details");
+            refetchBankDetails();
         }
     };
 

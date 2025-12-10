@@ -480,9 +480,9 @@ export default function PropertyPage2() {
                                 {/* Create sleeping arrangement from property data */}
                                 <div className="flex flex-col items-center">
                                     {/* Grid of images - using all property images */}
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full">
                                         {allImages.slice(0, 3).map((img, i) => (
-                                            <div key={i} className="relative w-full h-32 md:h-64 rounded-lg overflow-hidden">
+                                            <div key={i} className="relative w-full h-32 md:h-96 rounded-lg overflow-hidden">
                                                 <Image
                                                     src={getImageUrl(img)}
                                                     alt={`${property.title} image ${i + 1}`}
