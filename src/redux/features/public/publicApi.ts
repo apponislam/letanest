@@ -103,7 +103,26 @@ export const termsApi = baseApi.injectEndpoints({
             }),
             providesTags: ["Terms"],
         }),
+        getPropertyDefault: builder.query<ApiResponse<TermsAndConditions>, void>({
+            query: () => ({
+                url: `/public/default/property`,
+                method: "GET",
+            }),
+            providesTags: ["Terms"],
+        }),
     }),
 });
 
-export const { useCreateTermsMutation, useGetAllTermsQuery, useGetTermByIdQuery, useGetDefaultHostTermsQuery, useUpdateTermMutation, useDeleteTermMutation, useGetTermsByTargetQuery, useGetTermsByPropertyQuery, useGetMyDefaultHostTermsQuery } = termsApi;
+export const {
+    useCreateTermsMutation,
+    useGetAllTermsQuery,
+    useGetTermByIdQuery,
+    useGetDefaultHostTermsQuery,
+    useUpdateTermMutation,
+    useDeleteTermMutation,
+    useGetTermsByTargetQuery,
+    useGetTermsByPropertyQuery,
+    useGetMyDefaultHostTermsQuery,
+    //Get Property Default
+    useGetPropertyDefaultQuery,
+} = termsApi;

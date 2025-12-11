@@ -12,7 +12,7 @@ import { X, Check } from "lucide-react";
 import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
 import Link from "next/link";
-import { useGetMyDefaultHostTermsQuery } from "@/redux/features/public/publicApi";
+import { useGetMyDefaultHostTermsQuery, useGetPropertyDefaultQuery } from "@/redux/features/public/publicApi";
 import TermsSelection from "./TermsSelection";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAccountStatusQuery } from "@/redux/features/users/usersApi";
 import BankDetailsModal from "./BankDetailsModal";
 import { useGetMyBankDetailsQuery } from "@/redux/features/bankdetails/bankDetailsApi";
+import DefaultTermsEditModal from "./DefaultTermsEdit";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -178,10 +179,10 @@ const AddListingForm: React.FC = () => {
     const { data: myProfile } = useGetMyProfileQuery();
     const verificationStatus = myProfile?.data?.profile?.verificationStatus;
     const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
-    console.log(response);
-    console.log(bankDetailsResponse);
+    // console.log(response);
+    // console.log(bankDetailsResponse);
     const isDisabled = bankDetailsResponse?.data == null && response == null;
-    console.log(isDisabled);
+    // console.log(isDisabled);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -322,10 +323,13 @@ const AddListingForm: React.FC = () => {
 
     // ---------------- Terms & Conditions Logic ----------------
     const [showOptions, setShowOptions] = useState(false);
+    const [showEditDefaultModal, setShowEditDefaultModal] = useState(false);
     const [selectedTermsId, setSelectedTermsId] = useState<string | null>(null);
     const [selectedCustomTermsId, setSelectedCustomTermsId] = useState<string | null>(null);
     const [createProperty, { isLoading }] = useCreatePropertyMutation();
-    const { data: defaultTermsResponse, isLoading: termsLoading } = useGetMyDefaultHostTermsQuery();
+    // const { data: defaultTermsResponse, isLoading: termsLoading } = useGetMyDefaultHostTermsQuery();
+    const { data: defaultTermsResponse, isLoading: termsLoading } = useGetPropertyDefaultQuery();
+    console.log(defaultTermsResponse?.data);
 
     const handleUseDefault = () => {
         if (defaultTermsResponse?.data?._id) {
@@ -349,9 +353,7 @@ const AddListingForm: React.FC = () => {
         setSelectedTermsId(null);
     };
 
-    // Handle terms link click - save data before navigation
     const handleTermsClick = () => {
-        // Data is auto-saved by useEffect
         router.push(`/terms-of-conditions?role=host&returnTo=add-listing`);
     };
 
@@ -910,8 +912,8 @@ const AddListingForm: React.FC = () => {
                         <TermsSelection onTermsChange={handleTermsChange} selectedCustomTermsId={selectedCustomTermsId} setSelectedCustomTermsId={setSelectedCustomTermsId} />
 
                         <div className="relative">
-                            <button className="bg-[#626A7D] py-1 px-7 text-white rounded-[8px] w-full md:w-auto flex items-center gap-1" onClick={() => setShowOptions(!showOptions)} disabled={termsLoading}>
-                                Use/Edit Default Host T&Cs
+                            <button className={`py-1 px-7 rounded-[8px] w-full md:w-auto flex items-center gap-1 ${selectedTermsId ? "bg-green-600 hover:bg-green-700" : "bg-[#626A7D] hover:bg-[#535a6b]"} text-white`} onClick={() => setShowOptions(!showOptions)} disabled={termsLoading}>
+                                {selectedTermsId ? "Default T&Cs Applied" : "Use/Edit Default Host T&Cs"}
                                 {termsLoading && " (Loading...)"}
                             </button>
 
@@ -926,7 +928,7 @@ const AddListingForm: React.FC = () => {
                                             Remove Default
                                         </button>
                                     )}
-                                    <Link href={"/dashboard/terms-conditions"} target="_blank">
+                                    {/* <Link href={"/dashboard/terms-conditions"} target="_blank">
                                         <button
                                             className="w-full bg-[#626A7D] py-1 px-7 text-white rounded-[8px] hover:bg-[#535a6b]"
                                             onClick={() => {
@@ -935,10 +937,20 @@ const AddListingForm: React.FC = () => {
                                         >
                                             Edit Default
                                         </button>
-                                    </Link>
+                                    </Link> */}
+                                    <button
+                                        className="w-full bg-[#626A7D] py-1 px-7 text-white rounded-[8px] hover:bg-[#535a6b]"
+                                        onClick={() => {
+                                            setShowEditDefaultModal(true);
+                                            setShowOptions(false);
+                                        }}
+                                    >
+                                        Edit Default
+                                    </button>
                                 </div>
                             )}
                         </div>
+                        <DefaultTermsEditModal defaultTermsResponse={defaultTermsResponse} setSelectedTermsId={setSelectedTermsId} setSelectedCustomTermsId={setSelectedCustomTermsId} setShowOptions={setShowOptions} isOpen={showEditDefaultModal} onClose={() => setShowEditDefaultModal(false)} />
                     </div>
                 </div>
 
