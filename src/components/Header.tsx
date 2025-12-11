@@ -22,7 +22,7 @@ const Header = () => {
     const router = useRouter();
     const user = useSelector(currentUser);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
+    const { data: unreadResponse } = useGetTotalUnreadCountQuery();
     const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
 
     const [scrolled, setScrolled] = useState(false);

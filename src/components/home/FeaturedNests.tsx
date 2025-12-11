@@ -31,7 +31,7 @@ export default function FeaturedNests() {
 
     if (isLoading) {
         return (
-            <div className="py-16">
+            <div className="py-16 pt-0!">
                 <div className="container mx-auto">
                     <div className="mx-4 md:mx-0">
                         <h1 className="text-2xl md:text-[32px] font-bold text-[#C9A94D] mb-10">Featured Nests</h1>
@@ -46,7 +46,7 @@ export default function FeaturedNests() {
 
     if (error) {
         return (
-            <div className="py-16">
+            <div className="py-16 pt-0!">
                 <div className="container mx-auto">
                     <div className="mx-4 md:mx-0">
                         <h1 className="text-2xl md:text-[32px] font-bold text-[#C9A94D] mb-10">Featured Nests</h1>
@@ -58,7 +58,7 @@ export default function FeaturedNests() {
     }
 
     return (
-        <div className="py-16">
+        <div className="py-16 pt-0!">
             <div className="container mx-auto">
                 <div className="mx-4 md:mx-0">
                     <h1 className="text-2xl md:text-[32px] font-bold text-[#C9A94D] mb-10">Featured Nests</h1>
