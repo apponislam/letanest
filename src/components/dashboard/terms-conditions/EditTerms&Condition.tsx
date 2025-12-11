@@ -8,7 +8,7 @@ import "jodit/es2021/jodit.fat.min.css";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
-type TermsTarget = "GUEST" | "HOST";
+type TermsTarget = "GUEST" | "HOST" | "property";
 
 const EditTermsCondition = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -105,7 +105,7 @@ const EditTermsCondition = () => {
 
             <div className="flex justify-center mb-6">
                 <div className="flex border border-[#C9A94D] rounded-lg overflow-hidden bg-white">
-                    {["GUEST", "HOST"].map((r) => (
+                    {["GUEST", "HOST", "property"].map((r) => (
                         <button
                             key={r}
                             type="button"

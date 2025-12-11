@@ -2,7 +2,7 @@ export type UserRole = "GUEST" | "HOST" | "ADMIN";
 
 export type TermsCreator = Extract<UserRole, "ADMIN" | "HOST">;
 
-export type TermsTarget = "GUEST" | "HOST";
+export type TermsTarget = "GUEST" | "HOST" | "property";
 
 export type HostTCTarget = "default" | "property";
 
