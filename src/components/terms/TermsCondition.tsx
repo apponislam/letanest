@@ -24,11 +24,6 @@ const TermsCondition = () => {
     const { data: guestTermsData, isLoading: guestLoading } = useGetTermsByTargetQuery("GUEST");
     const { data: hostTermsData, isLoading: hostLoading } = useGetTermsByTargetQuery("HOST");
 
-    console.log("User:", user);
-    console.log("Active Tab:", activeTab);
-    console.log("Guest Terms Data:", guestTermsData);
-    console.log("Host Terms Data:", hostTermsData);
-
     // Get the appropriate terms content
     const getTermsContent = (target: "GUEST" | "HOST") => {
         const termsData = target === "GUEST" ? guestTermsData : hostTermsData;
