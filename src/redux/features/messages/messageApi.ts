@@ -287,6 +287,15 @@ export const messageApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, arg) => ["Conversations", "Messages"],
         }),
+        filterConversationsByUpdatedAt: builder.query({
+            query: ({ filter = "all", page = 1, limit = 20 }) => ({
+                url: "/messages/admin/conversations/filter/by-updated",
+                method: "GET",
+                params: { filter, page, limit },
+            }),
+            providesTags: ["Conversations"],
+            transformResponse: (response: any) => response,
+        }),
     }),
 });
 
@@ -314,5 +323,6 @@ export const {
     // welcome message
     useSendWelcomeMessageMutation,
     //edit offer
-    useEditOfferMutation,
+    useEditOfferMutation, // NEW: Filter by updatedAt
+    useFilterConversationsByUpdatedAtQuery,
 } = messageApi;
