@@ -284,7 +284,7 @@ const UserConversations = () => {
     };
 
     const handleViewConversation = (conversationId: string) => {
-        router.push(`/dashboard/messages/admin/${conversationId}`);
+        router.push(`/dashboard/user/messages/${conversationId}`);
     };
 
     const filterOptions = [

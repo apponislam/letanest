@@ -114,22 +114,18 @@ export default function ListingsFilter() {
     };
 
     const getInitialRating = () => {
-        return searchParams.get("rating");
+        return searchParams.get("rating") || "";
     };
 
     const [checkIn, setCheckIn] = useState<Date | null>(getInitialCheckIn());
     const [checkOut, setCheckOut] = useState<Date | null>(getInitialCheckOut());
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>(getInitialAmenities());
     const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>(getInitialPropertyTypes());
-    const [selectedRating, setSelectedRating] = useState<string | null>(getInitialRating());
+    const [selectedRating, setSelectedRating] = useState<string>(getInitialRating());
     const [priceRange, setPriceRange] = useState<[number, number]>(getInitialPriceRange());
     const [selectedLocation, setSelectedLocation] = useState<string | null>(getInitialLocation());
     const min = 0;
     const max = dynamicMaxPrice;
-
-    console.log("Selected Location:", selectedLocation);
-    console.log("Selected Amenities:", selectedAmenities);
-    console.log("Selected Property Types:", selectedPropertyTypes);
 
     const [filters, setFilters] = useState({
         page: parseInt(searchParams.get("page") || "1"),
@@ -142,7 +138,8 @@ export default function ListingsFilter() {
         guests: getInitialGuests(),
         bedrooms: getInitialBedrooms(),
         amenities: getInitialAmenities(),
-        location: getInitialLocation(), // ADD THIS LINE - location in filters
+        location: getInitialLocation(),
+        rating: getInitialRating(),
     });
 
     const { data, isLoading, error } = useGetAllPropertiesQuery(filters);
@@ -154,9 +151,9 @@ export default function ListingsFilter() {
         limit: 10,
     };
 
+    console.log("API Filters:", filters);
     console.log("API Response:", data);
 
-    // Update maxPrice when API data loads
     useEffect(() => {
         if (maxPriceData?.data?.maxRoundedPrice) {
             setFilters((prev) => ({
@@ -178,26 +175,22 @@ export default function ListingsFilter() {
         if (filters.maxPrice < dynamicMaxPrice) {
             params.set("maxPrice", filters.maxPrice.toString());
         }
-
         if (filters.propertyTypes.length > 0) params.set("propertyTypes", filters.propertyTypes.join(","));
         if (filters.guests > 1) params.set("guests", filters.guests.toString());
         if (filters.bedrooms > 1) params.set("bedrooms", filters.bedrooms.toString());
         if (checkIn) params.set("checkIn", checkIn.toISOString().split("T")[0]);
         if (checkOut) params.set("checkOut", checkOut.toISOString().split("T")[0]);
         if (selectedAmenities.length > 0) params.set("amenities", selectedAmenities.join(","));
-        if (selectedRating) params.set("rating", selectedRating);
-        if (filters.location) params.set("location", filters.location); // Use filters.location instead of selectedLocation
+        if (filters.rating) params.set("rating", filters.rating); // Use filters.rating instead of selectedRating
+        if (filters.location) params.set("location", filters.location);
 
         const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
         router.replace(newUrl, { scroll: false });
-    }, [filters, checkIn, checkOut, selectedAmenities, selectedRating, router, dynamicMaxPrice]);
+    }, [filters, checkIn, checkOut, selectedAmenities, router, dynamicMaxPrice]); // Remove selectedRating from dependencies
 
     // Calculate totalPages based on total and limit
     const totalPages = Math.ceil(meta.total / filters.limit);
     const currentPage = filters.page;
-    const totalProperties = meta.total || 0;
-    const showingFrom = totalProperties > 0 ? (currentPage - 1) * filters.limit + 1 : 0;
-    const showingTo = Math.min(currentPage * filters.limit, totalProperties);
 
     const valueToPercent = (val: number) => {
         const percent = ((val - min) / (max - min)) * 100;
@@ -345,11 +338,15 @@ export default function ListingsFilter() {
         // If you want to filter by dates in the API, add them to filters state
     };
 
-    // Handle rating change
+    // FIXED: Handle rating change - update both selectedRating AND filters.rating
     const handleRatingChange = (rating: string) => {
-        const newRating = selectedRating === rating ? null : rating;
+        const newRating = selectedRating === rating ? "" : rating;
         setSelectedRating(newRating);
-        // If you want to filter by rating in the API, add it to filters state
+        setFilters((prev) => ({
+            ...prev,
+            rating: newRating,
+            page: 1,
+        }));
     };
 
     return (
