@@ -544,8 +544,8 @@ const HostPlansPage = () => {
                                         </div>
                                     ) : userData?.freeTireUsed && plan.cost === 0 ? (
                                         <div className="text-center">
-                                            <button className="bg-gray-600 text-gray-300 font-bold py-3 rounded-lg border border-gray-600 w-full cursor-not-allowed" disabled>
-                                                Free Tier Expired
+                                            <button className="bg-[#C9A94D]/30 text-[#C9A94D] py-3 rounded-lg border border-[#C9A94D] w-full cursor-default" disabled>
+                                                Free Tier Active
                                             </button>
                                         </div>
                                     ) : (
