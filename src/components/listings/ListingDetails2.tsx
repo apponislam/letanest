@@ -147,6 +147,7 @@ export default function PropertyPage2() {
             // Step 1: Create the conversation
             const conversationResult = await createConversation({
                 participants: [property.createdBy._id],
+                isReplyAllowed: false,
                 propertyId: property._id,
             }).unwrap();
 
@@ -208,6 +209,7 @@ export default function PropertyPage2() {
         try {
             const result = await createConversation({
                 participants: [property.createdBy._id],
+                isReplyAllowed: false,
                 propertyId: property._id,
             }).unwrap();
             if (result.success && result.data?._id) {
@@ -477,9 +479,7 @@ export default function PropertyPage2() {
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Take a Closer Look</h1>
                             <div className="space-y-12">
-                                {/* Create sleeping arrangement from property data */}
                                 <div className="flex flex-col items-center">
-                                    {/* Grid of images - using all property images */}
                                     <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full">
                                         {allImages.slice(0, 3).map((img, i) => (
                                             <div key={i} className="relative w-full h-32 md:h-96 rounded-lg overflow-hidden">

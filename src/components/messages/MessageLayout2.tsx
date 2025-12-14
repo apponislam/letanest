@@ -75,7 +75,6 @@ export default function MessagesLayout2() {
     // Connect socket when component mounts
     useEffect(() => {
         if (user?._id) {
-            // console.log("🔗 [MessagesLayout2] Connecting socket for user:", user._id);
             connectSocket(user._id);
         } else {
             console.warn("⚠️ [MessagesLayout2] No user found, cannot connect socket");
@@ -90,7 +89,6 @@ export default function MessagesLayout2() {
     // Get conversations
     const { data: conversationsResponse, isLoading: loadingConversations, error: conversationsError, refetch: refetchConversations } = useGetUserConversationsQuery({});
     const conversations = conversationsResponse?.data || [];
-    // console.log(conversations);
 
     const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
     const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -485,8 +483,8 @@ export default function MessagesLayout2() {
                         filteredConversations.map((conversation: any) => {
                             const otherParticipant = conversation.participants.find((p: any) => p._id !== user?._id);
                             const unreadCount = getUnreadCount(conversation);
-                            // const isOnline = isUserOnline(otherParticipant?._id);
-                            // console.log(otherParticipant);
+
+                            console.log(conversation?.isReplyAllowed);
 
                             return (
                                 <div key={conversation._id} className={`flex flex-col p-3 cursor-pointer hover:bg-[#9399A6] rounded-lg transition-colors ${selectedConversation === conversation._id ? "bg-[#9399A6] shadow-md" : ""}`} onClick={() => handleConversationClick(conversation._id)}>
@@ -584,22 +582,10 @@ export default function MessagesLayout2() {
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant?.role}</p>
 
-                                        {/* {otherParticipant?.role === "HOST" && (
-                                            <div className="flex items-center gap-2">
-                                                <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
-                                                <p>{ratingStats?.data?.averageRating?.toFixed(1) || "0.0"}</p>
-                                            </div>
-                                        )} */}
                                         <div className="flex items-center gap-2">
                                             <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
                                             <p>{ratingStats?.data?.averageRating?.toFixed(1) || "No Review"}</p>
                                         </div>
-                                        {/* {otherParticipant.role === "HOST" && (
-                                            <button className="bg-[#C9A94D] px-2 text-white rounded-[10px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
-                                                Report Host
-                                            </button>
-                                        )} */}
-                                        {/* <div className={`text-sm font-medium ${isUserOnline(otherParticipant?._id) ? "text-green-300" : "text-gray-600"}`}>{isUserOnline(otherParticipant?._id) ? "Online" : "Offline"}</div> */}
                                     </div>
                                 </div>
                                 <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} reportedUserId={otherParticipant._id} reportedUserName={otherParticipant.name} reportedUserRole="HOST" conversationId={selectedConversation} />
@@ -902,7 +888,7 @@ export default function MessagesLayout2() {
                                         }}
                                         onBlur={handleStopTyping}
                                         className="flex-1 border border-[#C9A94D] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white text-[#14213D]"
-                                        disabled={isSending}
+                                        disabled={isSending || (user?.role === "GUEST" && !currentConversation?.isReplyAllowed)}
                                     />
                                     <button onClick={handleSend} disabled={!inputText.trim() || isSending} className="bg-[#C9A94D] hover:bg-[#B89A45] disabled:opacity-50 disabled:cursor-not-allowed p-3 rounded-lg transition-colors">
                                         {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Image src="/messages/sendbutton.png" alt="Send" width={20} height={20} />}
