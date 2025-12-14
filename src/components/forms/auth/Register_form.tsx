@@ -123,6 +123,7 @@ const SignUpForm = () => {
             };
 
             const result = await registerUser(payload).unwrap();
+            console.log(result);
 
             toast.success(result?.message || "Registered successfully!", { id: loadingToast });
 
