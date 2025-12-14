@@ -873,7 +873,7 @@ export default function MessagesLayout2() {
                                         )}
                                     </div>
                                 )}
-                                <div className="flex items-center gap-2">
+                                {/* <div className="flex items-center gap-2">
                                     <input
                                         type="text"
                                         ref={messageInputRef}
@@ -893,6 +893,38 @@ export default function MessagesLayout2() {
                                     <button onClick={handleSend} disabled={!inputText.trim() || isSending} className="bg-[#C9A94D] hover:bg-[#B89A45] disabled:opacity-50 disabled:cursor-not-allowed p-3 rounded-lg transition-colors">
                                         {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Image src="/messages/sendbutton.png" alt="Send" width={20} height={20} />}
                                     </button>
+                                </div> */}
+                                <div className="flex flex-col gap-2">
+                                    {user?.role === "GUEST" && currentConversation?.isReplyAllowed === false ? (
+                                        /* 🔒 Locked state */
+                                        <div className="w-full">
+                                            <input type="text" value="" disabled placeholder="You can reply after the host responds" className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-500 cursor-not-allowed" />
+                                        </div>
+                                    ) : (
+                                        /* ✍️ Active state */
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                ref={messageInputRef}
+                                                placeholder="Type a message..."
+                                                value={inputText}
+                                                onChange={handleInputChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter" && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        handleSend();
+                                                    }
+                                                }}
+                                                onBlur={handleStopTyping}
+                                                className="flex-1 border border-[#C9A94D] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white text-[#14213D]"
+                                                disabled={isSending}
+                                            />
+
+                                            <button onClick={handleSend} disabled={isSending || !inputText.trim()} className="bg-[#C9A94D] hover:bg-[#B89A45] disabled:opacity-50 disabled:cursor-not-allowed p-3 rounded-lg transition-colors">
+                                                {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Image src="/messages/sendbutton.png" alt="Send" width={20} height={20} />}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
