@@ -258,7 +258,7 @@ import { useRouter } from "next/navigation";
 const UserConversations = () => {
     const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(20);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const [selectedFilter, setSelectedFilter] = useState("all");
     // const [searchQuery, setSearchQuery] = useState("");
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);

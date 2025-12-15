@@ -115,7 +115,7 @@ export default function HomeReviewClient() {
                                         {({ isActive }) => (
                                             <div className={`transition-transform duration-300 p-6 my-4 bg-[#FAF6ED] rounded-2xl shadow-md ${isActive ? "scale-110 rounded-2xl border-b-8 border-[#135E9A]" : "scale-95"}`}>
                                                 <p className="text-[#667085] text-[14px] mb-8">{review.description || "Great experience!"}</p>
-                                                <div className="flex items-center gap-4 mb-4">
+                                                <div className="flex items-center gap-4">
                                                     {imageUrl ? (
                                                         <Image
                                                             src={imageUrl}
