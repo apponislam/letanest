@@ -9,10 +9,10 @@ import { useGetHostPaymentsQuery } from "@/redux/features/propertyPayment/proper
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useCreateConversationMutation, useGetTotalUnreadCountQuery, useSendMessageAutoMutation, useSendMessageMutation } from "@/redux/features/messages/messageApi";
-
 import { useGetRandomAdminQuery } from "@/redux/features/users/usersApi";
 import { useRouter } from "next/navigation";
 import { useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
+import { useGetHostStatsQuery } from "@/redux/features/dashboard/dashboardApi";
 
 const HostDash = () => {
     const hostuser = useAppSelector(currentUser);
@@ -27,6 +27,7 @@ const HostDash = () => {
         limit,
         search: searchTerm,
     });
+    const { data: hostStats } = useGetHostStatsQuery({});
 
     const { data: unreadResponse, refetch } = useGetTotalUnreadCountQuery();
     const totalUnreadCount = unreadResponse?.data?.totalUnreadCount || 0;
@@ -40,7 +41,6 @@ const HostDash = () => {
     });
 
     const { data: ratingStats } = useGetUserRatingStatsQuery(hostuser?._id || "");
-    // console.log(ratingStats);
     const { data: randomAdminData, refetch: refetchRandomAdmin } = useGetRandomAdminQuery();
     console.log(randomAdminData);
     const [createConversation] = useCreateConversationMutation();
@@ -65,8 +65,6 @@ const HostDash = () => {
                 text: `I need support`,
                 skip: true,
             }).unwrap();
-            // setSelectedConversation(conversationId);
-
             await sendMessageAuto({
                 conversationId: conversationId,
                 sender: randomAdminData?.data?._id!,
@@ -136,13 +134,6 @@ const HostDash = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-14 mb-8">
-                    {/* <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <Image src="/dashboard/sidebar/message.png" alt="Total Booking" width={35} height={35}></Image>
-                        <div>
-                            <p className=" text-center md:text-left">Check Messages</p>
-                            <h1 className="text-xl font-bold  text-center md:text-left">Unread 4+ massages</h1>
-                        </div>
-                    </div> */}
                     <Link href="/messages">
                         <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
                             <Image src="/dashboard/sidebar/message.png" alt="Total Booking" width={35} height={35}></Image>
@@ -173,7 +164,8 @@ const HostDash = () => {
                         <Image src="/dashboard/host/home-roof.png" alt="Total Booking" width={35} height={35}></Image>
                         <div>
                             <p>Properties</p>
-                            <h1 className="text-xl font-bold text-center md:text-left">{myactiveProperties?.meta?.total ?? 0}</h1>
+                            {/* <h1 className="text-xl font-bold text-center md:text-left">{myactiveProperties?.meta?.total ?? 0}</h1> */}
+                            <h1 className="text-xl font-bold text-center md:text-left">{hostStats?.data?.totalProperties ?? 0}</h1>
                         </div>
                     </div>
                     <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
