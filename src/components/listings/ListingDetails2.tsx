@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { ArrowLeft, ArrowRight, MessagesSquare } from "lucide-react";
+import { ArrowLeft, ArrowRight, MessagesSquare, X } from "lucide-react";
 import SingleStarRating from "@/utils/SingleStarRating";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
@@ -31,6 +31,8 @@ export default function PropertyPage2() {
     const { id } = params;
     const router = useRouter();
     const dispatch = useDispatch();
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const { data: response, isLoading, error } = useGetSinglePropertyQuery(id as string);
     const [createConversation] = useCreateConversationMutation();
@@ -38,13 +40,10 @@ export default function PropertyPage2() {
 
     const user = useSelector(currentUser);
 
-    // const [question, setQuestion] = useState("");
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const property = response?.data;
-    console.log(property);
-    // console.log(property);
 
     const { data: ratingStats, isLoading: ratingLoading } = useGetPropertyRatingStatsQuery(id as string);
     const stats = ratingStats?.data;
@@ -103,6 +102,24 @@ export default function PropertyPage2() {
         "iron / ironing board": 33,
         "step-free entrance": 34,
     };
+
+    // Keyboard navigation for image modal
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!isImageModalOpen) return;
+
+            if (e.key === "Escape") {
+                setIsImageModalOpen(false);
+            } else if (e.key === "ArrowLeft") {
+                setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
+            } else if (e.key === "ArrowRight") {
+                setCurrentImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isImageModalOpen]);
 
     const handleBookNow = () => {
         if (!user) {
@@ -233,81 +250,6 @@ export default function PropertyPage2() {
         }
     };
 
-    // const handleAskQuestion = () => {
-    //     if (!user) {
-    //         dispatch(setRedirectPath(`/listings/${id}`));
-    //         setIsDialogOpen(true);
-    //     } else {
-    //         handleAskQuestion2();
-    //     }
-    // };
-
-    // const handleAskQuestion2 = async () => {
-    //     if (!property?.createdBy?._id) {
-    //         console.error("❌ Host information not available");
-    //         return;
-    //     }
-
-    //     if (!question.trim()) {
-    //         console.warn("⚠️ No question provided");
-    //         return;
-    //     }
-
-    //     if (!user) {
-    //         // Save the current path for redirect after login
-    //         dispatch(setRedirectPath(`/listings/${id}`));
-    //         setIsDialogOpen(true);
-    //         return;
-    //     }
-
-    //     setIsChatLoading(true);
-
-    //     try {
-    //         console.log("🚀 Creating conversation with question...");
-
-    //         // Step 1: Create the conversation
-    //         const conversationResult = await createConversation({
-    //             participants: [property.createdBy._id],
-    //             propertyId: property._id,
-    //         }).unwrap();
-
-    //         console.log("✅ Conversation created:", conversationResult);
-
-    //         // Check if conversation was created successfully
-    //         if (conversationResult.success && conversationResult.data?._id) {
-    //             const conversationId = conversationResult.data._id;
-
-    //             // Step 2: Send the initial message with the question
-    //             console.log("📤 Sending question...");
-    //             await sendMessage({
-    //                 conversationId: conversationId,
-    //                 sender: user._id,
-    //                 type: "text",
-    //                 text: question.trim(),
-    //             }).unwrap();
-
-    //             console.log("✅ Question sent successfully");
-
-    //             // Clear the textarea
-    //             setQuestion("");
-
-    //             // Navigate to messages page
-    //             console.log("🔀 Redirecting to messages...");
-    //             router.push("/messages");
-    //         } else {
-    //             console.error("❌ Conversation creation failed:", conversationResult.message);
-    //         }
-    //     } catch (error: any) {
-    //         console.error("❌ Failed to send question:", error);
-
-    //         if (error?.data?.message) {
-    //             console.error("Error details:", error.data.message);
-    //         }
-    //     } finally {
-    //         setIsChatLoading(false);
-    //     }
-    // };
-
     if (isLoading) {
         return (
             <div className="container mx-auto py-10">
@@ -342,14 +284,6 @@ export default function PropertyPage2() {
 
         return `${process.env.NEXT_PUBLIC_BASE_API || ""}${imagePath}`;
     };
-
-    // const calculateTotalPrice = (dates: any, pricePerNight: any) => {
-    //     if (!dates?.from || !dates?.to) return pricePerNight;
-    //     const days = differenceInDays(dates.to, dates.from) + 1;
-    //     return days * pricePerNight;
-    // };
-
-    // console.log(property);
 
     return (
         <div className="container mx-auto py-10">
@@ -475,27 +409,83 @@ export default function PropertyPage2() {
                             </div>
                         </div>
 
-                        {/* Sleeping arrangements section - using property data */}
+                        {/* Take a Closer Look Gallery */}
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Take a Closer Look</h1>
-                            <div className="space-y-12">
-                                <div className="flex flex-col items-center">
-                                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full">
-                                        {allImages.slice(0, 3).map((img, i) => (
-                                            <div key={i} className="relative w-full h-32 md:h-96 rounded-lg overflow-hidden">
-                                                <Image
-                                                    src={getImageUrl(img)}
-                                                    alt={`${property.title} image ${i + 1}`}
-                                                    fill
-                                                    className="object-cover"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = "/proparties/default.png";
-                                                    }}
-                                                />
+
+                            <div className="relative w-full">
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* First Image - Full */}
+                                    {allImages[0] && (
+                                        <div
+                                            className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden cursor-pointer group"
+                                            onClick={() => {
+                                                setCurrentImageIndex(0);
+                                                setIsImageModalOpen(true);
+                                            }}
+                                        >
+                                            <Image
+                                                src={getImageUrl(allImages[0])}
+                                                alt={`${property.title} - Main`}
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = "/proparties/default.png";
+                                                }}
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg" />
+                                        </div>
+                                    )}
+
+                                    {/* Second Image with Overlay */}
+                                    {allImages[1] && (
+                                        <div
+                                            className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden cursor-pointer group"
+                                            onClick={() => {
+                                                setCurrentImageIndex(1);
+                                                setIsImageModalOpen(true);
+                                            }}
+                                        >
+                                            {/* Image */}
+                                            <Image
+                                                src={getImageUrl(allImages[1])}
+                                                alt={`${property.title} - Secondary`}
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = "/proparties/default.png";
+                                                }}
+                                            />
+
+                                            {/* Overlay with text */}
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/60 transition-all duration-300">
+                                                <div className="text-center">
+                                                    <span className="text-white text-3xl md:text-5xl font-bold">{allImages.length - 2}+</span>
+                                                    <p className="text-white text-lg md:text-xl mt-2">More Photos</p>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
+
+                                    {/* If only 1 image exists, show placeholder */}
+                                    {allImages.length === 1 && (
+                                        <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden cursor-pointer bg-[#2D3546] flex items-center justify-center border-2 border-dashed border-[#C9A94D] group" onClick={() => setIsImageModalOpen(true)}>
+                                            <div className="text-center">
+                                                <span className="text-[#C9A94D] text-3xl md:text-5xl font-bold">+ Add</span>
+                                                <p className="text-[#C9A94D] text-lg md:text-xl mt-2">More Photos</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
+
+                                {/* View All Photos Button (for mobile) */}
+                                {allImages.length > 2 && (
+                                    <div className="mt-4 text-center md:hidden">
+                                        <button onClick={() => setIsImageModalOpen(true)} className="bg-[#C9A94D] text-white px-6 py-2 rounded-lg hover:bg-[#af8d28] transition">
+                                            View All {allImages.length} Photos
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -505,16 +495,6 @@ export default function PropertyPage2() {
                                 <h1 className="text-[32px] text-white mb-4 font-bold">Meet The Host</h1>
                                 <div className="flex md:items-center gap-6 md:gap-12 flex-col md:flex-row">
                                     <div className="flex items-center gap-5">
-                                        {/* <Image
-                                            src={property?.createdBy?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${property.createdBy.profileImg}` : "/listing/avatar.jpg"}
-                                            alt="Host"
-                                            height={100}
-                                            width={100}
-                                            className="object-cover w-[100px] h-[100px] rounded-full border border-white"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = "/listing/avatar.jpg";
-                                            }}
-                                        /> */}
                                         <div className="flex items-center gap-5">
                                             <div className="relative">
                                                 {property?.createdBy?.profileImg ? (
@@ -544,7 +524,6 @@ export default function PropertyPage2() {
                                         <div>
                                             {/* Host Info */}
                                             <p className="text-2xl text-white">{property.createdBy.name?.split(/\s+/)[0] || "Host"}</p>
-                                            {/* <p className="text-white">{property.createdBy.email}</p> */}
 
                                             {/* Host Rating */}
                                             <div className="flex items-center gap-3 mt-2">
@@ -600,54 +579,6 @@ export default function PropertyPage2() {
                                 </div>
                             </div>
                         )}
-
-                        {/* <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
-                            <h1 className="text-[32px] text-white mb-4 font-bold">Ratings</h1>
-
-                            {propertyRatingsLoading ? (
-                                <div className="space-y-4">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div key={i} className="flex items-start gap-4 animate-pulse">
-                                            <div className="h-12 w-12 rounded-full bg-gray-400" />
-                                            <div className="flex-1 space-y-1">
-                                                <div className="h-4 w-24 bg-gray-400 rounded" />
-                                                <div className="h-3 w-full bg-gray-400 rounded" />
-                                                <div className="h-3 w-3/4 bg-gray-400 rounded" />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : propertyRatingsArray.length === 0 ? (
-                                <p className="text-gray-300">No ratings yet</p>
-                            ) : (
-                                <div className="space-y-6">
-                           
-                                    {propertyRatingsArray.map((r) => {
-                          
-                                        const isUserObject = typeof r.userId === "object" && r.userId !== null;
-                                        const userName = isUserObject ? (r.userId as IUser).name : "Unknown User";
-                                        const userProfileImg = isUserObject ? (r.userId as IUser).profileImg : undefined;
-                                        const userInitial = isUserObject ? (r.userId as IUser).name?.[0] : "U";
-
-                                        return (
-                                            <div key={r._id} className="flex items-start gap-4">
-                                            
-                                                {userProfileImg ? <img src={userProfileImg} alt={userName} className="h-12 w-12 rounded-full object-cover" /> : <div className="h-12 w-12 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">{userInitial}</div>}
-
-                                                <div className="flex-1">
-                                                    <p className="text-white font-semibold">{userName}</p>
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <SingleStarRating rating={r.overallExperience} size={16} />
-                                                        <p className="text-sm text-[#C9A94D]">{r.overallExperience.toFixed(1)}</p>
-                                                    </div>
-                                                    {r.description && <p className="text-gray-300 text-sm">{r.description}</p>}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div> */}
 
                         <RatingsSection propertyRatingsLoading={propertyRatingsLoading} propertyRatingsArray={propertyRatingsArray}></RatingsSection>
 
@@ -757,31 +688,86 @@ export default function PropertyPage2() {
                                     </DialogContent>
                                 </Dialog>
 
-                                <p className="text-[13px] mt-3 text-center">Please wait for the host’s confirmation before making your payment.</p>
+                                <p className="text-[13px] mt-3 text-center">Please wait for the host's confirmation before making your payment.</p>
                             </div>
-
-                            {/* Ask a Question Section - Updated */}
-                            {/* <div className="border border-[#C9A94D] rounded-[20px] bg-[#E8E9EC] py-4 px-8 mb-10">
-                                <h1 className="text-[32px] font-bold mb-8">Ask a Question?</h1>
-                                <textarea className="border border-[#C9A94D] placeholder:text-[#14213D] text-[#14213D] p-3 w-full h-32 mb-8 resize-none focus:outline-none focus:ring-2 focus:ring-[#C9A94D]" placeholder="Contact the host - they'll be happy to help." value={question} onChange={(e) => setQuestion(e.target.value)} disabled={isChatLoading} />
-                                <button onClick={handleAskQuestion} disabled={!question.trim() || isChatLoading || !property?.createdBy?._id} className="w-full bg-[#C9A94D] text-white py-3 rounded-[6px] hover:bg-[#af8d28] transition flex items-center gap-3 justify-center disabled:bg-gray-400 disabled:cursor-not-allowed">
-                                    {isChatLoading ? (
-                                        <div className="flex items-center gap-3">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                            Sending...
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <MessagesSquare className="h-6 w-6" />
-                                            Chat with Host
-                                        </>
-                                    )}
-                                </button>
-                            </div> */}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Image Modal */}
+            {isImageModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+                    {/* Close button */}
+                    <button onClick={() => setIsImageModalOpen(false)} className="absolute top-4 right-4 text-white text-3xl z-50 hover:text-[#C9A94D] transition bg-black/50 rounded-full w-12 h-12 flex items-center justify-center">
+                        <X className="w-6 h-6" />
+                    </button>
+
+                    {/* Navigation buttons */}
+                    {allImages.length > 1 && (
+                        <>
+                            <button onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1))} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-[#C9A94D] transition z-50 hidden md:flex">
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+
+                            <button onClick={() => setCurrentImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0))} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-[#C9A94D] transition z-50 hidden md:flex">
+                                <ArrowRight className="w-6 h-6" />
+                            </button>
+                        </>
+                    )}
+
+                    {/* Main Image */}
+                    <div className="relative w-full h-full max-w-7xl mx-auto flex items-center justify-center p-4">
+                        <div className="relative w-full h-full max-h-[80vh]">
+                            <Image
+                                src={getImageUrl(allImages[currentImageIndex])}
+                                alt={`${property.title} - Image ${currentImageIndex + 1}`}
+                                fill
+                                className="object-contain"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/proparties/default.png";
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Thumbnails (show only if more than 1 image) */}
+                    {allImages.length > 1 && (
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 overflow-x-auto p-4 max-w-full">
+                            {allImages.map((img, index) => (
+                                <button key={index} onClick={() => setCurrentImageIndex(index)} className={`relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden flex-shrink-0 transition-all ${index === currentImageIndex ? "ring-2 ring-[#C9A94D] scale-110" : "opacity-70 hover:opacity-100"}`}>
+                                    <Image
+                                        src={getImageUrl(img)}
+                                        alt={`Thumbnail ${index + 1}`}
+                                        fill
+                                        className="object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = "/proparties/default.png";
+                                        }}
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Image Counter */}
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-lg font-semibold bg-black/50 px-4 py-2 rounded-full">
+                        {currentImageIndex + 1} / {allImages.length}
+                    </div>
+
+                    {/* Mobile navigation buttons */}
+                    {allImages.length > 1 && (
+                        <div className="fixed bottom-20 left-0 right-0 flex justify-center gap-4 md:hidden">
+                            <button onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1))} className="bg-black/50 text-white p-3 rounded-full hover:bg-[#C9A94D] transition">
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+                            <button onClick={() => setCurrentImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0))} className="bg-black/50 text-white p-3 rounded-full hover:bg-[#C9A94D] transition">
+                                <ArrowRight className="w-6 h-6" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
