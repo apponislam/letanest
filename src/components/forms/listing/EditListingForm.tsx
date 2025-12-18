@@ -386,11 +386,11 @@ const EditPropertyPage = () => {
 
         // If URL starts with /, it's a relative path from backend
         if (url.startsWith("/")) {
-            return `${process.env.NEXT_PUBLIC_BASE_API || process.env.NEXT_PUBLIC_BACKEND_URL || ""}${url}`;
+            return `${process.env.NEXT_PUBLIC_BASE_API || ""}${url}`;
         }
 
         // If it's just a filename without path, construct the full URL
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_API || process.env.NEXT_PUBLIC_BACKEND_URL || "";
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_API || "";
         return `${baseUrl}/${url}`;
     };
 
