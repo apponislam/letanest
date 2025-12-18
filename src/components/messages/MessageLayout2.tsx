@@ -95,6 +95,8 @@ export default function MessagesLayout2() {
     const [inputText, setInputText] = useState("");
     const [search, setSearch] = useState("");
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [tempDate, setTempDate] = useState<DateRange | undefined>(date);
+    const [isOpen, setIsOpen] = useState(false);
 
     // Get messages for selected conversation
     const { data: messagesResponse, isLoading: loadingMessages, error: messagesError, refetch: refetchMessages } = useGetConversationMessagesQuery({ conversationId: selectedConversation!, page: 1, limit: 150 }, { skip: !selectedConversation });
@@ -650,8 +652,7 @@ export default function MessagesLayout2() {
                             <div className="border-t border-[#C9A94D] p-4 bg-[#B6BAC3]">
                                 {user?.role === "GUEST" || otherParticipant?.role === "ADMIN" || otherParticipant?.role === "HOST" ? null : (
                                     <div className="relative">
-                                        {/* Stripe Connection Check */}
-                                        {stripeLoading ? (
+                                        {/* {stripeLoading ? (
                                             <button disabled className="bg-gray-400 w-full text-white rounded-lg mb-1 p-2 opacity-50 cursor-not-allowed">
                                                 <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                                             </button>
@@ -661,7 +662,6 @@ export default function MessagesLayout2() {
                                                     Connect Stripe to Make Offers
                                                 </button>
 
-                                                {/* Click-based Tooltip */}
                                                 {showStripeTooltip && (
                                                     <div className="absolute bottom-full left-0 right-0 mb-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 z-50">
                                                         <div className="flex justify-between items-start mb-2">
@@ -700,7 +700,6 @@ export default function MessagesLayout2() {
                                                             </button>
                                                         </div>
 
-                                                        {/* Property Selection */}
                                                         <div className="mb-3">
                                                             <label className="block text-sm font-medium text-[#14213D] mb-1">Select Property</label>
                                                             {isLoading ? (
@@ -736,7 +735,6 @@ export default function MessagesLayout2() {
                                                             )}
                                                         </div>
 
-                                                        {/* Get selected property data */}
                                                         {(() => {
                                                             const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
                                                             const propertyPrice = selectedPropertyData?.price || 0;
@@ -744,7 +742,6 @@ export default function MessagesLayout2() {
                                                             return (
                                                                 selectedPropertyData && (
                                                                     <>
-                                                                        {/* Date Range Picker */}
                                                                         <div className="space-y-2 mb-3">
                                                                             <div>
                                                                                 <label className="block text-sm font-medium text-[#14213D] mb-1">Select Dates</label>
@@ -775,7 +772,6 @@ export default function MessagesLayout2() {
                                                                                             onSelect={(newDate) => {
                                                                                                 setDate(newDate);
                                                                                                 if (newDate?.from && newDate?.to) {
-                                                                                                    // FIXED: Add +1 day to checkout for correct night calculation
                                                                                                     const checkoutDate = new Date(newDate.to);
                                                                                                     checkoutDate.setDate(checkoutDate.getDate() + 1);
                                                                                                     const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
@@ -790,7 +786,6 @@ export default function MessagesLayout2() {
                                                                                 </Popover>
                                                                             </div>
 
-                                                                            {/* Price Calculation Display */}
                                                                             {calculatedPrice > 0 && date?.from && date?.to && (
                                                                                 <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-2">
                                                                                     <div className="flex justify-between items-center text-xs">
@@ -812,7 +807,6 @@ export default function MessagesLayout2() {
                                                                             )}
                                                                         </div>
 
-                                                                        {/* Manual Price Input */}
                                                                         <div className="mb-3">
                                                                             <label className="block text-sm font-medium text-[#14213D] mb-1">Or Enter Manual Price</label>
                                                                             <div className="relative">
@@ -821,7 +815,6 @@ export default function MessagesLayout2() {
                                                                             </div>
                                                                         </div>
 
-                                                                        {/* Final Offer Display */}
                                                                         {(calculatedPrice > 0 || manualPrice) && (
                                                                             <div className="bg-[#14213D] text-white rounded-lg p-2 mb-3">
                                                                                 <div className="flex justify-between items-center text-xs">
@@ -836,7 +829,6 @@ export default function MessagesLayout2() {
                                                             );
                                                         })()}
 
-                                                        {/* ✅ Agree to T&Cs */}
                                                         <div className="flex items-center gap-2 mb-3">
                                                             <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-3 h-3" />
                                                             <label htmlFor="agree" className="text-xs text-gray-700 cursor-pointer">
@@ -847,7 +839,6 @@ export default function MessagesLayout2() {
                                                             </label>
                                                         </div>
 
-                                                        {/* Action Buttons */}
                                                         <div className="flex gap-2">
                                                             <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
                                                                 Send Offer
@@ -869,30 +860,196 @@ export default function MessagesLayout2() {
                                                     </div>
                                                 )}
                                             </>
+                                        )} */}
+                                        <button onClick={() => setShowOfferModal(true)} className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">
+                                            Make an Offer
+                                        </button>
+                                        {showOfferModal && (
+                                            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]  overflow-y-auto">
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
+                                                    <button onClick={() => setShowOfferModal(false)} className="text-gray-500 hover:text-gray-700">
+                                                        ✕
+                                                    </button>
+                                                </div>
+
+                                                <div className="mb-3">
+                                                    <label className="block text-sm font-medium text-[#14213D] mb-1">Select Property</label>
+                                                    {isLoading ? (
+                                                        <div className="text-center py-1">
+                                                            <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                                                            <span className="text-xs text-gray-600">Loading properties...</span>
+                                                        </div>
+                                                    ) : publishedProperties?.data ? (
+                                                        <div className="space-y-1 max-h-16 overflow-y-auto">
+                                                            {publishedProperties.data.map((property: any) => (
+                                                                <label key={property._id} className="flex items-center space-x-2 cursor-pointer text-xs">
+                                                                    <input
+                                                                        type="radio"
+                                                                        name="property"
+                                                                        value={property._id}
+                                                                        checked={selectedProperty === property._id}
+                                                                        onChange={(e) => {
+                                                                            setSelectedProperty(e.target.value);
+                                                                            setDate(undefined);
+                                                                            setCalculatedPrice(0);
+                                                                            setManualPrice("");
+                                                                        }}
+                                                                        className="accent-[#C9A94D] w-3 h-3"
+                                                                    />
+                                                                    <span className="text-xs">
+                                                                        Property {property.propertyNumber} - £{property.price}/night
+                                                                    </span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-600">No properties found</p>
+                                                    )}
+                                                </div>
+
+                                                {(() => {
+                                                    const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
+                                                    const propertyPrice = selectedPropertyData?.price || 0;
+
+                                                    return (
+                                                        selectedPropertyData && (
+                                                            <>
+                                                                <div className="space-y-2 mb-3">
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Select Dates</label>
+                                                                        <Popover open={isOpen} onOpenChange={setIsOpen}>
+                                                                            <PopoverTrigger asChild>
+                                                                                <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal border-[#C9A94D] hover:bg-[#C9A94D]/10 text-xs h-8", !date && "text-muted-foreground")}>
+                                                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                                                    {date?.from ? (
+                                                                                        date.to ? (
+                                                                                            <>
+                                                                                                {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                                                                                            </>
+                                                                                        ) : (
+                                                                                            format(date.from, "LLL dd, y")
+                                                                                        )
+                                                                                    ) : (
+                                                                                        <span>Pick dates</span>
+                                                                                    )}
+                                                                                </Button>
+                                                                            </PopoverTrigger>
+                                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                                                <div className="flex flex-col">
+                                                                                    <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={tempDate} disabled={{ before: new Date() }} onSelect={setTempDate} numberOfMonths={2} />
+                                                                                    <div className="flex justify-end gap-2 p-3 border-t">
+                                                                                        <Button
+                                                                                            variant="outline"
+                                                                                            size="sm"
+                                                                                            className="border-[#C9A94D] text-[#14213D] hover:bg-[#C9A94D]/10"
+                                                                                            onClick={() => {
+                                                                                                setTempDate(undefined);
+                                                                                                setIsOpen(false);
+                                                                                            }}
+                                                                                        >
+                                                                                            Cancel
+                                                                                        </Button>
+                                                                                        <Button
+                                                                                            size="sm"
+                                                                                            className="bg-[#C9A94D] text-white hover:bg-[#C9A94D]/90"
+                                                                                            disabled={!tempDate?.from || !tempDate?.to}
+                                                                                            onClick={() => {
+                                                                                                if (tempDate?.from && tempDate?.to) {
+                                                                                                    setDate(tempDate);
+                                                                                                    const checkoutDate = new Date(tempDate.to);
+                                                                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
+                                                                                                    const nights = Math.ceil((checkoutDate.getTime() - tempDate.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                                    setCalculatedPrice(nights * propertyPrice);
+                                                                                                }
+                                                                                                setTempDate(undefined);
+                                                                                                setIsOpen(false);
+                                                                                            }}
+                                                                                        >
+                                                                                            Confirm
+                                                                                        </Button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </PopoverContent>
+                                                                        </Popover>
+                                                                    </div>
+
+                                                                    {calculatedPrice > 0 && date?.from && date?.to && (
+                                                                        <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-2">
+                                                                            <div className="flex justify-between items-center text-xs">
+                                                                                <span className="text-[#14213D] font-medium">Calculated Price:</span>
+                                                                                <span className="text-[#C9A94D] font-bold">£{calculatedPrice}</span>
+                                                                            </div>
+                                                                            <div className="text-xs text-gray-600 mt-1">
+                                                                                {(() => {
+                                                                                    const checkoutDate = new Date(date.to);
+                                                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
+                                                                                    const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                    return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
+                                                                                })()}
+                                                                            </div>
+                                                                            <div className="text-xs text-gray-600 mt-1">
+                                                                                Dates: {date.from.toLocaleDateString()} - {date.to.toLocaleDateString()}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="mb-3">
+                                                                    <label className="block text-sm font-medium text-[#14213D] mb-1">Or Enter Manual Price</label>
+                                                                    <div className="relative">
+                                                                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs">£</span>
+                                                                        <input type="number" value={manualPrice} onChange={(e) => setManualPrice(e.target.value)} placeholder="Custom amount" className="w-full pl-6 pr-2 py-1 border border-[#C9A94D] rounded text-xs" min="0" step="0.01" />
+                                                                    </div>
+                                                                </div>
+
+                                                                {(calculatedPrice > 0 || manualPrice) && (
+                                                                    <div className="bg-[#14213D] text-white rounded-lg p-2 mb-3">
+                                                                        <div className="flex justify-between items-center text-xs">
+                                                                            <span className="font-medium">Final Offer:</span>
+                                                                            <span className="font-bold">£{manualPrice ? parseFloat(manualPrice).toLocaleString() : calculatedPrice}</span>
+                                                                        </div>
+                                                                        <div className="text-xs text-gray-300 mt-1">{manualPrice ? "Custom offer" : "Based on selected dates"}</div>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )
+                                                    );
+                                                })()}
+
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-3 h-3" />
+                                                    <label htmlFor="agree" className="text-xs text-gray-700 cursor-pointer">
+                                                        I agree to{" "}
+                                                        <Link href="/terms-of-conditions" target="_blank" className="text-[#C9A94D] hover:underline">
+                                                            T&Cs
+                                                        </Link>
+                                                    </label>
+                                                </div>
+
+                                                <div className="flex gap-2">
+                                                    <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
+                                                        Send Offer
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowOfferModal(false);
+                                                            setSelectedProperty(null);
+                                                            setAgreed(false);
+                                                            setDate(undefined);
+                                                            setCalculatedPrice(0);
+                                                            setManualPrice("");
+                                                        }}
+                                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-[#14213D]"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 )}
-                                {/* <div className="flex items-center gap-2">
-                                    <input
-                                        type="text"
-                                        ref={messageInputRef}
-                                        placeholder="Type a message..."
-                                        value={inputText}
-                                        onChange={handleInputChange}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" && !e.shiftKey) {
-                                                e.preventDefault();
-                                                handleSend();
-                                            }
-                                        }}
-                                        onBlur={handleStopTyping}
-                                        className="flex-1 border border-[#C9A94D] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white text-[#14213D]"
-                                        disabled={isSending || (user?.role === "GUEST" && !currentConversation?.isReplyAllowed)}
-                                    />
-                                    <button onClick={handleSend} disabled={!inputText.trim() || isSending} className="bg-[#C9A94D] hover:bg-[#B89A45] disabled:opacity-50 disabled:cursor-not-allowed p-3 rounded-lg transition-colors">
-                                        {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Image src="/messages/sendbutton.png" alt="Send" width={20} height={20} />}
-                                    </button>
-                                </div> */}
+
                                 <div className="flex flex-col gap-2">
                                     {user?.role === "GUEST" && currentConversation?.isReplyAllowed === false ? (
                                         /* 🔒 Locked state */

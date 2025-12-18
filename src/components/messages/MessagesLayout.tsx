@@ -75,7 +75,6 @@ export default function MessagesLayout2() {
     // Connect socket when component mounts
     useEffect(() => {
         if (user?._id) {
-            // console.log("🔗 [MessagesLayout2] Connecting socket for user:", user._id);
             connectSocket(user._id);
         } else {
             console.warn("⚠️ [MessagesLayout2] No user found, cannot connect socket");
@@ -90,7 +89,6 @@ export default function MessagesLayout2() {
     // Get conversations
     const { data: conversationsResponse, isLoading: loadingConversations, error: conversationsError, refetch: refetchConversations } = useGetUserConversationsQuery({});
     const conversations = conversationsResponse?.data || [];
-    // console.log(conversations);
 
     const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
     const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -353,7 +351,6 @@ export default function MessagesLayout2() {
     // const { data: ratingStats } = useGetUserRatingStatsQuery(otherParticipant?.role === "HOST" ? otherParticipant._id : "", {
     //     skip: !otherParticipant || otherParticipant?.role !== "HOST",
     // });
-    console.log(otherParticipant);
     const { data: ratingStats, refetch } = useGetUserRatingStatsQuery(otherParticipant?._id ?? "", {
         skip: !otherParticipant,
     });
@@ -362,7 +359,6 @@ export default function MessagesLayout2() {
     const getUnreadCount = (conversation: any) => {
         return conversation.unreadCount || 0;
     };
-    // console.log(conversations);
 
     // Helper function to format last message
     const formatLastMessage = (lastMessage: any) => {
@@ -471,7 +467,13 @@ export default function MessagesLayout2() {
                     </div>
                 </div>
 
-                <div className="flex-1 flex flex-col overflow-y-auto py-6 px-4 gap-4 custom-scrollbar">
+                <div
+                    className="flex-1 flex flex-col overflow-y-auto py-6 px-4 gap-4 custom-scrollbar"
+                    style={{
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "#C9A94D transparent",
+                    }}
+                >
                     {filteredConversations.length === 0 ? (
                         <div className="text-center text-[#14213D] py-8">
                             <MessagesSquare className="h-12 w-12 mx-auto mb-3 text-[#C9A94D] opacity-50" />
@@ -481,8 +483,8 @@ export default function MessagesLayout2() {
                         filteredConversations.map((conversation: any) => {
                             const otherParticipant = conversation.participants.find((p: any) => p._id !== user?._id);
                             const unreadCount = getUnreadCount(conversation);
-                            // const isOnline = isUserOnline(otherParticipant?._id);
-                            // console.log(otherParticipant);
+
+                            console.log(conversation?.isReplyAllowed);
 
                             return (
                                 <div key={conversation._id} className={`flex flex-col p-3 cursor-pointer hover:bg-[#9399A6] rounded-lg transition-colors ${selectedConversation === conversation._id ? "bg-[#9399A6] shadow-md" : ""}`} onClick={() => handleConversationClick(conversation._id)}>
@@ -580,26 +582,13 @@ export default function MessagesLayout2() {
                                     <div className="flex items-center gap-6 text-sm">
                                         <p>{otherParticipant?.role}</p>
 
-                                        {/* {otherParticipant?.role === "HOST" && (
-                                            <div className="flex items-center gap-2">
-                                                <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
-                                                <p>{ratingStats?.data?.averageRating?.toFixed(1) || "0.0"}</p>
-                                            </div>
-                                        )} */}
                                         <div className="flex items-center gap-2">
                                             <Star className="h-4 w-4 fill-current text-[#C9A94D]" />
                                             <p>{ratingStats?.data?.averageRating?.toFixed(1) || "No Review"}</p>
                                         </div>
-                                        {/* {otherParticipant.role === "HOST" && (
-                                            <button className="bg-[#C9A94D] px-2 text-white rounded-[10px] hover:bg-[#b8973e] transition-colors" onClick={() => setIsReportModalOpen(true)}>
-                                                Report Host
-                                            </button>
-                                        )} */}
-                                        {/* <div className={`text-sm font-medium ${isUserOnline(otherParticipant?._id) ? "text-green-300" : "text-gray-600"}`}>{isUserOnline(otherParticipant?._id) ? "Online" : "Offline"}</div> */}
                                     </div>
                                 </div>
-                                <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} reportedUserId={otherParticipant._id} reportedUserName={otherParticipant.name} reportedUserRole="HOST" conversationId={selectedConversation} />
-                                {/* <div className={`px-3 py-1 rounded-full text-xs font-medium ${isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{isConnected ? "Connected" : "Disconnected"}</div> */}
+                                <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} reportedUserId={otherParticipant._id} reportedUserName={otherParticipant.name} reportedUserRole={otherParticipant.role} conversationId={selectedConversation} />
                             </div>
                         </div>
 
@@ -620,7 +609,14 @@ export default function MessagesLayout2() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" ref={messagesContainerRef}>
+                                <div
+                                    className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"
+                                    ref={messagesContainerRef}
+                                    style={{
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "#C9A94D transparent",
+                                    }}
+                                >
                                     {messagesData.length === 0 ? (
                                         <div className="flex-1 flex items-center justify-center h-full">
                                             <div className="text-center">
@@ -652,10 +648,9 @@ export default function MessagesLayout2() {
 
                             {/* Input Box */}
                             <div className="border-t border-[#C9A94D] p-4 bg-[#B6BAC3]">
-                                {user?.role === "GUEST" || otherParticipant?.role === "ADMIN" ? null : (
+                                {user?.role === "GUEST" || otherParticipant?.role === "ADMIN" || otherParticipant?.role === "HOST" ? null : (
                                     <div className="relative">
-                                        {/* Stripe Connection Check */}
-                                        {stripeLoading ? (
+                                        {/* {stripeLoading ? (
                                             <button disabled className="bg-gray-400 w-full text-white rounded-lg mb-1 p-2 opacity-50 cursor-not-allowed">
                                                 <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                                             </button>
@@ -665,7 +660,6 @@ export default function MessagesLayout2() {
                                                     Connect Stripe to Make Offers
                                                 </button>
 
-                                                {/* Click-based Tooltip */}
                                                 {showStripeTooltip && (
                                                     <div className="absolute bottom-full left-0 right-0 mb-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 z-50">
                                                         <div className="flex justify-between items-start mb-2">
@@ -704,7 +698,6 @@ export default function MessagesLayout2() {
                                                             </button>
                                                         </div>
 
-                                                        {/* Property Selection */}
                                                         <div className="mb-3">
                                                             <label className="block text-sm font-medium text-[#14213D] mb-1">Select Property</label>
                                                             {isLoading ? (
@@ -740,7 +733,6 @@ export default function MessagesLayout2() {
                                                             )}
                                                         </div>
 
-                                                        {/* Get selected property data */}
                                                         {(() => {
                                                             const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
                                                             const propertyPrice = selectedPropertyData?.price || 0;
@@ -748,7 +740,6 @@ export default function MessagesLayout2() {
                                                             return (
                                                                 selectedPropertyData && (
                                                                     <>
-                                                                        {/* Date Range Picker */}
                                                                         <div className="space-y-2 mb-3">
                                                                             <div>
                                                                                 <label className="block text-sm font-medium text-[#14213D] mb-1">Select Dates</label>
@@ -779,7 +770,6 @@ export default function MessagesLayout2() {
                                                                                             onSelect={(newDate) => {
                                                                                                 setDate(newDate);
                                                                                                 if (newDate?.from && newDate?.to) {
-                                                                                                    // FIXED: Add +1 day to checkout for correct night calculation
                                                                                                     const checkoutDate = new Date(newDate.to);
                                                                                                     checkoutDate.setDate(checkoutDate.getDate() + 1);
                                                                                                     const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
@@ -794,7 +784,6 @@ export default function MessagesLayout2() {
                                                                                 </Popover>
                                                                             </div>
 
-                                                                            {/* Price Calculation Display */}
                                                                             {calculatedPrice > 0 && date?.from && date?.to && (
                                                                                 <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-2">
                                                                                     <div className="flex justify-between items-center text-xs">
@@ -803,7 +792,6 @@ export default function MessagesLayout2() {
                                                                                     </div>
                                                                                     <div className="text-xs text-gray-600 mt-1">
                                                                                         {(() => {
-                                                                                            // FIXED: Add +1 day to checkout for correct night calculation
                                                                                             const checkoutDate = new Date(date.to);
                                                                                             checkoutDate.setDate(checkoutDate.getDate() + 1);
                                                                                             const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
@@ -817,7 +805,6 @@ export default function MessagesLayout2() {
                                                                             )}
                                                                         </div>
 
-                                                                        {/* Manual Price Input */}
                                                                         <div className="mb-3">
                                                                             <label className="block text-sm font-medium text-[#14213D] mb-1">Or Enter Manual Price</label>
                                                                             <div className="relative">
@@ -826,7 +813,6 @@ export default function MessagesLayout2() {
                                                                             </div>
                                                                         </div>
 
-                                                                        {/* Final Offer Display */}
                                                                         {(calculatedPrice > 0 || manualPrice) && (
                                                                             <div className="bg-[#14213D] text-white rounded-lg p-2 mb-3">
                                                                                 <div className="flex justify-between items-center text-xs">
@@ -841,7 +827,6 @@ export default function MessagesLayout2() {
                                                             );
                                                         })()}
 
-                                                        {/* ✅ Agree to T&Cs */}
                                                         <div className="flex items-center gap-2 mb-3">
                                                             <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-3 h-3" />
                                                             <label htmlFor="agree" className="text-xs text-gray-700 cursor-pointer">
@@ -852,7 +837,6 @@ export default function MessagesLayout2() {
                                                             </label>
                                                         </div>
 
-                                                        {/* Action Buttons */}
                                                         <div className="flex gap-2">
                                                             <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
                                                                 Send Offer
@@ -874,29 +858,212 @@ export default function MessagesLayout2() {
                                                     </div>
                                                 )}
                                             </>
+                                        )} */}
+                                        <button onClick={() => setShowOfferModal(true)} className="bg-[#14213D] w-full text-white rounded-lg mb-1 p-2">
+                                            Make an Offer
+                                        </button>
+                                        {showOfferModal && (
+                                            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#C9A94D] rounded-lg shadow-lg z-50 p-4 min-w-[300px]  overflow-y-auto">
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <h3 className="font-bold text-[#14213D]">Make an Offer</h3>
+                                                    <button onClick={() => setShowOfferModal(false)} className="text-gray-500 hover:text-gray-700">
+                                                        ✕
+                                                    </button>
+                                                </div>
+
+                                                <div className="mb-3">
+                                                    <label className="block text-sm font-medium text-[#14213D] mb-1">Select Property</label>
+                                                    {isLoading ? (
+                                                        <div className="text-center py-1">
+                                                            <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                                                            <span className="text-xs text-gray-600">Loading properties...</span>
+                                                        </div>
+                                                    ) : publishedProperties?.data ? (
+                                                        <div className="space-y-1 max-h-16 overflow-y-auto">
+                                                            {publishedProperties.data.map((property: any) => (
+                                                                <label key={property._id} className="flex items-center space-x-2 cursor-pointer text-xs">
+                                                                    <input
+                                                                        type="radio"
+                                                                        name="property"
+                                                                        value={property._id}
+                                                                        checked={selectedProperty === property._id}
+                                                                        onChange={(e) => {
+                                                                            setSelectedProperty(e.target.value);
+                                                                            setDate(undefined);
+                                                                            setCalculatedPrice(0);
+                                                                            setManualPrice("");
+                                                                        }}
+                                                                        className="accent-[#C9A94D] w-3 h-3"
+                                                                    />
+                                                                    <span className="text-xs">
+                                                                        Property {property.propertyNumber} - £{property.price}/night
+                                                                    </span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-600">No properties found</p>
+                                                    )}
+                                                </div>
+
+                                                {(() => {
+                                                    const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
+                                                    const propertyPrice = selectedPropertyData?.price || 0;
+
+                                                    return (
+                                                        selectedPropertyData && (
+                                                            <>
+                                                                <div className="space-y-2 mb-3">
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium text-[#14213D] mb-1">Select Dates</label>
+                                                                        <Popover>
+                                                                            <PopoverTrigger asChild>
+                                                                                <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal border-[#C9A94D] hover:bg-[#C9A94D]/10 text-xs h-8", !date && "text-muted-foreground")}>
+                                                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                                                    {date?.from ? (
+                                                                                        date.to ? (
+                                                                                            <>
+                                                                                                {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                                                                                            </>
+                                                                                        ) : (
+                                                                                            format(date.from, "LLL dd, y")
+                                                                                        )
+                                                                                    ) : (
+                                                                                        <span>Pick dates</span>
+                                                                                    )}
+                                                                                </Button>
+                                                                            </PopoverTrigger>
+                                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                                                <Calendar
+                                                                                    initialFocus
+                                                                                    mode="range"
+                                                                                    defaultMonth={date?.from}
+                                                                                    selected={date}
+                                                                                    disabled={{ before: new Date() }}
+                                                                                    onSelect={(newDate) => {
+                                                                                        setDate(newDate);
+                                                                                        if (newDate?.from && newDate?.to) {
+                                                                                            const checkoutDate = new Date(newDate.to);
+                                                                                            checkoutDate.setDate(checkoutDate.getDate() + 1);
+                                                                                            const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                            setCalculatedPrice(nights * propertyPrice);
+                                                                                        } else {
+                                                                                            setCalculatedPrice(0);
+                                                                                        }
+                                                                                    }}
+                                                                                    numberOfMonths={2}
+                                                                                />
+                                                                            </PopoverContent>
+                                                                        </Popover>
+                                                                    </div>
+
+                                                                    {calculatedPrice > 0 && date?.from && date?.to && (
+                                                                        <div className="bg-[#C9A94D]/10 border border-[#C9A94D] rounded-lg p-2">
+                                                                            <div className="flex justify-between items-center text-xs">
+                                                                                <span className="text-[#14213D] font-medium">Calculated Price:</span>
+                                                                                <span className="text-[#C9A94D] font-bold">£{calculatedPrice}</span>
+                                                                            </div>
+                                                                            <div className="text-xs text-gray-600 mt-1">
+                                                                                {(() => {
+                                                                                    const checkoutDate = new Date(date.to);
+                                                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
+                                                                                    const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                    return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
+                                                                                })()}
+                                                                            </div>
+                                                                            <div className="text-xs text-gray-600 mt-1">
+                                                                                Dates: {date.from.toLocaleDateString()} - {date.to.toLocaleDateString()}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="mb-3">
+                                                                    <label className="block text-sm font-medium text-[#14213D] mb-1">Or Enter Manual Price</label>
+                                                                    <div className="relative">
+                                                                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs">£</span>
+                                                                        <input type="number" value={manualPrice} onChange={(e) => setManualPrice(e.target.value)} placeholder="Custom amount" className="w-full pl-6 pr-2 py-1 border border-[#C9A94D] rounded text-xs" min="0" step="0.01" />
+                                                                    </div>
+                                                                </div>
+
+                                                                {(calculatedPrice > 0 || manualPrice) && (
+                                                                    <div className="bg-[#14213D] text-white rounded-lg p-2 mb-3">
+                                                                        <div className="flex justify-between items-center text-xs">
+                                                                            <span className="font-medium">Final Offer:</span>
+                                                                            <span className="font-bold">£{manualPrice ? parseFloat(manualPrice).toLocaleString() : calculatedPrice}</span>
+                                                                        </div>
+                                                                        <div className="text-xs text-gray-300 mt-1">{manualPrice ? "Custom offer" : "Based on selected dates"}</div>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )
+                                                    );
+                                                })()}
+
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <input type="checkbox" id="agree" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="accent-[#C9A94D] w-3 h-3" />
+                                                    <label htmlFor="agree" className="text-xs text-gray-700 cursor-pointer">
+                                                        I agree to{" "}
+                                                        <Link href="/terms-of-conditions" target="_blank" className="text-[#C9A94D] hover:underline">
+                                                            T&Cs
+                                                        </Link>
+                                                    </label>
+                                                </div>
+
+                                                <div className="flex gap-2">
+                                                    <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
+                                                        Send Offer
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowOfferModal(false);
+                                                            setSelectedProperty(null);
+                                                            setAgreed(false);
+                                                            setDate(undefined);
+                                                            setCalculatedPrice(0);
+                                                            setManualPrice("");
+                                                        }}
+                                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-[#14213D]"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 )}
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="text"
-                                        ref={messageInputRef}
-                                        placeholder="Type a message..."
-                                        value={inputText}
-                                        onChange={handleInputChange}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" && !e.shiftKey) {
-                                                e.preventDefault();
-                                                handleSend();
-                                            }
-                                        }}
-                                        onBlur={handleStopTyping}
-                                        className="flex-1 border border-[#C9A94D] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white text-[#14213D]"
-                                        disabled={isSending}
-                                    />
-                                    <button onClick={handleSend} disabled={!inputText.trim() || isSending} className="bg-[#C9A94D] hover:bg-[#B89A45] disabled:opacity-50 disabled:cursor-not-allowed p-3 rounded-lg transition-colors">
-                                        {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Image src="/messages/sendbutton.png" alt="Send" width={20} height={20} />}
-                                    </button>
+
+                                <div className="flex flex-col gap-2">
+                                    {user?.role === "GUEST" && currentConversation?.isReplyAllowed === false ? (
+                                        /* 🔒 Locked state */
+                                        <div className="w-full">
+                                            <input type="text" value="" disabled placeholder="You can reply after the host responds" className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-500 cursor-not-allowed" />
+                                        </div>
+                                    ) : (
+                                        /* ✍️ Active state */
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                ref={messageInputRef}
+                                                placeholder="Type a message..."
+                                                value={inputText}
+                                                onChange={handleInputChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter" && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        handleSend();
+                                                    }
+                                                }}
+                                                onBlur={handleStopTyping}
+                                                className="flex-1 border border-[#C9A94D] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white text-[#14213D]"
+                                                disabled={isSending}
+                                            />
+
+                                            <button onClick={handleSend} disabled={isSending || !inputText.trim()} className="bg-[#C9A94D] hover:bg-[#B89A45] disabled:opacity-50 disabled:cursor-not-allowed p-3 rounded-lg transition-colors">
+                                                {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Image src="/messages/sendbutton.png" alt="Send" width={20} height={20} />}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1018,14 +1185,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
     const handleGuestChange = (value: string) => {
         setGuestNo(value);
     };
-
-    // const getNumberOfNights = () => {
-    //     if (!checkInDate || !checkOutDate) return 0;
-    //     const checkIn = new Date(checkInDate);
-    //     const checkOut = new Date(checkOutDate);
-    //     const timeDiff = checkOut.getTime() - checkIn.getTime();
-    //     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    // };
 
     const [tempDate, setTempDate] = useState<DateRange | undefined>();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -1228,6 +1387,10 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
         }
     };
 
+    if (message.type === "offer") {
+        console.log(message);
+    }
+
     // Handle optimistic messages
     if (message.isOptimistic) {
         return (
@@ -1272,51 +1435,102 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
     // review done
     if (message.type === "review" && message.reviewed) {
-        return (
-            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                {!isMe &&
-                    (message.sender?.profileImg ? (
-                        <Image
-                            src={`${backendURL}${message.sender.profileImg}`}
-                            alt={message.sender?.name}
-                            width={30}
-                            height={30}
-                            className="rounded-full mr-2 h-[30px] w-[30px]"
-                            onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                            }}
-                        />
-                    ) : (
-                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
-                    ))}
-                <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
-                    <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Completed ✓</p>
+        const isMyMessage = user?._id === message.sender?._id;
 
-                    <div className="text-center mb-3">
-                        <p className="text-[11px] text-[#D4BA71] mb-2">Thank you for your review! Your feedback has been submitted.</p>
-                    </div>
+        if (isMyMessage) {
+            // This is MY message, but SOMEONE ELSE reviewed ME
+            return (
+                <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                    {!isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt={message.sender?.name}
+                                width={30}
+                                height={30}
+                                className="rounded-full mr-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                        ))}
+                    <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
+                        <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Received ✓</p>
 
-                    <div className="text-center">
-                        <p className="text-[10px] text-[#D4BA71]">Review submitted on: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                        <div className="text-center mb-3">
+                            <p className="text-[11px] text-[#D4BA71] mb-2"> {otherParticipant?.name || "User"} has left a review.</p>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-[10px] text-[#D4BA71]">Submitted on: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                        </div>
                     </div>
+                    {isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt="Me"
+                                width={30}
+                                height={30}
+                                className="rounded-full ml-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                        ))}
                 </div>
-                {isMe &&
-                    (message.sender?.profileImg ? (
-                        <Image
-                            src={`${backendURL}${message.sender.profileImg}`}
-                            alt="Me"
-                            width={30}
-                            height={30}
-                            className="rounded-full ml-2 h-[30px] w-[30px]"
-                            onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                            }}
-                        />
-                    ) : (
-                        <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
-                    ))}
-            </div>
-        );
+            );
+        } else {
+            return (
+                <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                    {!isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt={message.sender?.name}
+                                width={30}
+                                height={30}
+                                className="rounded-full mr-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
+                        ))}
+                    <div className="bg-[#14213D] p-3 border-2 border-[#14213D] w-80">
+                        <p className="font-semibold text-sm text-center mb-3 text-[#D4BA71]">Review Sent ✓</p>
+
+                        <div className="text-center mb-3">
+                            <p className="text-[11px] text-[#D4BA71] mb-2">Your review has been submitted. Thank you for sharing your experience.</p>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-[10px] text-[#D4BA71]">Submitted: {new Date(message.updatedAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    {isMe &&
+                        (message.sender?.profileImg ? (
+                            <Image
+                                src={`${backendURL}${message.sender.profileImg}`}
+                                alt="Me"
+                                width={30}
+                                height={30}
+                                className="rounded-full ml-2 h-[30px] w-[30px]"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
+                        ) : (
+                            <Avatar name={message.sender?.name || "Unknown User"} size={30} className="ml-2" />
+                        ))}
+                </div>
+            );
+        }
     }
 
     // Review
@@ -1545,19 +1759,13 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
         const calculateDays = () => {
             if (!message.checkInDate || !message.checkOutDate) return "0 Night";
-
             const checkIn = new Date(message.checkInDate);
             const checkOut = new Date(message.checkOutDate);
-
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
-
-            // FIXED: Add +1 day to checkout date for correct night calculation
             const adjustedCheckOut = new Date(checkOut);
             adjustedCheckOut.setDate(adjustedCheckOut.getDate() + 1);
-
             const timeDiff = adjustedCheckOut.getTime() - checkIn.getTime();
             const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };
 
@@ -1578,88 +1786,91 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
-                    <p className="font-semibold text-sm text-center">Nest Offer</p>
-                    <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
-                    <p className="text-center font-bold mb-1 text-[14px]">Host Agreed Fee - £{message?.agreedFee}</p>
+                <div>
+                    <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
+                        <p className="font-semibold text-sm text-center">Nest Offer</p>
+                        <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                        <p className="text-center font-bold mb-1 text-[14px]">Host Agreed Fee - £{message?.agreedFee}</p>
 
-                    {!message?.bookingFeePaid && (
-                        <p className="text-center font-bold mb-2 text-[14px]">
-                            Booking Fee - £{message?.bookingFee} (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
-                        </p>
-                    )}
-
-                    <div className="flex justify-between">
-                        <p className="text-center text-[12px]">Requested Dates:</p>
-
-                        <div>
-                            <p className="text-right text-[12px] ">
-                                {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
+                        {!message?.bookingFeePaid && (
+                            <p className="text-center font-bold mb-2 text-[14px]">
+                                Booking Fee - £{message?.bookingFee} (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
                             </p>
+                        )}
 
-                            <p className="text-right text-[12px] mb-2">{calculateDays()}</p>
-                        </div>
-                    </div>
-
-                    {message.guestNo && (
                         <div className="flex justify-between">
-                            <p className=" text-[12px] ">Guests:</p>
-                            <p className="text-[10px]  mb-2">{message.guestNo}</p>
+                            <p className="text-center text-[12px]">Requested Dates:</p>
+
+                            <div>
+                                <p className="text-right text-[12px] ">
+                                    {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
+                                </p>
+
+                                <p className="text-right text-[12px] mb-2">{calculateDays()}</p>
+                            </div>
                         </div>
-                    )}
 
-                    {user?._id === message.propertyId?.createdBy?._id ? (
-                        !message?.bookingFeePaid ? (
-                            <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
+                        {message.guestNo && (
+                            <div className="flex justify-between">
+                                <p className=" text-[12px] ">Guests:</p>
+                                <p className="text-[10px]  mb-2">{message.guestNo}</p>
+                            </div>
+                        )}
+
+                        {user?._id === message.propertyId?.createdBy?._id ? (
+                            !message?.bookingFeePaid ? (
+                                <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
+                            ) : (
+                                <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.agreedFee}</p>
+                            )
+                        ) : !message?.bookingFeePaid ? (
+                            <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p>
                         ) : (
-                            <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.agreedFee}</p>
-                        )
-                    ) : !message?.bookingFeePaid ? (
-                        <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p>
-                    ) : (
-                        <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>
-                    )}
+                            <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>
+                        )}
 
-                    {user?._id === message.propertyId?.createdBy?._id ? (
-                        !message?.bookingFeePaid ? (
-                            <div className="flex justify-center mt-3 w-full">
-                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-[120px] cursor-pointer">
-                                    {isRejecting ? "Rejecting..." : "Withdraw Offer"}
+                        {user?._id === message.propertyId?.createdBy?._id ? (
+                            !message?.bookingFeePaid ? (
+                                <div className="flex justify-center mt-3 w-full">
+                                    <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-[120px] cursor-pointer">
+                                        {isRejecting ? "Rejecting..." : "Withdraw Offer"}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div></div>
+                            )
+                        ) : !message?.bookingFeePaid ? (
+                            // If bookingFeePaid false - Pay By Card | Withdraw Offer
+                            <div className="grid grid-cols-2 gap-4 mt-3 w-full items-stretch">
+                                <Link href={`/listings/${message._id}/pay`} className="w-full flex">
+                                    <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full flex-1 cursor-pointer">Pay By Card</button>
+                                </Link>
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
                                 </button>
                             </div>
                         ) : (
-                            <div></div>
-                        )
-                    ) : !message?.bookingFeePaid ? (
-                        // If bookingFeePaid false - Pay By Card | Withdraw Offer
-                        <div className="grid grid-cols-2 gap-4 mt-3 w-full items-stretch">
-                            <Link href={`/listings/${message._id}/pay`} className="w-full flex">
-                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full flex-1 cursor-pointer">Pay By Card</button>
-                            </Link>
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
-                            </button>
-                        </div>
-                    ) : (
-                        // If bookingFeePaid true - Pay By Card | Pay By Bank Transfer | Withdraw Offer
-                        <div className="grid grid-cols-2 gap-2 mt-3 w-full items-stretch">
-                            <Link href={`/listings/${message._id}/pay`} className="w-full flex">
-                                <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Pay By Card</button>
-                            </Link>
-                            <button onClick={() => handleBankTransferClick(message.propertyId?.createdBy?._id)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">
-                                Pay By Bank Transfer
-                            </button>
-                            <div></div> {/* Empty space */}
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
-                            </button>
-                        </div>
-                    )}
-                    {user?._id === message.propertyId?.createdBy?._id ? null : !message?.bookingFeePaid ? ( // Property Owner - Show nothing // Guest
-                        <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
-                    ) : (
-                        <p className="text-center mt-1 text-[9px]">One last step — pay the host and your nest for your next stay is all yours!</p>
-                    )}
+                            // If bookingFeePaid true - Pay By Card | Pay By Bank Transfer | Withdraw Offer
+                            <div className="grid grid-cols-2 gap-2 mt-3 w-full items-stretch">
+                                <Link href={`/listings/${message._id}/pay`} className="w-full flex">
+                                    <button className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">Pay By Card</button>
+                                </Link>
+                                <button onClick={() => handleBankTransferClick(message.propertyId?.createdBy?._id)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors w-full cursor-pointer">
+                                    Pay By Bank Transfer
+                                </button>
+                                <div></div> {/* Empty space */}
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[8px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
+                                </button>
+                            </div>
+                        )}
+                        {user?._id === message.propertyId?.createdBy?._id ? null : !message?.bookingFeePaid ? ( // Property Owner - Show nothing // Guest
+                            <p className="text-center mt-1 text-[9px]">Good news! The host has accepted your offer. To secure your booking, please complete the (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) booking fee.</p>
+                        ) : (
+                            <p className="text-center mt-1 text-[9px]">One last step — pay the host and your nest for your next stay is all yours!</p>
+                        )}
+                    </div>
+                    {message.hostFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Host Fee Paid</div> : message.bookingFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Booking Fee Paid</div> : null}
                 </div>
                 {isMe &&
                     (message.sender?.profileImg ? (
@@ -1726,62 +1937,65 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
-                    <p className="font-semibold text-sm text-center">Booking Offer</p>
-                    <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
-                    <p className="text-center font-bold mb-2">£{message?.agreedFee}</p>
-                    <p className="text-center text-[12px]">Requested Dates:</p>
+                <div>
+                    <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
+                        <p className="font-semibold text-sm text-center">Booking Offer</p>
+                        <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                        <p className="text-center font-bold mb-2">£{message?.agreedFee}</p>
+                        <p className="text-center text-[12px]">Requested Dates:</p>
 
-                    <p className="text-center text-[12px] ">
-                        {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
-                    </p>
+                        <p className="text-center text-[12px] ">
+                            {formatDate(message.checkInDate)} to {formatDate(message.checkOutDate)}
+                        </p>
 
-                    <p className="text-center text-[12px] mb-2">{calculateDays()}</p>
+                        <p className="text-center text-[12px] mb-2">{calculateDays()}</p>
 
-                    {message.guestNo && (
-                        <div>
-                            <p className="text-center text-[12px] ">Guests:</p>
-                            <p className="text-[10px] text-center mb-2">{message.guestNo}</p>
-                        </div>
-                    )}
+                        {message.guestNo && (
+                            <div>
+                                <p className="text-center text-[12px] ">Guests:</p>
+                                <p className="text-[10px] text-center mb-2">{message.guestNo}</p>
+                            </div>
+                        )}
 
-                    {user?._id === message.propertyId?.createdBy?._id ? (
-                        // Property Owner View - Show grid of buttons
-                        <div className="grid grid-cols-2 gap-2 mt-3 w-full">
-                            <button onClick={handleConvertToOffer} disabled={isConverting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isConverting ? "Accepting..." : "Accept Offer"}
-                            </button>
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Rejecting..." : "Reject Offer"}
-                            </button>
-                            <button onClick={() => setShowSuggestOfferModal(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                Suggest New Offer
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (focusMessageInput) {
-                                        focusMessageInput();
-                                    }
-                                }}
-                                className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
-                            >
-                                Message Guest
-                            </button>
-                        </div>
-                    ) : (
-                        // Other User View - Show only Make Offer and Withdraw Offer
-                        <div className="grid grid-cols-2 gap-4 mt-3 w-full">
-                            <button onClick={() => setIsEditModalOpen(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">
-                                Edit/Change Offer
-                            </button>
-                            <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
-                                {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
-                            </button>
-                        </div>
-                    )}
-                    {user?._id === message.propertyId?.createdBy?._id ? <p className="text-center mt-1 text-[9px]">You've received a new offer. Please response within 48 hours - after that, the offer will automatically expire.</p> : <p className="text-center mt-1 text-[9px]">Thank you! Your offer has been sent to the host for review</p>}
-                    <EditOfferModal message={message} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleEditOffer} isEditing={isEditing} />
+                        {user?._id === message.propertyId?.createdBy?._id ? (
+                            // Property Owner View - Show grid of buttons
+                            <div className="grid grid-cols-2 gap-2 mt-3 w-full">
+                                <button onClick={handleConvertToOffer} disabled={isConverting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isConverting ? "Accepting..." : "Accept Offer"}
+                                </button>
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Rejecting..." : "Reject Offer"}
+                                </button>
+                                <button onClick={() => setShowSuggestOfferModal(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    Suggest New Offer
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (focusMessageInput) {
+                                            focusMessageInput();
+                                        }
+                                    }}
+                                    className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer"
+                                >
+                                    Message Guest
+                                </button>
+                            </div>
+                        ) : (
+                            // Other User View - Show only Make Offer and Withdraw Offer
+                            <div className="grid grid-cols-2 gap-4 mt-3 w-full">
+                                <button onClick={() => setIsEditModalOpen(true)} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full">
+                                    Edit/Change Offer
+                                </button>
+                                <button onClick={handleRejectOffer} disabled={isRejecting} className="border border-black bg-[#16223D] text-white px-4 py-1 text-[9px] hover:bg-[#1a2a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full cursor-pointer">
+                                    {isRejecting ? "Withdrawing..." : "Withdraw Offer"}
+                                </button>
+                            </div>
+                        )}
+                        {user?._id === message.propertyId?.createdBy?._id ? <p className="text-center mt-1 text-[9px]">You've received a new offer. Please response within 48 hours - after that, the offer will automatically expire.</p> : <p className="text-center mt-1 text-[9px]">Thank you! Your offer has been sent to the host for review</p>}
+                    </div>
+                    {message.offerEdited ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Offer is Changed</div> : null}
                 </div>
+                <EditOfferModal message={message} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleEditOffer} isEditing={isEditing} />
 
                 <SuggestNewOfferModal message={message} isOpen={showSuggestOfferModal} onClose={() => setShowSuggestOfferModal(false)} onSend={handleSuggestNewOffer} isSending={isEditing} />
 
@@ -1822,47 +2036,50 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                     ) : (
                         <Avatar name={message.sender?.name || "Unknown User"} size={30} className="mr-2" />
                     ))}
-                <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
-                    <p className="font-semibold text-sm text-center">Offer Accepted</p>
-                    <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
+                <div>
+                    <div className="bg-[#D4BA71] p-3 border-2 border-[#14213D] w-72">
+                        <p className="font-semibold text-sm text-center">Offer Accepted</p>
+                        <p className="text-[12px] text-[#16223D] mb-4 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
 
-                    <div className="flex flex-col gap-3">
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
-                                <span>Property:</span>
+                        <div className="flex flex-col gap-3">
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Property Name" src="/messages/accepted/home-roof.png" height={16} width={16} />
+                                    <span>Property:</span>
+                                </div>
+                                <span className="font-semibold">{message?.propertyId?.title}</span>
                             </div>
-                            <span className="font-semibold">{message?.propertyId?.title}</span>
+
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
+                                    <span>Address:</span>
+                                </div>
+                                <span className="font-semibold text-right">{message?.propertyId?.location}</span>
+                            </div>
+
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
+                                    <span>Manager:</span>
+                                </div>
+                                <span className="font-semibold">{message.propertyId?.createdBy?.name}</span>
+                            </div>
+
+                            <div className="text-[12px] flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
+                                    <span>Phone:</span>
+                                </div>
+                                <span className="font-semibold">{message.propertyId?.createdBy?.phone}</span>
+                            </div>
                         </div>
 
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Address" src="/messages/accepted/location-pin.png" height={16} width={16} />
-                                <span>Address:</span>
-                            </div>
-                            <span className="font-semibold text-right">{message?.propertyId?.location}</span>
-                        </div>
-
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Property Manager" src="/messages/accepted/user-alt.png" height={16} width={16} />
-                                <span>Manager:</span>
-                            </div>
-                            <span className="font-semibold">{message.propertyId?.createdBy?.name}</span>
-                        </div>
-
-                        <div className="text-[12px] flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Image alt="Phone" src="/messages/accepted/phone.png" height={16} width={16} />
-                                <span>Phone:</span>
-                            </div>
-                            <span className="font-semibold">{message.propertyId?.createdBy?.phone}</span>
+                        <div className="flex justify-center mt-3">
+                            <div className="border border-black bg-[#16223D] text-white px-6 py-1 text-[10px]">Booking Confirmed</div>
                         </div>
                     </div>
-
-                    <div className="flex justify-center mt-3">
-                        <div className="border border-black bg-[#16223D] text-white px-6 py-1 text-[10px]">Booking Confirmed</div>
-                    </div>
+                    {message.hostFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Host Fee Paid</div> : message.bookingFeePaid ? <div className="mt-1 text-sm border-[#14213D] w-72 bg-[#14213d] h-8 text-white flex items-center justify-center rounded-[4px]">Booking Fee Paid</div> : null}
                 </div>
                 {isMe &&
                     (message.sender?.profileImg ? (
