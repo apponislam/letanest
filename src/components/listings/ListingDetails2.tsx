@@ -693,7 +693,7 @@ export default function PropertyPage2() {
                         {/* Things to know section */}
                         {property?.termsAndConditions?.content && (
                             <div className="pb-6 md:pb-12 mb-6 md:mb-12">
-                                <h1 className="text-[32px] text-white mb-4 font-bold">Things to know</h1>
+                                <h1 className="text-[32px] text-white mb-4 font-bold">Property T&Cs</h1>
                                 <div className="">
                                     <div
                                         className="text-[18px] text-[#B6BAC3] prose prose-invert max-w-none rich-text-content"
