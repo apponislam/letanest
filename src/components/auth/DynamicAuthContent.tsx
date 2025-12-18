@@ -41,7 +41,7 @@ const DynamicAuthContent: React.FC<DynamicAuthContentProps> = ({ pageType }) => 
     const getFullImageUrl = (imagePath: string): string => {
         if (!imagePath) return defaultContent.logo;
         if (imagePath.startsWith("http")) return imagePath;
-        if (imagePath.startsWith("/uploads")) return `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"}${imagePath}`;
+        if (imagePath.startsWith("/uploads")) return `${process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000"}${imagePath}`;
         return imagePath;
     };
 
