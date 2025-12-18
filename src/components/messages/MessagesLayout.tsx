@@ -775,6 +775,7 @@ export default function MessagesLayout2() {
                                                                                             mode="range"
                                                                                             defaultMonth={date?.from}
                                                                                             selected={date}
+                                                                                            disabled={{ before: new Date() }}
                                                                                             onSelect={(newDate) => {
                                                                                                 setDate(newDate);
                                                                                                 if (newDate?.from && newDate?.to) {

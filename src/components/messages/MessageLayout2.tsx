@@ -588,8 +588,7 @@ export default function MessagesLayout2() {
                                         </div>
                                     </div>
                                 </div>
-                                <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} reportedUserId={otherParticipant._id} reportedUserName={otherParticipant.name} reportedUserRole="HOST" conversationId={selectedConversation} />
-                                {/* <div className={`px-3 py-1 rounded-full text-xs font-medium ${isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{isConnected ? "Connected" : "Disconnected"}</div> */}
+                                <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} reportedUserId={otherParticipant._id} reportedUserName={otherParticipant.name} reportedUserRole={otherParticipant.role} conversationId={selectedConversation} />
                             </div>
                         </div>
 
@@ -649,7 +648,7 @@ export default function MessagesLayout2() {
 
                             {/* Input Box */}
                             <div className="border-t border-[#C9A94D] p-4 bg-[#B6BAC3]">
-                                {user?.role === "GUEST" || otherParticipant?.role === "ADMIN" ? null : (
+                                {user?.role === "GUEST" || otherParticipant?.role === "ADMIN" || otherParticipant?.role === "HOST" ? null : (
                                     <div className="relative">
                                         {/* Stripe Connection Check */}
                                         {stripeLoading ? (
@@ -772,6 +771,7 @@ export default function MessagesLayout2() {
                                                                                             mode="range"
                                                                                             defaultMonth={date?.from}
                                                                                             selected={date}
+                                                                                            disabled={{ before: new Date() }}
                                                                                             onSelect={(newDate) => {
                                                                                                 setDate(newDate);
                                                                                                 if (newDate?.from && newDate?.to) {
@@ -799,7 +799,6 @@ export default function MessagesLayout2() {
                                                                                     </div>
                                                                                     <div className="text-xs text-gray-600 mt-1">
                                                                                         {(() => {
-                                                                                            // FIXED: Add +1 day to checkout for correct night calculation
                                                                                             const checkoutDate = new Date(date.to);
                                                                                             checkoutDate.setDate(checkoutDate.getDate() + 1);
                                                                                             const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));

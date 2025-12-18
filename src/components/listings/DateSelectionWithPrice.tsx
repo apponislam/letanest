@@ -92,6 +92,7 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
                             selected={tempDate}
                             onSelect={handleDateSelect}
                             numberOfMonths={1}
+                            disabled={{ before: new Date() }}
                             // disabled={{
                             //     before: new Date(property.availableFrom),
                             //     after: new Date(property.availableTo),
