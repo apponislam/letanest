@@ -1037,7 +1037,7 @@ export default function MessagesLayout2() {
                                     {user?.role === "GUEST" && currentConversation?.isReplyAllowed === false ? (
                                         /* 🔒 Locked state */
                                         <div className="w-full">
-                                            <input type="text" value="" disabled placeholder="You can reply after the host responds" className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-500 cursor-not-allowed" />
+                                            <input type="text" value="" disabled placeholder="You’ll be able to reply soon." className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-500 cursor-not-allowed" />
                                         </div>
                                     ) : (
                                         /* ✍️ Active state */
