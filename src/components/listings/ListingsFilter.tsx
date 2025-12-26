@@ -448,13 +448,13 @@ export default function ListingsFilter() {
                             {/* Check In */}
                             <div>
                                 <label className="block text-[#C9A94D] font-medium mb-2 transition-colors duration-200">Check In</label>
-                                <DatePicker selected={checkIn} wrapperClassName="w-full" onChange={handleCheckInChange} placeholderText="Select date" customInput={<CustomDateInput label="Check In" />} calendarClassName="border border-[#C9A94D] rounded-lg transition-colors duration-200" />
+                                <DatePicker selected={checkIn} wrapperClassName="w-full" onChange={handleCheckInChange} dateFormat="dd/MM/yyyy" placeholderText="Select date" customInput={<CustomDateInput label="Check In" />} calendarClassName="border border-[#C9A94D] rounded-lg transition-colors duration-200" />
                             </div>
 
                             {/* Check Out */}
                             <div>
                                 <label className="block text-[#C9A94D] font-medium mb-2">Check Out</label>
-                                <DatePicker selected={checkOut} wrapperClassName="w-full" onChange={handleCheckOutChange} placeholderText="Select date" customInput={<CustomDateInput label="Check Out" />} calendarClassName="border border-[#C9A94D] rounded-lg" />
+                                <DatePicker selected={checkOut} wrapperClassName="w-full" onChange={handleCheckOutChange} dateFormat="dd/MM/yyyy" placeholderText="Select date" customInput={<CustomDateInput label="Check Out" />} calendarClassName="border border-[#C9A94D] rounded-lg" />
                             </div>
 
                             {/* Guest */}
