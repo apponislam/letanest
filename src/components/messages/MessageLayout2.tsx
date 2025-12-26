@@ -1718,7 +1718,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
                                 <div className="flex flex-col">
-                                    <Calendar mode="range" selected={tempDate} onSelect={handleDateSelect} numberOfMonths={1} className="rounded-md border" />
+                                    <Calendar mode="range" selected={tempDate} onSelect={handleDateSelect} disabled={(date) => date < new Date()} numberOfMonths={1} className="rounded-md border" />
                                     <div className="flex justify-end gap-2 p-3 border-t">
                                         <Button variant="outline" size="sm" onClick={() => setIsCalendarOpen(false)}>
                                             Cancel
