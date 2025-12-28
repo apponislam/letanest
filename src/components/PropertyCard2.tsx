@@ -11,7 +11,7 @@ interface PropertyCardProps {
     status?: string;
 }
 
-export default function PropertyCard({ property, status = "For rent" }: PropertyCardProps) {
+export default function PropertyCard({ property, status = "For Rent" }: PropertyCardProps) {
     const { _id, title, location, price, coverPhoto, propertyType, maxGuests, bedrooms, bathrooms, amenities } = property;
     console.log(property);
 
@@ -45,7 +45,7 @@ export default function PropertyCard({ property, status = "For rent" }: Property
                         (e.target as HTMLImageElement).src = "/proparties/default.png";
                     }}
                 />
-                {property.createdBy.verificationStatus === "approved" && <span className="absolute top-3 left-3 bg-[#C9A94D] text-white text-sm font-medium px-6 py-2 rounded-[6px]">{status}</span>}
+                {property.createdBy.verificationStatus === "approved" && (property?.featured ? <span className="absolute top-3 left-3 bg-[#C9A94D] text-white text-sm font-medium px-6 py-2 rounded-[6px]">Featured</span> : property?.trending ? <span className="absolute top-3 left-3 bg-[#0096FF] text-white text-sm font-medium px-6 py-2 rounded-[6px]">Trending</span> : null)}
             </div>
 
             <CardContent className="bg-[#FAF6ED] p-5">

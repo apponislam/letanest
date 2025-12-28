@@ -4,9 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import { useGetPrivacyPolicyQuery } from "@/redux/features/PrivacyPolicy/privacyPolicyApi";
 
 const PrivacyPolicy = () => {
-    // Fetch privacy policy from backend
     const { data, isLoading, error } = useGetPrivacyPolicyQuery({});
-    console.log(data);
 
     // Handle loading and error states
     if (isLoading) {

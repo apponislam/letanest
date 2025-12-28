@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import { X, Check } from "lucide-react";
+import { X, Check, Search } from "lucide-react";
 import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -21,6 +21,10 @@ import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAcco
 import BankDetailsModal from "./BankDetailsModal";
 import { useGetMyBankDetailsQuery } from "@/redux/features/bankdetails/bankDetailsApi";
 import DefaultTermsEditModal from "./DefaultTermsEdit";
+import { useGetAllLocationsQuery } from "@/redux/features/location/locationApi";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -179,10 +183,38 @@ const AddListingForm: React.FC = () => {
     const { data: myProfile } = useGetMyProfileQuery();
     const verificationStatus = myProfile?.data?.profile?.verificationStatus;
     const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
-    // console.log(response);
-    // console.log(bankDetailsResponse);
     const isDisabled = bankDetailsResponse?.data == null && response == null;
-    // console.log(isDisabled);
+
+    // Inside your component
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // Fetch all cities once (no search parameter to avoid re-fetches)
+    const { data: locationsData, isLoading: locationLoading } = useGetAllLocationsQuery({
+        isActive: true,
+        limit: 100,
+    });
+
+    // Client-side filtering
+    const filteredCities = locationsData?.data?.filter((city: any) => city.name.toLowerCase().includes(searchTerm.toLowerCase())) || [];
+
+    // Focus management
+    useEffect(() => {
+        if (isOpen && searchInputRef.current) {
+            const timer = setTimeout(() => {
+                searchInputRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+
+    // const { data: locationsData } = useGetAllLocationsQuery({
+    //     isActive: true,
+    //     limit: 100,
+    // });
+
+    console.log(locationsData);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -329,7 +361,7 @@ const AddListingForm: React.FC = () => {
     const [createProperty, { isLoading }] = useCreatePropertyMutation();
     // const { data: defaultTermsResponse, isLoading: termsLoading } = useGetMyDefaultHostTermsQuery();
     const { data: defaultTermsResponse, isLoading: termsLoading } = useGetPropertyDefaultQuery();
-    console.log(defaultTermsResponse?.data);
+    // console.log(defaultTermsResponse?.data);
 
     const handleUseDefault = () => {
         if (defaultTermsResponse?.data?._id) {
@@ -482,7 +514,7 @@ const AddListingForm: React.FC = () => {
                 <p className="mb-8">Let's start with the basics about your property</p>
 
                 <form onSubmit={step1Form.handleSubmit(onSubmitStep1)} className="space-y-5">
-                    {["title", "description", "location", "postCode"].map((field) => (
+                    {/* {["title", "description", "location", "postCode"].map((field) => (
                         <div key={field}>
                             <label className="block text-sm font-medium">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                             {field === "description" ? (
@@ -492,7 +524,117 @@ const AddListingForm: React.FC = () => {
                             )}
                             {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
                         </div>
-                    ))}
+                    ))} */}
+                    <div key="title">
+                        <label className="block text-sm font-medium">Title</label>
+                        <input {...step1Form.register("title")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                        {step1Form.formState.errors.title && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.title?.message}</p>}
+                    </div>
+
+                    <div key="description">
+                        <label className="block text-sm font-medium">Description</label>
+                        <textarea {...step1Form.register("description")} rows={5} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                        {step1Form.formState.errors.description && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.description?.message}</p>}
+                    </div>
+
+                    {/* <div key="location">
+                        <label className="block text-sm font-medium">Location</label>
+                        <input {...step1Form.register("location")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                        {step1Form.formState.errors.location && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.location?.message}</p>}
+                    </div> */}
+                    <div key="location">
+                        <label className="block text-sm font-medium">Location</label>
+                        <div className="mt-1 flex">
+                            <input {...step1Form.register("location")} className="flex-1 rounded-l-lg border border-r-0 border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" placeholder="Enter location" />
+
+                            <Select
+                                open={isOpen}
+                                onOpenChange={(open) => {
+                                    setIsOpen(open);
+                                    if (!open) setSearchTerm("");
+                                }}
+                                onValueChange={(value) => {
+                                    if (value) {
+                                        const currentValue = step1Form.getValues("location") || "";
+                                        const newValue = currentValue.trim() ? `${currentValue.trim()}, ${value}` : value;
+                                        step1Form.setValue("location", newValue);
+                                        setIsOpen(false);
+                                        setSearchTerm("");
+                                    }
+                                }}
+                            >
+                                <SelectTrigger className="w-1/4 h-auto! rounded-r-lg rounded-l-none border border-[#C9A94D] bg-transparent p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none flex items-center justify-center">
+                                    <SelectValue placeholder="+ City" />
+                                </SelectTrigger>
+                                <SelectContent
+                                    className="bg-white backdrop-blur-sm dark:bg-gray-900 p-0 w-[var(--radix-select-trigger-width)]"
+                                    position="popper"
+                                    sideOffset={4}
+                                    onCloseAutoFocus={(e) => e.preventDefault()}
+                                    // Remove forceMount - it doesn't exist
+                                >
+                                    {/* Search Section */}
+                                    <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 p-2 border-b">
+                                        <div className="relative">
+                                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                                            <input
+                                                ref={searchInputRef}
+                                                type="text"
+                                                placeholder="Search cities..."
+                                                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white dark:bg-gray-800"
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                }}
+                                                onMouseDown={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") e.stopPropagation();
+                                                }}
+                                                // This is the key: prevent React from stealing focus
+                                                onFocus={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Cities List */}
+                                    <div className="max-h-60 overflow-y-auto py-1">
+                                        {locationLoading ? (
+                                            <div className="p-4 text-center">Loading...</div>
+                                        ) : filteredCities.length === 0 ? (
+                                            <div className="p-4 text-center text-gray-500">{searchTerm ? `No cities found for "${searchTerm}"` : "No cities available"}</div>
+                                        ) : (
+                                            filteredCities.map((city: any) => (
+                                                <SelectItem
+                                                    key={city._id}
+                                                    value={city.name}
+                                                    className="cursor-pointer py-2"
+                                                    onMouseDown={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                    }}
+                                                >
+                                                    {city.name}
+                                                </SelectItem>
+                                            ))
+                                        )}
+                                    </div>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        {step1Form.formState.errors.location && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.location?.message}</p>}
+                    </div>
+
+                    <div key="postCode">
+                        <label className="block text-sm font-medium">Postcode</label>
+                        <input {...step1Form.register("postCode")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                        {step1Form.formState.errors.postCode && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.postCode?.message}</p>}
+                    </div>
 
                     <div>
                         <label className="block text-sm font-medium mb-2">Property Type</label>
