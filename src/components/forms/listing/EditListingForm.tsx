@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import { X, Check } from "lucide-react";
+import { X, Check, Search } from "lucide-react";
 import { useGetSinglePropertyQuery, useUpdatePropertyMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import { useConnectStripeAccountMutation, useGetMyProfileQuery, useGetStripeAcco
 import BankDetailsModal from "./BankDetailsModal";
 import { useGetMyBankDetailsQuery } from "@/redux/features/bankdetails/bankDetailsApi";
 import DefaultTermsEditModal from "./DefaultTermsEdit";
+import { useGetAllLocationsQuery } from "@/redux/features/location/locationApi";
 
 // Step 1 schema
 const step1Schema = z.object({
@@ -120,6 +121,30 @@ const EditPropertyPage = () => {
     const verificationStatus = myProfile?.data?.profile?.verificationStatus;
     const { data: bankDetailsResponse, isLoading: bankDetailsLoading, refetch: refetchBankDetails } = useGetMyBankDetailsQuery();
     const isDisabled = bankDetailsResponse?.data == null && response == null;
+
+    // Inside your component
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // Fetch all cities once (no search parameter to avoid re-fetches)
+    const { data: locationsData, isLoading: locationLoading } = useGetAllLocationsQuery({
+        isActive: true,
+        limit: 100,
+    });
+
+    // Client-side filtering
+    const filteredCities = locationsData?.data?.filter((city: any) => city.name.toLowerCase().includes(searchTerm.toLowerCase())) || [];
+
+    // Focus management
+    useEffect(() => {
+        if (isOpen && searchInputRef.current) {
+            const timer = setTimeout(() => {
+                searchInputRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     const step1Form = useForm<Step1Data>({
         resolver: zodResolver(step1Schema),
@@ -437,17 +462,75 @@ const EditPropertyPage = () => {
                     <p className="mb-8">Update the basic information about your property</p>
 
                     <form onSubmit={step1Form.handleSubmit(onSubmitStep1)} className="space-y-5">
-                        {["title", "description", "location", "postCode"].map((field) => (
-                            <div key={field}>
-                                <label className="block text-sm font-medium">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                                {field === "description" ? (
-                                    <textarea {...step1Form.register(field as keyof Step1Data)} rows={5} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
-                                ) : (
-                                    <input {...step1Form.register(field as keyof Step1Data)} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
-                                )}
-                                {step1Form.formState.errors[field as keyof Step1Data] && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors[field as keyof Step1Data]?.message}</p>}
+                        <div key="title">
+                            <label className="block text-sm font-medium">Title</label>
+                            <input {...step1Form.register("title")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                            {step1Form.formState.errors.title && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.title?.message}</p>}
+                        </div>
+
+                        <div key="description">
+                            <label className="block text-sm font-medium">Description</label>
+                            <textarea {...step1Form.register("description")} rows={5} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                            {step1Form.formState.errors.description && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.description?.message}</p>}
+                        </div>
+
+                        <div key="location">
+                            <label className="block text-sm font-medium">Location</label>
+                            <div className="mt-1 flex">
+                                <input {...step1Form.register("location")} className="flex-1 rounded-l-lg border border-r-0 border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" placeholder="Enter location" />
+
+                                {/* Custom city dropdown button */}
+                                <div className="relative w-1/4">
+                                    <button type="button" className="w-full h-full rounded-r-lg border border-[#C9A94D] bg-transparent p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none flex items-center justify-center" onClick={() => setIsOpen(!isOpen)}>
+                                        + City
+                                    </button>
+
+                                    {/* Dropdown content */}
+                                    {isOpen && (
+                                        <div className="absolute top-full right-0 mt-1 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+                                            <div className="p-2 border-b">
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                                                    <input ref={searchInputRef} type="text" placeholder="Search cities..." className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C9A94D]" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onClick={(e) => e.stopPropagation()} autoFocus />
+                                                </div>
+                                            </div>
+
+                                            <div className="max-h-60 overflow-y-auto">
+                                                {locationLoading ? (
+                                                    <div className="p-4 text-center">Loading...</div>
+                                                ) : filteredCities.length === 0 ? (
+                                                    <div className="p-4 text-center text-gray-500">{searchTerm ? `No cities found for "${searchTerm}"` : "No cities available"}</div>
+                                                ) : (
+                                                    filteredCities.map((city: any) => (
+                                                        <button
+                                                            key={city._id}
+                                                            type="button"
+                                                            className="w-full px-4 py-2 text-left hover:bg-gray-100 cursor-pointer"
+                                                            onClick={() => {
+                                                                const currentValue = step1Form.getValues("location") || "";
+                                                                const newValue = currentValue.trim() ? `${currentValue.trim()}, ${city.name}` : city.name;
+                                                                step1Form.setValue("location", newValue);
+                                                                setIsOpen(false);
+                                                                setSearchTerm("");
+                                                            }}
+                                                        >
+                                                            {city.name}
+                                                        </button>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        ))}
+                            {step1Form.formState.errors.location && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.location?.message}</p>}
+                        </div>
+
+                        <div key="postCode">
+                            <label className="block text-sm font-medium">Post Code</label>
+                            <input {...step1Form.register("postCode")} className="mt-1 block w-full rounded-lg border border-[#C9A94D] p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none" />
+                            {step1Form.formState.errors.postCode && <p className="text-red-500 text-sm mt-1">{step1Form.formState.errors.postCode?.message}</p>}
+                        </div>
 
                         <div>
                             <label className="block text-sm font-medium mb-2">Property Type</label>
