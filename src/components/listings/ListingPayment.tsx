@@ -12,11 +12,13 @@ import { useConfirmPaymentMutation, useCreatePaymentMutation, useConfirmBookingF
 import { useAlertModal } from "@/hooks/use-alert-modal";
 import { AlertModal } from "../alert-modal";
 import { useGetFeeQuery } from "@/redux/features/peaceofmindfee/peaceOfMindFeeApi";
+import Link from "next/link";
 
 const ListingPayment = () => {
     const { modalState, showError, showSuccess, showWarning, closeAlert } = useAlertModal();
     const [selected, setSelected] = useState<string | null>(null);
     const [showRules, setShowRules] = useState(false);
+    const [showBookingFeeInfo, setShowBookingFeeInfo] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
     const params = useParams();
@@ -228,7 +230,25 @@ const ListingPayment = () => {
                                         // BOOKING FEE ONLY VIEW
                                         <>
                                             <div className="flex items-center justify-between text-yellow-400">
-                                                <h1>Booking Fee (Letanest)</h1>
+                                                <div className="flex items-center gap-2">
+                                                    <h1>Booking Fee (Letanest)</h1>
+                                                    <div className="relative" onMouseEnter={() => setShowBookingFeeInfo(true)} onMouseLeave={() => setShowBookingFeeInfo(false)} onClick={() => setShowBookingFeeInfo(!showBookingFeeInfo)}>
+                                                        <Image alt="Info" src="/listing/pay/info-circle.png" height={20} width={20} className="cursor-pointer w-5 h-5" />
+
+                                                        {showBookingFeeInfo && (
+                                                            <div className="absolute right-0 md:left-0 top-0 md:top-full z-50 mt-2 w-64 md:w-[450px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg -translate-x-0 border border-[#C9A94D]">
+                                                                <h2 className="font-bold mb-2 text-[14px]">Letanest Fees</h2>
+                                                                <p className="mb-2 text-[13px]">At Letanest, we charge a standard 10% booking fee, or a fixed nightly fee of £5-£10, depending on your membership. Some memberships may include no booking fees at all.</p>
+                                                                <p className="mb-2 text-[13px]">
+                                                                    <Link href="/terms-of-conditions" className="text-[#C9A94D] underline hover:text-yellow-400 transition-colors">
+                                                                        Terms & Conditions
+                                                                    </Link>{" "}
+                                                                    for full details.
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
                                                 <h1>£{bookingFee}</h1>
                                             </div>
                                             {enabled && (

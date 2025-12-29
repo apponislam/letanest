@@ -1809,7 +1809,8 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
                         {!message?.bookingFeePaid && (
                             <p className="text-center font-bold mb-2 text-[14px]">
-                                Booking Fee - £{message?.bookingFee} (£{((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%)
+                                {/* Booking Fee - £{message?.bookingFee} ({((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) */}
+                                Booking Fee - £{message?.bookingFee}
                             </p>
                         )}
 
