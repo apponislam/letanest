@@ -236,11 +236,11 @@ const ListingPayment = () => {
                                                         <Image alt="Info" src="/listing/pay/info-circle.png" height={20} width={20} className="cursor-pointer w-5 h-5" />
 
                                                         {showBookingFeeInfo && (
-                                                            <div className="absolute right-0 md:left-0 top-0 md:top-full z-50 mt-2 w-64 md:w-[450px] bg-[#14213D] text-white text-sm p-6 rounded-[10px] shadow-lg -translate-x-0 border border-[#C9A94D]">
-                                                                <h2 className="font-bold mb-2 text-[14px]">Letanest Fees</h2>
-                                                                <p className="mb-2 text-[13px]">At Letanest, we charge a standard 10% booking fee, or a fixed nightly fee of £5-£10, depending on your membership. Some memberships may include no booking fees at all.</p>
-                                                                <p className="mb-2 text-[13px]">
-                                                                    <Link href="/terms-of-conditions" className="text-[#C9A94D] underline hover:text-yellow-400 transition-colors">
+                                                            <div className="absolute right-0 md:left-1/2 top-0 md:top-full z-50 mt-2 w-64 md:w-[320px] bg-[#14213D] text-white text-sm p-4 rounded-[10px] shadow-lg -translate-x-0 md:-translate-x-1/2 border border-[#C9A94D]">
+                                                                <h2 className="font-normal mb-2 text-[14px]">Letanest Fees</h2>
+                                                                <p className="mb-2 text-[13px] font-normal">At Letanest, we charge a standard 10% booking fee, or a fixed nightly fee of £5-£10, depending on your membership. Some memberships may include no booking fees at all.</p>
+                                                                <p className="mb-2 text-[13px] font-normal">
+                                                                    <Link href="/terms-of-conditions" className="text-[#C9A94D] underline hover:text-yellow-400 transition-colors lowercase">
                                                                         Terms & Conditions
                                                                     </Link>{" "}
                                                                     for full details.
