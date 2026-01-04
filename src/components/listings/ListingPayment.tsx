@@ -27,10 +27,7 @@ const ListingPayment = () => {
 
     // Get real message data
     const { data: messageData, isLoading: messageLoading } = useGetMessageByIdQuery(id as string);
-    console.log(messageData);
     const { data, refetch: refetchPaymentMethods } = useGetPaymentMethodsQuery();
-
-    // Only enable peace of mind for booking fee payment, not for commission payment
     const [enabled, setEnabled] = useState(!messageData?.data?.bookingFeePaid);
 
     // Auto-select default card when data loads
@@ -59,18 +56,14 @@ const ListingPayment = () => {
 
     const formattedDates = checkIn && checkOut ? `${format(checkIn, "MMM d")} - ${format(checkOut, "MMM d")}` : "N/A";
 
-    // Calculate total based on payment type
     const total = useMemo(() => {
         if (!isBookingFeePaid) {
-            // Booking fee only payment - charge booking fee + peace of mind if enabled
             return bookingFee + (enabled ? peaceOfMindFee : 0);
         } else {
-            // Commission based payment - ONLY charge agreed fee, no peace of mind option
             return agreedFee;
         }
     }, [agreedFee, bookingFee, enabled, isBookingFeePaid, peaceOfMindFee]);
 
-    // Check if user has any saved cards
     const hasCards = data?.data && data.data.length > 0;
 
     const [createPayment, { isLoading: creatingCommission }] = useCreatePaymentMutation();
@@ -102,9 +95,6 @@ const ListingPayment = () => {
             const stripePaymentMethodId = selectedCard.paymentMethodId;
 
             if (!isBookingFeePaid) {
-                // BOOKING FEE PAYMENT
-                console.log("Processing booking fee payment...");
-
                 const bookingFeeResponse = await createBookingFeePayment({
                     agreedFee, // Send all data for record keeping
                     bookingFee,
@@ -176,7 +166,6 @@ const ListingPayment = () => {
                     return;
                 }
 
-                // Confirm commission based payment
                 const confirmResponse = await confirmPayment({
                     paymentIntentId,
                     paymentMethodId: stripePaymentMethodId,
@@ -220,14 +209,12 @@ const ListingPayment = () => {
                                         <h1>{formattedDates}</h1>
                                     </div>
 
-                                    {/* ALWAYS SHOW FULL BREAKDOWN */}
                                     <div className="flex items-center justify-between ">
                                         <h1>Agreed Fee (Host)</h1>
                                         <h1>£{agreedFee}</h1>
                                     </div>
 
                                     {!isBookingFeePaid ? (
-                                        // BOOKING FEE ONLY VIEW
                                         <>
                                             <div className="flex items-center justify-between text-yellow-400">
                                                 <div className="flex items-center gap-2">
@@ -419,6 +406,29 @@ const ListingPayment = () => {
                                         </div>
                                     ) : (
                                         <div>
+                                            {/* <PaymentMethodForm
+                                                onSuccess={() => {
+                                                    setShowAddForm(false);
+                                                    refetchPaymentMethods();
+                                                }}
+                                                onCancel={hasCards ? () => setShowAddForm(false) : undefined}
+                                                showCheckout={!hasCards}
+                                                paymentData={
+                                                    !hasCards
+                                                        ? {
+                                                              agreedFee,
+                                                              bookingFee,
+                                                              extraFee: enabled ? peaceOfMindFee : 0,
+                                                              totalAmount: total,
+                                                              propertyId: property._id,
+                                                              conversationId: messageData.data.conversationId,
+                                                              messageId: messageData.data._id,
+                                                              checkInDate: messageData.data.checkInDate,
+                                                              checkOutDate: messageData.data.checkOutDate,
+                                                          }
+                                                        : undefined
+                                                }
+                                            /> */}
                                             <PaymentMethodForm
                                                 onSuccess={() => {
                                                     setShowAddForm(false);
@@ -441,6 +451,8 @@ const ListingPayment = () => {
                                                           }
                                                         : undefined
                                                 }
+                                                isBookingFeePaid={isBookingFeePaid} // Add this
+                                                peaceOfMindEnabled={enabled} // Add this
                                             />
                                         </div>
                                     )}
