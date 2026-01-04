@@ -572,7 +572,7 @@ export default function MessageConversationPage() {
                                         >
                                             Cancel
                                         </button>
-                                        <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-2 rounded text-sm hover:bg-[#1a2d5a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || !date || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-2 rounded text-sm hover:bg-[#1a2d5a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             Send Offer
                                         </button>
                                     </div>

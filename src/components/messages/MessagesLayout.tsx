@@ -1011,7 +1011,7 @@ export default function MessagesLayout2() {
                                                 </div>
 
                                                 <div className="flex gap-2">
-                                                    <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
+                                                    <button onClick={handleSendOffer} disabled={!selectedProperty || !agreed || !date || (calculatedPrice === 0 && !manualPrice)} className="flex-1 bg-[#14213D] text-white py-1 rounded text-xs disabled:opacity-50">
                                                         Send Offer
                                                     </button>
                                                     <button
