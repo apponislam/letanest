@@ -12,6 +12,8 @@ const JoditEditor = dynamic(() => import("jodit-react"), {
 
 // Import Jodit type
 import { Jodit } from "jodit-react";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 const BotMessagesPage = () => {
     const { data: response, isLoading, error, refetch } = useGetAllMessageTypesQuery();
@@ -116,7 +118,7 @@ const BotMessagesPage = () => {
 
     const handleCreate = async () => {
         if (!formData.name.trim() || !formData.type.trim() || !formData.content.trim()) {
-            alert("Please fill in all required fields: Name, Type, and Content");
+            toast.error("Please fill in all required fields: Name, Type, and Content");
             return;
         }
 
@@ -125,9 +127,9 @@ const BotMessagesPage = () => {
             setIsCreating(false);
             setFormData({ name: "", type: "WELCOME", content: "" });
             refetch();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to create message type:", error);
-            alert("Failed to create template. Please try again.");
+            toast.error(error?.data?.message || "Failed to create template. Please try again.");
         }
     };
 
@@ -136,22 +138,39 @@ const BotMessagesPage = () => {
             await updateMessageType({ id, data }).unwrap();
             setEditingId(null);
             refetch();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to update message type:", error);
-            alert("Failed to update template. Please try again.");
+            toast.error(error?.data?.message || "Failed to update template. Please try again.");
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm("Are you sure you want to delete this message type?")) {
-            try {
-                await deleteMessageType(id).unwrap();
-                refetch();
-            } catch (error) {
-                console.error("Failed to delete message type:", error);
-                alert("Failed to delete template. Please try again.");
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Are you sure you want to delete this message type?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#C9A94D",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            background: "#2D3546",
+            color: "#FFFFFF",
+            customClass: {
+                popup: "border border-[#C9A94D] rounded-[20px]",
+                title: "text-[#C9A94D]",
+            },
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deleteMessageType(id).unwrap();
+                    refetch();
+                } catch (error: any) {
+                    console.error("Failed to delete message type:", error);
+                    toast.error(error?.data?.message || "Failed to delete template. Please try again.");
+                }
             }
-        }
+        });
     };
 
     const getTypeIcon = (type: string) => {
