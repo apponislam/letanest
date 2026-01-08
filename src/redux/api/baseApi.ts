@@ -34,10 +34,6 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
             const backendData = (refreshResult.data as RefreshTokenResponse).data;
             const user = backendData.user;
             const accessToken = backendData.accessToken;
-
-            console.log(user);
-            console.log(accessToken);
-
             if (user && accessToken) {
                 api.dispatch(setUser({ user, token: accessToken }));
 
