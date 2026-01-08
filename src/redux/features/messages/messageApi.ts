@@ -296,6 +296,20 @@ export const messageApi = baseApi.injectEndpoints({
             providesTags: ["Conversations"],
             transformResponse: (response: any) => response,
         }),
+        sendMessageToAll: builder.mutation({
+            query: (data: { messageTypeId: string; userType?: "GUEST" | "HOST" | "BOTH" }) => ({
+                url: "/messages/bot/send-to-all",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ["Conversations", "Messages"],
+        }),
+
+        // Get active message templates (Admin only)
+        getActiveMessageTemplates: builder.query({
+            query: () => "/messages/bot/templates/active",
+            providesTags: ["MessageTemplates"],
+        }),
     }),
 });
 
@@ -325,4 +339,7 @@ export const {
     //edit offer
     useEditOfferMutation, // NEW: Filter by updatedAt
     useFilterConversationsByUpdatedAtQuery,
+    // NEW BOT HOOKS
+    useSendMessageToAllMutation,
+    useGetActiveMessageTemplatesQuery,
 } = messageApi;
