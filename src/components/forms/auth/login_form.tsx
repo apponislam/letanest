@@ -66,7 +66,8 @@ const LoginForm = () => {
                 router.push("/");
             }
         } catch (err: any) {
-            toast.error(err?.data?.message || "Login failed", { id: loadingToast });
+            console.log(err);
+            toast.error(err?.error?.data?.message || "Login failed", { id: loadingToast });
         }
     };
 
