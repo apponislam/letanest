@@ -9,6 +9,15 @@ type RefreshTokenResponse = {
     };
 };
 
+type SetUserPasswordResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        userId: string;
+        email: string;
+    };
+};
+
 const authApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
@@ -77,7 +86,16 @@ const authApi = baseApi.injectEndpoints({
                 params: { token, id: userId },
             }),
         }),
+
+        setUserPasswordByAdmin: builder.mutation<SetUserPasswordResponse, { userId: string; newPassword: string }>({
+            query: (body) => ({
+                url: "/auth/set-user-password",
+                method: "POST",
+                body,
+                credentials: "include",
+            }),
+        }),
     }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useRefreshTokenMutation, useLogoutMutation, useRequestPasswordResetOtpMutation, useVerifyOtpMutation, useResendResetOtpMutation, useResetPasswordWithTokenMutation, useVerifyEmailQuery } = authApi;
+export const { useLoginMutation, useRegisterMutation, useRefreshTokenMutation, useLogoutMutation, useRequestPasswordResetOtpMutation, useVerifyOtpMutation, useResendResetOtpMutation, useResetPasswordWithTokenMutation, useVerifyEmailQuery, useSetUserPasswordByAdminMutation } = authApi;
