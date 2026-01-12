@@ -234,6 +234,22 @@ interface DownloadUsersExcelParams {
     month?: string;
 }
 
+// Add these interfaces with other interfaces
+export interface EmailPreferenceResponse {
+    success: boolean;
+    message: string;
+    data: {
+        receiveEmails: boolean;
+    };
+}
+
+export interface ToggleEmailPreferenceResponse extends EmailPreferenceResponse {}
+export interface GetEmailPreferenceResponse extends EmailPreferenceResponse {}
+
+export interface ForceToggleEmailPreferenceRequest {
+    forceValue?: boolean;
+}
+
 export const userApi = baseApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
@@ -400,6 +416,22 @@ export const userApi = baseApi.injectEndpoints({
                 }
             },
         }),
+        getEmailPreference: build.query<GetEmailPreferenceResponse, void>({
+            query: () => ({
+                url: "/users/me/receive-emails",
+                method: "GET",
+            }),
+            providesTags: ["EmailPreference"],
+        }),
+
+        toggleEmailPreference: build.mutation<ToggleEmailPreferenceResponse, ForceToggleEmailPreferenceRequest | void>({
+            query: (body) => ({
+                url: "/users/me/receive-emails",
+                method: "PATCH",
+                body: body || undefined,
+            }),
+            invalidatesTags: ["EmailPreference", "MyProfile"],
+        }),
     }),
 });
 
@@ -425,4 +457,7 @@ export const {
     useDeleteUserMutation,
     // Download Excel hook
     useDownloadUsersExcelMutation,
+    // 🆕 Email Preference hooks
+    useGetEmailPreferenceQuery,
+    useToggleEmailPreferenceMutation,
 } = userApi;

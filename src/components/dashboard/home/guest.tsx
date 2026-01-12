@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import Swal from "sweetalert2";
+import EmailNotificationToggle from "./EmailNotificationToggle";
 
 const Guest = () => {
     const mainuser = useAppSelector(currentUser);
@@ -355,8 +356,9 @@ const Guest = () => {
 
             <div className="text-[#C9A94D]">
                 <div className="mb-8">
-                    <h1 className="font-bold text-[30px] mb-4">Guest Dashboard</h1>
-                    <p>Welcome back, {mainuser?.name} ! Here's what's happening with your account.</p>
+                    <h1 className="font-bold text-[30px] mb-2">Guest Dashboard</h1>
+                    <p className="mb-2">Welcome back, {mainuser?.name} ! Here's what's happening with your account.</p>
+                    <EmailNotificationToggle></EmailNotificationToggle>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-14 mb-8">
                     <div className="flex items-center gap-5 flex-col md:flex-row border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">

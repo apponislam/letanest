@@ -13,6 +13,7 @@ import { useGetRandomAdminQuery } from "@/redux/features/users/usersApi";
 import { useRouter } from "next/navigation";
 import { useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
 import { useGetHostStatsQuery } from "@/redux/features/dashboard/dashboardApi";
+import EmailNotificationToggle from "./EmailNotificationToggle";
 
 const HostDash = () => {
     const hostuser = useAppSelector(currentUser);
@@ -121,8 +122,9 @@ const HostDash = () => {
             <div className="text-[#C9A94D]">
                 <div className="mb-8 flex justify-between flex-col md:flex-row gap-4">
                     <div>
-                        <h1 className="font-bold text-[30px] mb-4">Host Dashboard</h1>
-                        <p>Welcome back, {hostuser?.name} ! Here's what's happening with your account.</p>
+                        <h1 className="font-bold text-[30px] mb-2">Host Dashboard</h1>
+                        <p className="mb-2">Welcome back, {hostuser?.name} ! Here's what's happening with your account.</p>
+                        <EmailNotificationToggle></EmailNotificationToggle>
                     </div>
                     <div className="flex items-center justify-center flex-col gap-2">
                         <Image src={randomAdminData?.data?.profileImg ? `${process.env.NEXT_PUBLIC_BASE_API}${randomAdminData.data.profileImg}` : "/home/avatar.jpg"} alt={randomAdminData?.data?.name || "Admin"} width={30} height={30} className="rounded-full border-[0.3px] border-[#C9A94D] object-cover h-8 w-8" />

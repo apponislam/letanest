@@ -1,11 +1,12 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { ChartAreaDefault } from "./RevenueChat";
 import { ChartPieDonut } from "./ApartmentChart";
 import PageHeader from "@/components/PageHeader";
 import { useGetDashboardStatsQuery } from "@/redux/features/dashboard/dashboardApi";
+import EmailNotificationToggle from "./EmailNotificationToggle";
 
 const AdminDash = () => {
     const { data: statsData, isLoading, error } = useGetDashboardStatsQuery();
@@ -14,14 +15,12 @@ const AdminDash = () => {
     if (error) return <div className="text-red-500 text-center py-8">Error loading dashboard</div>;
 
     const stats = statsData?.data;
-
     const usersTotal = stats?.users?.total || 0;
     const usersGrowth = stats?.users?.growth || 0;
     const propertiesTotal = stats?.properties?.total || 0;
     const propertiesGrowth = stats?.properties?.growth || 0;
     const revenueTotal = stats?.revenue?.total || 0;
     const revenueGrowth = stats?.revenue?.growth || 0;
-
     const isUsersGrowing = usersGrowth >= 0;
     const isPropertiesGrowing = propertiesGrowth >= 0;
     const isRevenueGrowing = revenueGrowth >= 0;
@@ -32,58 +31,12 @@ const AdminDash = () => {
             <div className="text-[#C9A94D]">
                 <div className="mb-8 flex justify-between flex-col md:flex-row gap-4">
                     <div>
-                        <h1 className="font-bold text-[30px] mb-4">Admin Dashboard</h1>
-                        <p>Welcome back, John ! Here’s what’s happening with your account.</p>
+                        <h1 className="font-bold text-[30px] mb-2">Admin Dashboard</h1>
+                        <p className="mb-2">Welcome back, John ! Here’s what’s happening with your account.</p>
+
+                        <EmailNotificationToggle></EmailNotificationToggle>
                     </div>
                 </div>
-
-                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div className=" border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <div className="flex items-center justify-between gap-5 flex-col md:flex-row mb-7">
-                            <div>
-                                <p className="mb-4">Total User</p>
-                                <h1 className="text-[26px] font-bold text-center md:text-left">40,689</h1>
-                            </div>
-                            <Image src="/dashboard/admin/users.png" alt="Total Booking" width={42} height={42}></Image>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-[#00B69B]" />
-                            <p className="text-white">
-                                <span className="text-[#00B69B]">8.5%</span> Up from yesterday
-                            </p>
-                        </div>
-                    </div>
-                    <div className=" border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <div className="flex items-center justify-between gap-5 flex-col md:flex-row mb-7">
-                            <div>
-                                <p className="mb-4">Revenue</p>
-                                <h1 className="text-[26px] font-bold text-center md:text-left">40,689</h1>
-                            </div>
-                            <Image src="/dashboard/admin/revenue.png" alt="Total Booking" width={42} height={42}></Image>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-[#00B69B]" />
-                            <p className="text-white">
-                                <span className="text-[#00B69B]">8.5%</span> Up from yesterday
-                            </p>
-                        </div>
-                    </div>
-                    <div className=" border border-[#C9A94D] bg-[#2D3546] rounded-2xl p-5">
-                        <div className="flex items-center justify-between gap-5 flex-col md:flex-row mb-7">
-                            <div>
-                                <p className="mb-4">Total Properties</p>
-                                <h1 className="text-[26px] font-bold text-center md:text-left">40,689</h1>
-                            </div>
-                            <Image src="/dashboard/admin/calender.png" alt="Total Booking" width={42} height={42}></Image>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-[#00B69B]" />
-                            <p className="text-white">
-                                <span className="text-[#00B69B]">8.5%</span> Up from yesterday
-                            </p>
-                        </div>
-                    </div>
-                </div> */}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     {/* Total Users */}

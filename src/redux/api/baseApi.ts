@@ -84,6 +84,7 @@ export const baseApi = createApi({
         "Locations",
         "PeaceOfMindFee",
         "MessageTemplates",
+        "EmailPreference",
     ],
     endpoints: () => ({}),
 });
