@@ -395,6 +395,11 @@ const AddListingForm: React.FC = () => {
 
     // ---------------- Final Submission ----------------
     const onSubmitStep4 = async (step4Data: Step4Data) => {
+        if (isDisabled) {
+            toast.error("Please complete your payment setup first: Add Bank Details / Setup Stripe Account");
+            return;
+        }
+
         if (!step1Data || !step2Data || !step3Data) return;
 
         setCompletedSteps((prev) => [...prev, "step4"]);
@@ -1114,7 +1119,7 @@ const AddListingForm: React.FC = () => {
                         <button type="button" onClick={() => setActiveTab("step3")} className="bg-[#B6BAC3] text-[#626A7D] py-2 px-6 rounded-lg hover:bg-gray-300 transition cursor-pointer">
                             Previous
                         </button>
-                        <button type="submit" disabled={isDisabled || isLoading} className={`flex items-center justify-center gap-2 py-2 px-10 rounded-lg transition text-white ${isDisabled || isLoading ? "bg-[#535a6b] cursor-not-allowed" : "bg-[#C9A94D] hover:bg-[#bfa14a] cursor-pointer"}`}>
+                        <button type="submit" disabled={isLoading} className={`flex items-center justify-center gap-2 py-2 px-10 rounded-lg transition text-white ${isDisabled || isLoading ? "bg-[#535a6b] cursor-not-allowed" : "bg-[#C9A94D] hover:bg-[#bfa14a] cursor-pointer"}`}>
                             {isLoading ? (
                                 <>
                                     <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1127,6 +1132,19 @@ const AddListingForm: React.FC = () => {
                                 <span>Submit for Review</span>
                             )}
                         </button>
+                        {/* <button type="submit" disabled={isDisabled || isLoading} className={`flex items-center justify-center gap-2 py-2 px-10 rounded-lg transition text-white ${isDisabled || isLoading ? "bg-[#535a6b] cursor-not-allowed" : "bg-[#C9A94D] hover:bg-[#bfa14a] cursor-pointer"}`}>
+                            {isLoading ? (
+                                <>
+                                    <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                    </svg>
+                                    <span>Submitting...</span>
+                                </>
+                            ) : (
+                                <span>Submit for Review</span>
+                            )}
+                        </button> */}
                     </div>
                 </form>
             </TabsContent>
