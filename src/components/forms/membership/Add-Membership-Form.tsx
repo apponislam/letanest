@@ -358,11 +358,24 @@ const AddMembershipForm = () => {
                                     {errors.commission && <span className="text-red-500 text-sm">{errors.commission.message}</span>}
                                 </div>
 
-                                <div className="flex flex-col gap-3">
+                                {/* <div className="flex flex-col gap-3">
                                     <Label htmlFor="freeBookings">Free Bookings</Label>
                                     <Input type="number" id="freeBookings" placeholder={fieldHelpers.freeBookingsHelp} {...register("freeBookings", { valueAsNumber: true })} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
                                     {errors.freeBookings && <span className="text-red-500 text-sm">{errors.freeBookings.message}</span>}
-                                </div>
+                                </div> */}
+                                {watchLevel !== "free" && watchLevel !== "gold" ? (
+                                    <div className="flex flex-col gap-3">
+                                        <Label htmlFor="freeBookings">Free Bookings</Label>
+                                        <Input type="number" id="freeBookings" placeholder="Enter number of free bookings" {...register("freeBookings", { valueAsNumber: true })} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
+                                        {errors.freeBookings && <span className="text-red-500 text-sm">{errors.freeBookings.message}</span>}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-3">
+                                        <Label htmlFor="freeBookings">Free Bookings</Label>
+                                        <Input type="number" id="freeBookings" placeholder="Not applicable for this tier" disabled className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white opacity-50" />
+                                        <input type="hidden" {...register("freeBookings")} value={undefined} />
+                                    </div>
+                                )}
 
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="listingLimit">Listing Limit</Label>
