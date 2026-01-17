@@ -343,7 +343,18 @@ const AddMembershipForm = () => {
                             <>
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="commission">Commission</Label>
-                                    <Input id="commission" placeholder={fieldHelpers.commissionHelp} {...register("commission")} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
+                                    <Input
+                                        id="commission"
+                                        placeholder={fieldHelpers.commissionHelp}
+                                        {...register("commission", {
+                                            setValueAs: (v) => {
+                                                if (v === "" || v === null || v === undefined) return undefined;
+                                                const num = Number(v);
+                                                return isNaN(num) ? v : num;
+                                            },
+                                        })}
+                                        className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white"
+                                    />
                                     {errors.commission && <span className="text-red-500 text-sm">{errors.commission.message}</span>}
                                 </div>
 
