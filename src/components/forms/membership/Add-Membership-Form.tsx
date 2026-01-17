@@ -43,7 +43,7 @@ const subscriptionSchema = z.object({
             z.object({
                 name: z.string().min(1, { message: "Feature name is required" }),
                 included: z.boolean(),
-            })
+            }),
         )
         .min(1, { message: "At least one feature is required" }),
 
@@ -163,9 +163,7 @@ const AddMembershipForm = () => {
                 bookingLimit: data.bookingLimit ? Number(data.bookingLimit) : undefined,
                 freeBookings: data.freeBookings ? Number(data.freeBookings) : undefined,
                 listingLimit: data.listingLimit ? Number(data.listingLimit) : undefined,
-                // Convert commission to number if it's a number string
                 commission: data.commission ? (typeof data.commission === "string" && !isNaN(Number(data.commission)) ? Number(data.commission) : data.commission) : undefined,
-                // Convert bookingFee to number if it's a number string
                 bookingFee: data.bookingFee ? (typeof data.bookingFee === "string" && !isNaN(Number(data.bookingFee)) ? Number(data.bookingFee) : data.bookingFee) : undefined,
             };
 
@@ -326,7 +324,15 @@ const AddMembershipForm = () => {
 
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bookingLimit">Booking Limit</Label>
-                                    <Input type="number" id="bookingLimit" placeholder={fieldHelpers.bookingLimitHelp} {...register("bookingLimit", { valueAsNumber: true })} className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white" />
+                                    <Input
+                                        type="number"
+                                        id="bookingLimit"
+                                        placeholder={fieldHelpers.bookingLimitHelp}
+                                        {...register("bookingLimit", {
+                                            setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                                        })}
+                                        className="bg-[#2D3546] border border-[#C9A94D] placeholder:text-[#C9A94D] text-white"
+                                    />
                                     {errors.bookingLimit && <span className="text-red-500 text-sm">{errors.bookingLimit.message}</span>}
                                 </div>
                             </>
