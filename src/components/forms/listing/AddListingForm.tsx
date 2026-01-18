@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import { X, Check, Search } from "lucide-react";
+import { X, Check, Search, AlertCircle } from "lucide-react";
 import { useCreatePropertyMutation } from "@/redux/features/property/propertyApi";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -22,7 +22,6 @@ import BankDetailsModal from "./BankDetailsModal";
 import { useGetMyBankDetailsQuery } from "@/redux/features/bankdetails/bankDetailsApi";
 import DefaultTermsEditModal from "./DefaultTermsEdit";
 import { useGetAllLocationsQuery } from "@/redux/features/location/locationApi";
-import { useDebounce } from "@/hooks/use-debounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
@@ -176,6 +175,7 @@ const AddListingForm: React.FC = () => {
     const [showRules, setShowRules] = useState(false);
     const [completedSteps, setCompletedSteps] = useState<string[]>([]);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [showSubmissionModal, setShowSubmissionModal] = useState(false);
 
     const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
     const { data: response, isLoading: stripeLoading } = useGetStripeAccountStatusQuery();
@@ -437,10 +437,14 @@ const AddListingForm: React.FC = () => {
         }
 
         try {
+            setShowSubmissionModal(true);
+
             const result = await createProperty(formData).unwrap();
             console.log("Property created successfully:", result);
 
             clearFormData();
+
+            setShowSubmissionModal(false);
 
             if (mainuser?.role === "ADMIN") {
                 router.push("/dashboard/property-management");
@@ -454,6 +458,22 @@ const AddListingForm: React.FC = () => {
             toast.error(err?.data?.message || "Failed to create property");
         }
     };
+
+    useEffect(() => {
+        if (!showSubmissionModal) return;
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = "Your property submission is in progress. Are you sure you want to leave?";
+            return "Your property submission is in progress. Are you sure you want to leave?";
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [showSubmissionModal]);
 
     // ---------------- Step Navigation Logic ----------------
     const isStepCompleted = (step: string) => completedSteps.includes(step);
@@ -770,7 +790,7 @@ const AddListingForm: React.FC = () => {
                                                     if (isSelected) {
                                                         step2Form.setValue(
                                                             "amenities",
-                                                            currentAmenities.filter((a) => a !== amenity)
+                                                            currentAmenities.filter((a) => a !== amenity),
                                                         );
                                                     } else {
                                                         step2Form.setValue("amenities", [...currentAmenities, amenity]);
@@ -1148,6 +1168,60 @@ const AddListingForm: React.FC = () => {
                     </div>
                 </form>
             </TabsContent>
+
+            {showSubmissionModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl border border-[#C9A94D]">
+                        <div className="flex flex-col items-center text-center p-4 sm:p-6 md:p-8 space-y-4">
+                            {/* Loading Spinner - Responsive sizing */}
+                            <div className="relative">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-[#C9A94D]/30 rounded-full"></div>
+                                <div className="absolute top-0 left-0 w-16 h-16 sm:w-20 sm:h-20 border-4 border-[#C9A94D] border-t-transparent rounded-full animate-spin"></div>
+                                <AlertCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 sm:w-8 sm:h-8 text-[#C9A94D]" />
+                            </div>
+
+                            {/* Title - Responsive text */}
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white px-2">Submission In Progress</h3>
+
+                            {/* Message */}
+                            <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base px-2">We're creating your property listing. This may take a few moments...</p>
+
+                            {/* Warning Box - Responsive padding and text */}
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 sm:p-4 w-full">
+                                <div className="flex items-start">
+                                    <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 mr-2 sm:mr-3 flex-shrink-0" />
+                                    <div className="text-left">
+                                        <p className="font-medium text-yellow-800 dark:text-yellow-300 text-sm sm:text-base">Please don't:</p>
+                                        <ul className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-400 mt-1 sm:mt-2 space-y-1">
+                                            <li className="flex items-start">
+                                                <span className="mr-2">•</span>
+                                                <span>Refresh or close this page</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <span className="mr-2">•</span>
+                                                <span>Navigate to a different page</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <span className="mr-2">•</span>
+                                                <span>Click the browser's back button</span>
+                                            </li>
+                                        </ul>
+                                        <p className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-400 mt-2 sm:mt-3">Doing so may interrupt the submission and cause data loss.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Progress Indicator */}
+                            <div className="w-full mt-2 sm:mt-4">
+                                <div className="h-1.5 sm:h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div className="h-full bg-[#C9A94D] rounded-full animate-pulse"></div>
+                                </div>
+                                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">Please wait patiently...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </Tabs>
     );
 };
