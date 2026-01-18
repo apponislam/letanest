@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 import { useGetMyProfileQuery } from "@/redux/features/users/usersApi";
+import { baseApi } from "@/redux/api/baseApi";
 
 interface PageHeaderProps {
     title?: string;
@@ -30,11 +31,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
     const handleLogout = async () => {
         const loadingToast = toast.loading("Logging out...");
         try {
-            await logout().unwrap(); // RTK Query mutation
-            dispatch(logOut()); // use your slice's action
+            await logout().unwrap();
+            dispatch(logOut());
+            dispatch(baseApi.util.resetApiState());
             toast.success("Logged out successfully!", { id: loadingToast });
-
-            router.push("/"); // optional redirect
+            router.push("/");
         } catch (err: any) {
             toast.error(err?.data?.message || "Logout failed", { id: loadingToast });
         }
@@ -45,10 +46,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title = "Dashboard", isUser = t
         const fromTerms = searchParams.get("fromTerms");
 
         if (returnTo === "register" || fromTerms === "true") {
-            // Navigate back to register with flag
             router.push("/auth/register?fromTerms=true");
         } else if (returnTo === "add-listing") {
-            // Navigate back to add listing with flag
             router.push("/dashboard/listing/add?fromTerms=true");
         } else {
             router.back();

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { useGetTotalUnreadCountQuery } from "@/redux/features/messages/messageApi";
+import { baseApi } from "@/redux/api/baseApi";
 
 const menuItems = [
     { name: "Home", href: "/" },
@@ -30,9 +31,6 @@ const Header = () => {
     useEffect(() => {
         const handleScroll = () => {
             const y = window.scrollY;
-            // console.log(y);
-
-            // Hysteresis: different thresholds for on/off
             if (y > 180 && !scrolled) {
                 setScrolled(true);
             } else if (y < 60 && scrolled) {
@@ -51,10 +49,10 @@ const Header = () => {
     const handleLogout = async () => {
         const loadingToast = toast.loading("Logging out...");
         try {
-            await logout().unwrap(); // RTK Query mutation
-            dispatch(logOut()); // use your slice's action
+            await logout().unwrap();
+            dispatch(logOut());
+            dispatch(baseApi.util.resetApiState());
             toast.success("Logged out successfully!", { id: loadingToast });
-
             router.push("/"); // optional redirect
         } catch (err: any) {
             toast.error(err?.data?.message || "Logout failed", { id: loadingToast });

@@ -176,7 +176,6 @@ const AddListingForm: React.FC = () => {
     const [completedSteps, setCompletedSteps] = useState<string[]>([]);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
-
     const [connectStripeAccount, { isLoading: isConnectingStripe }] = useConnectStripeAccountMutation();
     const { data: response, isLoading: stripeLoading } = useGetStripeAccountStatusQuery();
     const accountStatus = response?.data?.status;
