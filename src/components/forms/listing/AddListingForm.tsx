@@ -588,24 +588,24 @@ const AddListingForm: React.FC = () => {
                                 }}
                             >
                                 <SelectTrigger className="w-1/4 h-auto! rounded-r-lg rounded-l-none border border-[#C9A94D] bg-transparent p-3 focus:ring-2 focus:ring-[#C9A94D] focus:outline-none flex items-center justify-center">
-                                    <SelectValue placeholder="+ City" />
+                                    <SelectValue placeholder="Select Closest City" />
                                 </SelectTrigger>
                                 <SelectContent
-                                    className="bg-white backdrop-blur-sm dark:bg-gray-900 p-0 w-[var(--radix-select-trigger-width)]"
+                                    className="bg-[#14213D] backdrop-blur-sm dark:bg-gray-900 p-0 w-[var(--radix-select-trigger-width)]"
                                     position="popper"
                                     sideOffset={4}
                                     onCloseAutoFocus={(e) => e.preventDefault()}
                                     // Remove forceMount - it doesn't exist
                                 >
                                     {/* Search Section */}
-                                    <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 p-2 border-b">
+                                    <div className="sticky top-0 z-10 bg-[#14213D] dark:bg-gray-900 p-2 border-b">
                                         <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white" />
                                             <input
                                                 ref={searchInputRef}
                                                 type="text"
                                                 placeholder="Search cities..."
-                                                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-white dark:bg-gray-800"
+                                                className="w-full pl-9 pr-3 py-2 border border-[#C9A94D] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#C9A94D] bg-[#14213D] dark:bg-gray-800"
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                                 onClick={(e) => {
@@ -631,13 +631,13 @@ const AddListingForm: React.FC = () => {
                                         {locationLoading ? (
                                             <div className="p-4 text-center">Loading...</div>
                                         ) : filteredCities.length === 0 ? (
-                                            <div className="p-4 text-center text-gray-500">{searchTerm ? `No cities found for "${searchTerm}"` : "No cities available"}</div>
+                                            <div className="p-4 text-center text-white">{searchTerm ? `No cities found for "${searchTerm}"` : "No cities available"}</div>
                                         ) : (
                                             filteredCities.map((city: any) => (
                                                 <SelectItem
                                                     key={city._id}
                                                     value={city.name}
-                                                    className="cursor-pointer py-2"
+                                                    className="cursor-pointer py-2 text-white hover:bg-[#C9A94D] hover:text-white"
                                                     onMouseDown={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
