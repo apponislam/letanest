@@ -981,7 +981,7 @@ const PropertyManagement = () => {
 
                             <div className="flex items-start gap-2 text-[18px] font-bold">
                                 <Image src="/listing/mail.png" alt="Mail" height={24} width={24}></Image>
-                                <p className="break-words! overflow-wrap-anywhere!">{selectedHost.email}</p>
+                                <p className="overflow-wrap-anywhere!">{selectedHost.email}</p>
                             </div>
                             <div className="flex items-center gap-2 text-[18px] font-bold">
                                 <Image src="/listing/phone.png" alt="Phone" height={24} width={24}></Image>

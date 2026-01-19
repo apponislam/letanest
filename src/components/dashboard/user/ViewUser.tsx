@@ -559,8 +559,8 @@ function UserAction({ user }: { user: IUser }) {
                             <div className="text-[#C9A94D] font-medium">Name:</div>
                             <div className="text-white">{user.name}</div>
 
-                            <div className="text-[#C9A94D] font-medium break-words! overflow-wrap-anywhere!">Email:</div>
-                            <div className="text-white">{user.email}</div>
+                            <div className="text-[#C9A94D] font-medium">Email:</div>
+                            <div className="text-white break-words! overflow-wrap-anywhere!">{user.email}</div>
 
                             <div className="text-[#C9A94D] font-medium">Phone:</div>
                             <div className="text-white">{user.phone || "N/A"}</div>
