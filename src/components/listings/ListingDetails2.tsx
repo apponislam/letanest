@@ -388,7 +388,7 @@ export default function PropertyPage2() {
                         </div>
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">Description</h1>
-                            <p className="text-[#E8E9EC]">{property.description}</p>
+                            <p className="text-[#E8E9EC] white-space-pre-line">{property.description}</p>
                         </div>
                         <div className="pb-6 md:pb-12 mb-6 md:mb-12 border-b border-[#C9A94D]">
                             <h1 className="text-[32px] text-white mb-4 font-bold">What this place offers</h1>
