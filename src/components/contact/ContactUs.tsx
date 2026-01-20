@@ -30,8 +30,8 @@ const ContactUs = () => {
                                 <div>
                                     <h3 className="md:text-[18px] font-bold mb-6">Email Address</h3>
                                     <span className="relative block h-1 w-7 bg-[#C9A94D] mb-6" />
-                                    <a href="hello@letanest.com" className="md:text-[18px] hover:underline">
-                                        hello@letanest.com
+                                    <a href="support@letanest.com" className="md:text-[18px] hover:underline">
+                                        support@letanest.com
                                     </a>
                                     <p className="md:text-[18px]">
                                         Assistance hours: <br /> Monday - Friday 8am to 10pm
@@ -40,8 +40,8 @@ const ContactUs = () => {
                                 <div>
                                     <h3 className="md:text-[18px] font-bold mb-6">Number</h3>
                                     <span className="relative block h-1 w-7 bg-[#C9A94D] mb-6" />
-                                    <a href="tel:+01312033042" className="md:text-[18px] hover:underline">
-                                        0131 203 3042
+                                    <a href="tel:+01312033041" className="md:text-[18px] hover:underline">
+                                        0131 203 3041
                                     </a>
                                     <p className="md:text-[18px]">
                                         Assistance hours: <br /> Monday - Friday 9am to 6pm
