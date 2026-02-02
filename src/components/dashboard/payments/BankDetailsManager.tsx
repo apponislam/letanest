@@ -152,16 +152,16 @@ const BankDetailsManager = () => {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto animate-in fade-in-90 zoom-in-90">
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto animate-in fade-in-90 zoom-in-90 max-h-[90vh] flex flex-col">
+                        {/* Modal Header - Fixed */}
+                        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[#C9A94D]/10 rounded-lg">
                                     <CreditCard className="w-5 h-5 text-[#C9A94D]" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-[#14213D]">{hasBankDetails && !isEditMode ? "Bank Details" : isEditMode ? "Edit Bank Details" : "Add Bank Details"}</h2>
-                                    <p className="text-[#6B7280] text-sm">{hasBankDetails && !isEditMode ? "Manage your bank account" : "Add your bank account details"}</p>
+                                    <h2 className="text-lg sm:text-xl font-bold text-[#14213D]">{hasBankDetails && !isEditMode ? "Bank Details" : isEditMode ? "Edit Bank Details" : "Add Bank Details"}</h2>
+                                    <p className="text-[#6B7280] text-xs sm:text-sm">{hasBankDetails && !isEditMode ? "Manage your bank account" : "Add your bank account details"}</p>
                                 </div>
                             </div>
                             <button
@@ -175,8 +175,8 @@ const BankDetailsManager = () => {
                             </button>
                         </div>
 
-                        {/* Modal Content */}
-                        <div className="p-6">
+                        {/* Modal Content - Scrollable */}
+                        <div className="p-4 sm:p-6 overflow-y-auto flex-grow">
                             {hasBankDetails && !isEditMode ? (
                                 // View Mode
                                 <div className="space-y-4">
@@ -185,7 +185,7 @@ const BankDetailsManager = () => {
                                         <div className="flex items-center gap-3">
                                             <CheckCircle className="w-5 h-5 text-green-600" />
                                             <div>
-                                                <p className="font-semibold text-[#14213D]">Bank Details Added</p>
+                                                <p className="font-semibold text-[#14213D] text-sm sm:text-base">Bank Details Added</p>
                                                 <p className="text-sm text-[#6B7280]">Ready to receive payments</p>
                                             </div>
                                         </div>
@@ -197,7 +197,7 @@ const BankDetailsManager = () => {
                                             <User className="w-4 h-4 text-[#C9A94D]" />
                                             <div>
                                                 <p className="text-xs text-gray-500">Account Holder</p>
-                                                <p className="font-medium text-[#14213D]">{bankDetails.accountHolderName}</p>
+                                                <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.accountHolderName}</p>
                                             </div>
                                         </div>
 
@@ -205,7 +205,7 @@ const BankDetailsManager = () => {
                                             <CreditCard className="w-4 h-4 text-[#C9A94D]" />
                                             <div>
                                                 <p className="text-xs text-gray-500">Account Number</p>
-                                                <p className="font-medium text-[#14213D]">{bankDetails.accountNumber}</p>
+                                                <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.accountNumber}</p>
                                             </div>
                                         </div>
 
@@ -215,7 +215,7 @@ const BankDetailsManager = () => {
                                                 <Hash className="w-4 h-4 text-[#C9A94D]" />
                                                 <div>
                                                     <p className="text-xs text-gray-500">Sort Code</p>
-                                                    <p className="font-medium text-[#14213D]">{bankDetails.sortCode}</p>
+                                                    <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.sortCode}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -224,7 +224,7 @@ const BankDetailsManager = () => {
                                             <Building className="w-4 h-4 text-[#C9A94D]" />
                                             <div>
                                                 <p className="text-xs text-gray-500">Bank Name</p>
-                                                <p className="font-medium text-[#14213D]">{bankDetails.bankName}</p>
+                                                <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.bankName}</p>
                                             </div>
                                         </div>
 
@@ -232,7 +232,7 @@ const BankDetailsManager = () => {
                                             <Globe className="w-4 h-4 text-[#C9A94D]" />
                                             <div>
                                                 <p className="text-xs text-gray-500">Country</p>
-                                                <p className="font-medium text-[#14213D]">{bankDetails.country}</p>
+                                                <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.country}</p>
                                             </div>
                                         </div>
 
@@ -242,7 +242,7 @@ const BankDetailsManager = () => {
                                                 <GlobeIcon className="w-4 h-4 text-[#C9A94D]" />
                                                 <div>
                                                     <p className="text-xs text-gray-500">IBAN</p>
-                                                    <p className="font-medium text-[#14213D]">{bankDetails.iban}</p>
+                                                    <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.iban}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -253,22 +253,10 @@ const BankDetailsManager = () => {
                                                 <Key className="w-4 h-4 text-[#C9A94D]" />
                                                 <div>
                                                     <p className="text-xs text-gray-500">BIC/SWIFT Code</p>
-                                                    <p className="font-medium text-[#14213D]">{bankDetails.bicSwift}</p>
+                                                    <p className="font-medium text-[#14213D] text-sm sm:text-base">{bankDetails.bicSwift}</p>
                                                 </div>
                                             </div>
                                         )}
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="flex gap-3 pt-4">
-                                        <button onClick={handleEdit} className="flex-1 bg-[#C9A94D] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#b8973e] transition-colors flex items-center justify-center gap-2">
-                                            <Edit className="w-4 h-4" />
-                                            Edit
-                                        </button>
-                                        <button onClick={handleDelete} disabled={isDeleting} className="flex-1 bg-white border border-red-300 text-red-600 py-2 px-4 rounded-lg font-medium hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
-                                            {isDeleting ? <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                            {isDeleting ? "Deleting..." : "Delete"}
-                                        </button>
                                     </div>
                                 </div>
                             ) : (
@@ -279,7 +267,7 @@ const BankDetailsManager = () => {
                                         <input type="text" required value={formData.accountHolderName} onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="John Doe" />
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[#14213D] mb-1">Account Number *</label>
                                             <input type="text" required value={formData.accountNumber} onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="12345678" />
@@ -298,7 +286,7 @@ const BankDetailsManager = () => {
                                         <input type="text" required value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="Bank of America" />
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[#14213D] mb-1">Account Type *</label>
                                             <select required value={formData.accountType} onChange={(e) => setFormData({ ...formData, accountType: e.target.value as "personal" | "business" })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent">
@@ -325,25 +313,40 @@ const BankDetailsManager = () => {
                                         <input type="text" value={formData.bicSwift} onChange={(e) => setFormData({ ...formData, bicSwift: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C9A94D] focus:border-transparent" placeholder="NWBKGB2L" />
                                         <p className="text-xs text-gray-500 mt-1">For international transfers</p>
                                     </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="flex gap-3 pt-4">
-                                        <button type="submit" disabled={isLoading} className="flex-1 bg-[#C9A94D] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
-                                            {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
-                                            {isLoading ? "Saving..." : isEditMode ? "Update Details" : "Add Bank Details"}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setIsModalOpen(false);
-                                                resetForm();
-                                            }}
-                                            className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
                                 </form>
+                            )}
+                        </div>
+
+                        {/* Action Buttons - Fixed at bottom */}
+                        <div className="p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
+                            {hasBankDetails && !isEditMode ? (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button onClick={handleEdit} className="flex-1 bg-[#C9A94D] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#b8973e] transition-colors flex items-center justify-center gap-2">
+                                        <Edit className="w-4 h-4" />
+                                        Edit
+                                    </button>
+                                    <button onClick={handleDelete} disabled={isDeleting} className="flex-1 bg-white border border-red-300 text-red-600 py-2 px-4 rounded-lg font-medium hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+                                        {isDeleting ? <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                        {isDeleting ? "Deleting..." : "Delete"}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button type="submit" onClick={handleSubmit} disabled={isLoading} className="flex-1 bg-[#C9A94D] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#b8973e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+                                        {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
+                                        {isLoading ? "Saving..." : isEditMode ? "Update Details" : "Add Bank Details"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsModalOpen(false);
+                                            resetForm();
+                                        }}
+                                        className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
