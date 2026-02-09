@@ -255,7 +255,13 @@ function UserAction({ user }: { user: IUser }) {
             </button>
 
             {/* Main User Details Modal */}
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog
+                open={open}
+                onOpenChange={(isOpen) => {
+                    if (showPasswordModal) return;
+                    setOpen(isOpen);
+                }}
+            >
                 <DialogContent className="bg-[#2D3546] text-white border border-[#C9A94D] rounded-lg max-w-md p-0 userdetails">
                     <DialogHeader className="border-b border-[#C9A94D] p-4">
                         <DialogTitle className="text-[#C9A94D] text-lg font-semibold flex items-center justify-between">
