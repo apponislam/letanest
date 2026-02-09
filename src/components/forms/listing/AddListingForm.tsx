@@ -455,6 +455,7 @@ const AddListingForm: React.FC = () => {
             toast.success("Property created successfully!");
         } catch (err: any) {
             toast.error(err?.data?.message || "Failed to create property");
+            setShowSubmissionModal(false);
         }
     };
 
