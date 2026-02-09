@@ -131,14 +131,22 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
                     min="1"
                     max="20"
                     value={guestNumber}
-                    onChange={handleGuestNumberChange}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        // Just update the display value immediately
+                        setGuestNumber(parseInt(value) || 0);
+                    }}
                     onBlur={(e) => {
                         const value = parseInt(e.target.value);
-                        if (value < 1 || value > 20 || isNaN(value) || e.target.value === "") {
+                        // Validate on blur only
+                        if (isNaN(value) || value < 1) {
                             setGuestNumber(1);
-                            if (onGuestNumberChange) {
-                                onGuestNumberChange(1);
-                            }
+                            if (onGuestNumberChange) onGuestNumberChange(1);
+                        } else if (value > 20) {
+                            setGuestNumber(20);
+                            if (onGuestNumberChange) onGuestNumberChange(20);
+                        } else {
+                            if (onGuestNumberChange) onGuestNumberChange(value);
                         }
                     }}
                     placeholder="Enter number of guests (1-20)"
