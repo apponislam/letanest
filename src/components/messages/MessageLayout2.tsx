@@ -1626,7 +1626,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
 
                         {user?._id === message.propertyId?.createdBy?._id ? (
                             !message?.bookingFeePaid ? (
-                                <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.bookingFee}</p>
+                                <p className="text-center font-bold mb-2 text-[14px]">Awaiting on guest to pay</p>
                             ) : (
                                 <p className="text-center font-bold mb-2 text-[14px]">Guest To Pay - £{message?.agreedFee}</p>
                             )
