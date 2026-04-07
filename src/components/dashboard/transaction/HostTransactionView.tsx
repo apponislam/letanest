@@ -104,6 +104,8 @@ const HostTransectionView = () => {
         }
     };
 
+    console.log(payments);
+
     return (
         <div className="container mx-auto md:p-6">
             <div className="flex md:items-center justify-between mb-6 flex-col md:flex-row gap-3">
@@ -207,6 +209,14 @@ const HostTransectionView = () => {
                                             <div className="mt-2 text-xs">
                                                 <span className="text-gray-400">Payment ID: </span>
                                                 <span className="text-gray-300">{payment.stripePaymentIntentId}</span>
+                                            </div>
+                                            <div className="mt-2 text-xs">
+                                                <span className="text-gray-400">Email: </span>
+                                                <span className="text-gray-300">{payment.userId?.email || "N/A"}</span>
+                                            </div>
+                                            <div className="mt-2 text-xs">
+                                                <span className="text-gray-400">Number: </span>
+                                                <span className="text-gray-300">{payment.userId?.phone || "N/A"}</span>
                                             </div>
                                         </div>
                                         <div>
