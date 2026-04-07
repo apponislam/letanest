@@ -104,8 +104,6 @@ const HostTransectionView = () => {
         }
     };
 
-    console.log(payments);
-
     return (
         <div className="container mx-auto md:p-6">
             <div className="flex md:items-center justify-between mb-6 flex-col md:flex-row gap-3">
