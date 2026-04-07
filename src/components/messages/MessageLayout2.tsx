@@ -1553,6 +1553,10 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
     }
 
     if (message.type === "offer") {
+        console.log("Offer message:", message, otherParticipant);
+    }
+
+    if (message.type === "offer") {
         const formatDate = (dateString: string) => {
             if (!dateString) return "Not set";
             const date = new Date(dateString);
@@ -1622,6 +1626,44 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                                 <p className=" text-[12px] ">Guests:</p>
                                 <p className="text-[10px]  mb-2">{message.guestNo}</p>
                             </div>
+                        )}
+
+                        {message.bookingFeePaid && user?._id === message.propertyId?.createdBy?._id && user?._id !== message?.sender?._id && (
+                            <>
+                                <div className="flex justify-between">
+                                    <p className="text-[12px]">Name:</p>
+                                    <p className="text-[10px] mb-2">{message?.sender?.name || "Unknown User"}</p>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <p className="text-[12px]">Email:</p>
+                                    <p className="text-[10px] mb-2">{message?.sender?.email || "N/A"}</p>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <p className="text-[12px]">Phone:</p>
+                                    <p className="text-[10px] mb-2">{message?.sender?.phone || "N/A"}</p>
+                                </div>
+                            </>
+                        )}
+
+                        {message.bookingFeePaid && user?._id === message.propertyId?.createdBy?._id && user?._id === message?.sender?._id && (
+                            <>
+                                <div className="flex justify-between">
+                                    <p className="text-[12px]">Name:</p>
+                                    <p className="text-[10px] mb-2">{otherParticipant?.name || "Unknown User"}</p>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <p className="text-[12px]">Email:</p>
+                                    <p className="text-[10px] mb-2">{otherParticipant?.email || "N/A"}</p>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <p className="text-[12px]">Phone:</p>
+                                    <p className="text-[10px] mb-2">{otherParticipant?.phone || "N/A"}</p>
+                                </div>
+                            </>
                         )}
 
                         {user?._id === message.propertyId?.createdBy?._id ? (

@@ -1318,6 +1318,44 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
                         </div>
                     )}
 
+                    {message.bookingFeePaid && user?._id === message.propertyId?.createdBy?._id && user?._id !== message?.sender?._id && (
+                        <>
+                            <div className="flex justify-between">
+                                <p className="text-[12px]">Name:</p>
+                                <p className="text-[10px] mb-2">{message?.sender?.name || "Unknown User"}</p>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <p className="text-[12px]">Email:</p>
+                                <p className="text-[10px] mb-2">{message?.sender?.email || "N/A"}</p>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <p className="text-[12px]">Phone:</p>
+                                <p className="text-[10px] mb-2">{message?.sender?.phone || "N/A"}</p>
+                            </div>
+                        </>
+                    )}
+
+                    {message.bookingFeePaid && user?._id === message.propertyId?.createdBy?._id && user?._id === message?.sender?._id && (
+                        <>
+                            <div className="flex justify-between">
+                                <p className="text-[12px]">Name:</p>
+                                <p className="text-[10px] mb-2">{otherParticipant?.name || "Unknown User"}</p>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <p className="text-[12px]">Email:</p>
+                                <p className="text-[10px] mb-2">{otherParticipant?.email || "N/A"}</p>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <p className="text-[12px]">Phone:</p>
+                                <p className="text-[10px] mb-2">{otherParticipant?.phone || "N/A"}</p>
+                            </div>
+                        </>
+                    )}
+
                     {!message?.bookingFeePaid ? <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.bookingFee}</p> : <p className="text-center font-bold mb-2 text-[14px]">To Pay - £{message?.agreedFee}</p>}
 
                     {user?._id === message.propertyId?.createdBy?._id ? (
