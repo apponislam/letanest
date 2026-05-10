@@ -150,7 +150,7 @@ export default function PropertyPage2() {
         // Calculate agreedFee (total price)
         const calculateTotalPrice = () => {
             if (!selectedDates?.from || !selectedDates?.to) return 0;
-            const days = differenceInDays(selectedDates.to, selectedDates.from) + 1;
+            const days = differenceInDays(selectedDates.to, selectedDates.from);
             return days * property.price;
         };
 

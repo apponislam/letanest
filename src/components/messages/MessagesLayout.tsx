@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { DateRange } from "react-day-picker";
 import ReportModal from "./RepostHost";
@@ -261,7 +261,7 @@ export default function MessagesLayout2() {
                 checkInDate: date?.from,
                 checkOutDate: date?.to,
                 agreedFee: finalPrice,
-                nights: date?.from && date?.to ? Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24)) : null,
+                nights: date?.from && date?.to ? differenceInDays(date.to, date.from) : null,
                 offerType: manualPrice ? "manual" : "calculated",
             });
 
@@ -770,9 +770,7 @@ export default function MessagesLayout2() {
                                                                                             onSelect={(newDate) => {
                                                                                                 setDate(newDate);
                                                                                                 if (newDate?.from && newDate?.to) {
-                                                                                                    const checkoutDate = new Date(newDate.to);
-                                                                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
-                                                                                                    const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                                    const nights = differenceInDays(newDate.to, newDate.from);
                                                                                                     setCalculatedPrice(nights * propertyPrice);
                                                                                                 } else {
                                                                                                     setCalculatedPrice(0);
@@ -792,9 +790,7 @@ export default function MessagesLayout2() {
                                                                                     </div>
                                                                                     <div className="text-xs text-gray-600 mt-1">
                                                                                         {(() => {
-                                                                                            const checkoutDate = new Date(date.to);
-                                                                                            checkoutDate.setDate(checkoutDate.getDate() + 1);
-                                                                                            const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                            const nights = differenceInDays(date.to, date.from);
                                                                                             return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
                                                                                         })()}
                                                                                     </div>
@@ -943,9 +939,7 @@ export default function MessagesLayout2() {
                                                                                     onSelect={(newDate) => {
                                                                                         setDate(newDate);
                                                                                         if (newDate?.from && newDate?.to) {
-                                                                                            const checkoutDate = new Date(newDate.to);
-                                                                                            checkoutDate.setDate(checkoutDate.getDate() + 1);
-                                                                                            const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                            const nights = differenceInDays(newDate.to, newDate.from);
                                                                                             setCalculatedPrice(nights * propertyPrice);
                                                                                         } else {
                                                                                             setCalculatedPrice(0);
@@ -965,9 +959,7 @@ export default function MessagesLayout2() {
                                                                             </div>
                                                                             <div className="text-xs text-gray-600 mt-1">
                                                                                 {(() => {
-                                                                                    const checkoutDate = new Date(date.to);
-                                                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
-                                                                                    const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                                                    const nights = differenceInDays(date.to, date.from);
                                                                                     return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
                                                                                 })()}
                                                                             </div>
@@ -1762,10 +1754,7 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
             const checkIn = new Date(message.checkInDate);
             const checkOut = new Date(message.checkOutDate);
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
-            const adjustedCheckOut = new Date(checkOut);
-            adjustedCheckOut.setDate(adjustedCheckOut.getDate() + 1);
-            const timeDiff = adjustedCheckOut.getTime() - checkIn.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            const daysDiff = differenceInDays(checkOut, checkIn);
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };
 

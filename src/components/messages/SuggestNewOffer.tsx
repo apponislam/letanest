@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { PoundSterling, Calendar, Users } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 
 const SuggestNewOfferModal = ({ message, isOpen, onClose, onSend, isSending }: { message: any; isOpen: boolean; onClose: () => void; onSend: (data: any) => void; isSending: boolean }) => {
     const [newPrice, setNewPrice] = useState<number>(0);
@@ -24,7 +24,7 @@ const SuggestNewOfferModal = ({ message, isOpen, onClose, onSend, isSending }: {
 
     const originalCheckIn = new Date(message.checkInDate);
     const originalCheckOut = new Date(message.checkOutDate);
-    const nights = Math.ceil((originalCheckOut.getTime() - originalCheckIn.getTime()) / (1000 * 60 * 60 * 24));
+    const nights = differenceInDays(originalCheckOut, originalCheckIn);
     const priceDifference = newPrice - message.agreedFee;
     const priceChangePercent = ((priceDifference / message.agreedFee) * 100).toFixed(1);
 

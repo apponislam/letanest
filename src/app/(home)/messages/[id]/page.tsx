@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { useCreateRatingMutation, useGetUserRatingStatsQuery } from "@/redux/features/rating/ratingApi";
@@ -216,7 +216,7 @@ export default function MessageConversationPage() {
                 checkInDate: date?.from,
                 checkOutDate: date?.to,
                 agreedFee: finalPrice,
-                nights: date?.from && date?.to ? Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24)) : null,
+                nights: date?.from && date?.to ? differenceInDays(date.to, date.from) : null,
                 offerType: manualPrice ? "manual" : "calculated",
             });
 
@@ -282,9 +282,7 @@ export default function MessageConversationPage() {
         if (newDate?.from && newDate?.to && selectedProperty) {
             const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
             const propertyPrice = selectedPropertyData?.price || 0;
-            const checkoutDate = new Date(newDate.to);
-            checkoutDate.setDate(checkoutDate.getDate() + 1);
-            const nights = Math.ceil((checkoutDate.getTime() - newDate.from.getTime()) / (1000 * 60 * 60 * 24));
+            const nights = differenceInDays(newDate.to, newDate.from);
             setCalculatedPrice(nights * propertyPrice);
         } else {
             setCalculatedPrice(0);
@@ -488,7 +486,7 @@ export default function MessageConversationPage() {
                                                         <Button
                                                             size="sm"
                                                             className="bg-[#C9A94D] text-white hover:bg-[#C9A94D]/90"
-                                                            disabled={!tempDate?.from || !tempDate?.to}
+                                                            disabled={!tempDate?.from || !tempDate?.to || differenceInDays(tempDate.to, tempDate.from) < 1}
                                                             onClick={() => {
                                                                 if (tempDate?.from && tempDate?.to) {
                                                                     setDate(tempDate);
@@ -516,9 +514,7 @@ export default function MessageConversationPage() {
                                                 {(() => {
                                                     const selectedPropertyData = publishedProperties?.data?.find((p: any) => p._id === selectedProperty);
                                                     const propertyPrice = selectedPropertyData?.price || 0;
-                                                    const checkoutDate = new Date(date.to);
-                                                    checkoutDate.setDate(checkoutDate.getDate() + 1);
-                                                    const nights = Math.ceil((checkoutDate.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
+                                                    const nights = differenceInDays(date.to, date.from);
                                                     return `${nights} night${nights > 1 ? "s" : ""} × £${propertyPrice}/night`;
                                                 })()}
                                             </div>
@@ -713,9 +709,7 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
         if (!checkInDate || !checkOutDate) return 0;
         const checkIn = new Date(checkInDate);
         const checkOut = new Date(checkOutDate);
-        const timeDiff = checkOut.getTime() - checkIn.getTime();
-        const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-        return nights;
+        return differenceInDays(checkOut, checkIn);
     };
 
     const nights = getNumberOfNights();
@@ -734,9 +728,7 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
             return 0;
         }
 
-        const timeDiff = checkOut.getTime() - checkIn.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-
+        const daysDiff = differenceInDays(checkOut, checkIn);
         const propertyPrice = message.propertyId?.price || 100;
 
         const totalPrice = daysDiff * propertyPrice;
@@ -756,10 +748,7 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
             setIsCalendarOpen(false);
 
             // CORRECT PRICE CALCULATION
-            const checkIn = new Date(tempDate.from);
-            const checkOut = new Date(tempDate.to);
-            const timeDiff = checkOut.getTime() - checkIn.getTime();
-            const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+            const nights = differenceInDays(tempDate.to, tempDate.from);
             const totalPrice = nights * propertyPrice;
             setAgreedFee(totalPrice);
         }
@@ -1207,7 +1196,7 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
                                         <Button variant="outline" size="sm" onClick={() => setIsCalendarOpen(false)}>
                                             Cancel
                                         </Button>
-                                        <Button size="sm" onClick={handleConfirmDates} disabled={!tempDate?.from || !tempDate?.to}>
+                                        <Button size="sm" onClick={handleConfirmDates} disabled={!tempDate?.from || !tempDate?.to || differenceInDays(tempDate.to, tempDate.from) < 1}>
                                             Confirm
                                         </Button>
                                     </div>
@@ -1264,8 +1253,7 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
 
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
 
-            const timeDiff = checkOut.getTime() - checkIn.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            const daysDiff = differenceInDays(checkOut, checkIn);
 
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };
@@ -1446,8 +1434,7 @@ const MessageBubble = ({ message, currentUserId, conversationId, otherParticipan
 
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) return "0 Nights";
 
-            const timeDiff = checkOut.getTime() - checkIn.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            const daysDiff = differenceInDays(checkOut, checkIn);
 
             return `( ${daysDiff} Night${daysDiff !== 1 ? "s" : ""} )`;
         };

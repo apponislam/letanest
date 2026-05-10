@@ -59,13 +59,13 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
 
     const calculateTotalPrice = () => {
         if (!selectedDate?.from || !selectedDate?.to) return 0;
-        const nights = differenceInDays(selectedDate.to, selectedDate.from) + 1;
+        const nights = differenceInDays(selectedDate.to, selectedDate.from);
         return nights * property.price;
     };
 
     const getNumberOfNights = () => {
         if (!selectedDate?.from || !selectedDate?.to) return 0;
-        return differenceInDays(selectedDate.to, selectedDate.from) + 1;
+        return differenceInDays(selectedDate.to, selectedDate.from);
     };
 
     const formatDateRange = (date: DateRange | undefined) => {
@@ -103,7 +103,7 @@ const DateSelectionWithPrice = ({ property, onDateSelect, onGuestNumberChange }:
                                 <X className="h-4 w-4 mr-1" />
                                 Cancel
                             </Button>
-                            <Button size="sm" onClick={handleConfirmDates} disabled={!tempDate?.from || !tempDate?.to}>
+                            <Button size="sm" onClick={handleConfirmDates} disabled={!tempDate?.from || !tempDate?.to || differenceInDays(tempDate.to, tempDate.from) < 1}>
                                 <Check className="h-4 w-4 mr-1" />
                                 Confirm
                             </Button>
