@@ -1588,12 +1588,12 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
                         <p className="text-[12px] text-[#16223D] mb-2 text-center">Property ID - {message?.propertyId?.propertyNumber}</p>
                         <p className="text-center font-bold mb-1 text-[14px]">Host Agreed Fee - £{message?.agreedFee}</p>
 
-                        {!message?.bookingFeePaid && (
+                        {/* {!message?.bookingFeePaid && (
                             <p className="text-center font-bold mb-2 text-[14px]">
-                                {/* Booking Fee - £{message?.bookingFee} ({((message?.bookingFee / message?.agreedFee) * 100).toFixed(0)}%) */}
                                 Booking Fee - £{message?.bookingFee}
                             </p>
-                        )}
+                        )} */}
+                        {!message?.bookingFeePaid && user?._id !== message?.propertyId?.createdBy?._id && <p className="text-center font-bold mb-2 text-[14px]">Booking Fee - £{message?.bookingFee}</p>}
 
                         <div className="flex justify-between">
                             <p className="text-center text-[12px]">Requested Dates:</p>
