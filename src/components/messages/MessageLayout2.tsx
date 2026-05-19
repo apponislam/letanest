@@ -1542,10 +1542,6 @@ const MessageBubble = ({ message, currentUserId, focusMessageInput, otherPartici
     }
 
     if (message.type === "offer") {
-        console.log("Offer message:", message, otherParticipant);
-    }
-
-    if (message.type === "offer") {
         const formatDate = (dateString: string) => {
             if (!dateString) return "Not set";
             const date = new Date(dateString);
