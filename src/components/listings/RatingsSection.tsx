@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Grid } from "swiper/modules";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -91,7 +92,8 @@ export default function RatingsSection({ propertyRatingsLoading, propertyRatings
                             // Type guard to check if userId is an object
                             const isUserObject = typeof r.userId === "object" && r.userId !== null;
                             const userName = isUserObject ? (r.userId as IUser).name : "Unknown User";
-                            const userProfileImg = isUserObject ? (r.userId as IUser).profileImg : undefined;
+                            const rawProfileImg = isUserObject ? (r.userId as IUser).profileImg : undefined;
+                            const userProfileImg = rawProfileImg ? (rawProfileImg.startsWith("http") ? rawProfileImg : `${process.env.NEXT_PUBLIC_BASE_API}${rawProfileImg}`) : undefined;
                             const userInitial = isUserObject ? (r.userId as IUser).name?.[0] : "U";
 
                             return (
@@ -99,7 +101,7 @@ export default function RatingsSection({ propertyRatingsLoading, propertyRatings
                                     <div className="gap-2 h-full p-4 rounded-lg border border-[#C9A94D] transition-colors">
                                         {/* Profile image or avatar */}
                                         <div className="flex items-start gap-4">
-                                            {userProfileImg ? <img src={userProfileImg} alt={userName} className="h-12 w-12 rounded-full object-cover flex-shrink-0" /> : <div className="h-12 w-12 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold flex-shrink-0">{userInitial}</div>}
+                                            {userProfileImg ? <Image src={userProfileImg} alt={userName} width={48} height={48} className="h-12 w-12 rounded-full object-cover flex-shrink-0" /> : <div className="h-12 w-12 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold flex-shrink-0">{userInitial}</div>}
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-white font-semibold truncate">{userName}</p>
                                                 <div className="flex items-center gap-2 mb-1">

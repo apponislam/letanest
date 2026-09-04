@@ -21,12 +21,10 @@ const StripeAccountManager = () => {
     const handleConnectAccount = async () => {
         try {
             const result = await connectStripe().unwrap();
-            // console.log(result);
             if (result.data?.onboardingUrl) {
                 window.open(result.data.onboardingUrl, "_blank");
                 toast.success("Redirected to Stripe onboarding");
             }
-            // Status will update automatically via the query
         } catch (error: any) {
             toast.error(error?.data?.message || "Failed to connect Stripe account");
         }
